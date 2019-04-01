@@ -21,6 +21,7 @@ public class PdfDocument {
     private Page currentPage;
 
     private TextWriter textWriter;
+    private ShapeDrawer shapeDrawer;
 
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
@@ -31,10 +32,12 @@ public class PdfDocument {
         this.context = context;
     }
 
+    @NonNull
     public DocumentInfo getDocumentInfo() {
         return documentInfo;
     }
 
+    @NonNull
     public TextWriter getTextWriter() {
 
         if(textWriter == null) {
@@ -44,10 +47,32 @@ public class PdfDocument {
         return textWriter;
     }
 
+    @NonNull
+    public ShapeDrawer getShapeDrawer() {
+
+        if(shapeDrawer == null) {
+            shapeDrawer = new ShapeDrawer(this);
+        }
+
+        return shapeDrawer;
+    }
+
+    public int pageHeight() {
+        return getUsablePageHeight();
+    }
+
+    public int pageWidth() {
+        return getUsablePageWidth();
+    }
+
     public void finish() throws IOException {
         pdfDocument.finishPage(currentPage);
         pdfDocument.writeTo(new FileOutputStream(document));
         pdfDocument.close();
+
+        if(textWriter != null) {
+            textWriter.clean();
+        }
     }
 
     /*

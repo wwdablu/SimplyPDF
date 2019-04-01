@@ -24,17 +24,22 @@ public class TextWriter {
     }
 
     public void write(@NonNull String text, int textSize) {
-        write(text, Color.BLACK, textSize, null);
+        write(text, Color.BLACK, textSize, null, Layout.Alignment.ALIGN_NORMAL);
     }
 
-    public void write(@NonNull String text, int textColor, int textSize, @Nullable Typeface typeface) {
+    public void write(@NonNull String text, int textColor, int textSize) {
+        write(text, textColor, textSize, null, Layout.Alignment.ALIGN_NORMAL);
+    }
+
+    public void write(@NonNull String text, int textColor, int textSize, @Nullable Typeface typeface,
+                      @NonNull Layout.Alignment alignment) {
 
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);
         textPaint.setTypeface(typeface);
 
         StaticLayout staticLayout = new StaticLayout(text, textPaint, pdfDocument.getUsablePageWidth(),
-            Layout.Alignment.ALIGN_NORMAL, 1F, 0F, false);
+            alignment, 1F, 0F, false);
 
         if(pdfDocument.getUsablePageHeight() < (pdfDocument.getPageContentHeight() + TEXT_LINE_SPACING
                 + staticLayout.getHeight())) {
@@ -51,5 +56,10 @@ public class TextWriter {
         pdfDocument.addPageContentHeight(staticLayout.getHeight() + textLineSpacing);
         staticLayout.draw(canvas);
         canvas.restore();
+    }
+
+    void clean() {
+        pdfDocument = null;
+        textPaint = null;
     }
 }

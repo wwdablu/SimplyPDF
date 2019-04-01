@@ -1,12 +1,11 @@
 package com.wwdablu.soumya.simplypdf;
 
 import android.content.Context;
+import android.graphics.pdf.PdfDocument.Page;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
-import android.graphics.pdf.PdfDocument.Page;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -32,10 +31,6 @@ public class PdfDocument {
         this.context = context;
     }
 
-    public File getDocument() {
-        return document;
-    }
-
     public DocumentInfo getDocumentInfo() {
         return documentInfo;
     }
@@ -50,6 +45,7 @@ public class PdfDocument {
     }
 
     public void finish() throws IOException {
+        pdfDocument.finishPage(currentPage);
         pdfDocument.writeTo(new FileOutputStream(document));
         pdfDocument.close();
     }
@@ -71,14 +67,27 @@ public class PdfDocument {
 
         pdfDocument = new PrintedPdfDocument(context, printAttributes);
         currentPage = pdfDocument.startPage(getCurrentPageNumber());
+        pageContentHeight = getTopMargin();
     }
 
-    PrintedPdfDocument getPdfDocument() {
-        return pdfDocument;
+    int getLeftMargin() {
+        return printAttributes.getMinMargins() == null ? 0 :
+            printAttributes.getMinMargins().getLeftMils();
     }
 
-    PrintAttributes getPrintAttributes() {
-        return printAttributes;
+    int getTopMargin() {
+        return printAttributes.getMinMargins() == null ? 0 :
+            printAttributes.getMinMargins().getTopMils();
+    }
+
+    int getRightMargin() {
+        return printAttributes.getMinMargins() == null ? 0 :
+            printAttributes.getMinMargins().getRightMils();
+    }
+
+    int getBottomMargin() {
+        return printAttributes.getMinMargins() == null ? 0 :
+            printAttributes.getMinMargins().getBottomMils();
     }
 
     int getCurrentPageNumber() {
@@ -90,8 +99,10 @@ public class PdfDocument {
     }
 
     Page newPage() {
-        currentPage = pdfDocument.startPage(++this.currentPageNumber);
-        pageContentHeight = 0;
+        pdfDocument.finishPage(currentPage);
+        ++this.currentPageNumber;
+        currentPage = pdfDocument.startPage(currentPageNumber);
+        pageContentHeight = getTopMargin();
         addPageContentHeight(printAttributes.getMinMargins() == null ? 0 :
             printAttributes.getMinMargins().getTopMils());
         return currentPage;
@@ -105,10 +116,12 @@ public class PdfDocument {
         this.pageContentHeight += pageContentHeight;
     }
 
-    int getPageHeight() {
+    int getUsablePageHeight() {
         return pdfDocument == null ? 0 : (pdfDocument.getPageContentRect().height() -
-            (printAttributes.getMinMargins() == null ? 0  :
-                (printAttributes.getMinMargins().getTopMils() +
-                    printAttributes.getMinMargins().getBottomMils())));
+            (getTopMargin() + getBottomMargin()));
+    }
+
+    int getUsablePageWidth() {
+        return pdfDocument.getPageWidth() - (getLeftMargin() + getRightMargin());
     }
 }

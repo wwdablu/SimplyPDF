@@ -35,6 +35,7 @@ public final class SimplyPdf {
     }
 
     public PdfDocument build() {
+        document.build();
         return document;
     }
 }

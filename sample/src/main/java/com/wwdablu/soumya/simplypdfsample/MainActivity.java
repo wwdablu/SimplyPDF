@@ -8,7 +8,7 @@ import android.os.Environment;
 import android.print.PrintAttributes;
 
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
-import com.wwdablu.soumya.simplypdf.PdfDocument;
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 import com.wwdablu.soumya.simplypdf.ShapeDrawer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
 import com.wwdablu.soumya.simplypdf.TextWriter;
@@ -26,21 +26,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        PdfDocument pdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
+        SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
                 .margin(DocumentInfo.Margins.DEFAULT)
                 .build();
 
-        textWriter = pdfDocument.getTextWriter();
-        shapeDrawer = pdfDocument.getShapeDrawer();
+        textWriter = simplyPdfDocument.getTextWriter();
+        shapeDrawer = simplyPdfDocument.getShapeDrawer();
 
         //testVariableFontSizeText();
         //testColoredText();
         testShapes();
 
         try {
-            pdfDocument.finish();
+            simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,7 +48,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void testShapes() {
 
+        shapeDrawer.setSpacing(25);
+
         shapeDrawer.drawCircle(100, Color.RED, 1, true, ShapeDrawer.Alignment.LEFT);
+        shapeDrawer.drawCircle(100, Color.BLUE, 5, false, ShapeDrawer.Alignment.LEFT);
+        shapeDrawer.drawBox(200, 200, Color.YELLOW, 5, true, ShapeDrawer.Alignment.LEFT);
+        shapeDrawer.drawBox(200, 200, Color.BLACK, 5, false, ShapeDrawer.Alignment.LEFT);
     }
 
     private void testColoredText() {

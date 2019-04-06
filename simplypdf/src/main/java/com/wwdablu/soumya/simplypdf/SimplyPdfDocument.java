@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import androidx.annotation.NonNull;
 
-public class PdfDocument {
+public class SimplyPdfDocument {
 
     private File document;
     private Context context;
@@ -26,17 +26,25 @@ public class PdfDocument {
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
 
-    PdfDocument(@NonNull Context context, @NonNull File document) {
+    SimplyPdfDocument(@NonNull Context context, @NonNull File document) {
         documentInfo = new DocumentInfo();
         this.document = document;
         this.context = context;
     }
 
+    /**
+     * Returns document information relating to the current pdf document.
+     * @return Document information
+     */
     @NonNull
     public DocumentInfo getDocumentInfo() {
         return documentInfo;
     }
 
+    /**
+     * Returns a helper to write texts
+     * @return Text writer
+     */
     @NonNull
     public TextWriter getTextWriter() {
 
@@ -47,6 +55,10 @@ public class PdfDocument {
         return textWriter;
     }
 
+    /**
+     * Returns a shape drawing helper.
+     * @return Shape drawer
+     */
     @NonNull
     public ShapeDrawer getShapeDrawer() {
 
@@ -115,37 +127,68 @@ public class PdfDocument {
             printAttributes.getMinMargins().getBottomMils();
     }
 
+    /**
+     * Returns the current page number on which content is being drawn.
+     * @return Current page number
+     */
     int getCurrentPageNumber() {
         return currentPageNumber;
     }
 
+    /**
+     * Returns the current page being used
+     * @return
+     */
     Page getCurrentPage() {
         return currentPage;
     }
 
+    /**
+     * Creates a new page in the PDF document and resets the internal markers on the document.
+     * @return The new page on which content will be drawn
+     */
     Page newPage() {
         pdfDocument.finishPage(currentPage);
         ++this.currentPageNumber;
         currentPage = pdfDocument.startPage(currentPageNumber);
         pageContentHeight = getTopMargin();
-        addPageContentHeight(printAttributes.getMinMargins() == null ? 0 :
+        addContentHeight(printAttributes.getMinMargins() == null ? 0 :
             printAttributes.getMinMargins().getTopMils());
         return currentPage;
     }
 
+    /**
+     * Returns the height of the content written in the current page.
+     * @return Height of content for the current page
+     */
     int getPageContentHeight() {
         return pageContentHeight;
     }
 
-    void addPageContentHeight(int pageContentHeight) {
+    /**
+     * Adds the height of the content drawn currently to the total height of content already
+     * present in the current page.
+     * @param pageContentHeight Page Content Height
+     */
+    void addContentHeight(int pageContentHeight) {
         this.pageContentHeight += pageContentHeight;
     }
 
+    /**
+     * Returns the height of the page on which content can be displayed. It taken into account the
+     * margins on the page.
+     * @return Usable height of the page
+     */
     int getUsablePageHeight() {
         return pdfDocument == null ? 0 : (pdfDocument.getPageContentRect().height() -
             (getTopMargin() + getBottomMargin()));
     }
 
+    /**
+     * Returns the width of the page on which content can be displayed. It taken into account the
+     * margins on the page.
+     * @return Usable width of the page
+     */
     int getUsablePageWidth() {
         return pdfDocument.getPageWidth() - (getLeftMargin() + getRightMargin());
     }

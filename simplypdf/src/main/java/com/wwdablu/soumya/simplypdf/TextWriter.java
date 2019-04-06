@@ -11,15 +11,12 @@ import android.text.TextPaint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class TextWriter {
-
-    private static final int TEXT_LINE_SPACING = 10;
+public class TextWriter extends Composer {
 
     private TextPaint textPaint;
-    private PdfDocument pdfDocument;
 
-    TextWriter(@NonNull PdfDocument pdfDocument) {
-        this.pdfDocument = pdfDocument;
+    TextWriter(@NonNull SimplyPdfDocument simplyPdfDocument) {
+        this.simplyPdfDocument = simplyPdfDocument;
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
     }
 
@@ -38,28 +35,27 @@ public class TextWriter {
         textPaint.setTextSize(textSize);
         textPaint.setTypeface(typeface);
 
-        StaticLayout staticLayout = new StaticLayout(text, textPaint, pdfDocument.getUsablePageWidth(),
+        StaticLayout staticLayout = new StaticLayout(text, textPaint, simplyPdfDocument.getUsablePageWidth(),
             alignment, 1F, 0F, false);
 
-        if(pdfDocument.getUsablePageHeight() < (pdfDocument.getPageContentHeight() + TEXT_LINE_SPACING
-                + staticLayout.getHeight())) {
-            pdfDocument.newPage();
+        if(!canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
+            simplyPdfDocument.newPage();
         }
 
-        Canvas canvas = pdfDocument.getCurrentPage().getCanvas();
+        Canvas canvas = getPageCanvas();
         canvas.save();
 
-        final int textLineSpacing = (pdfDocument.getPageContentHeight() ==
-            pdfDocument.getTopMargin() ? 0 : TEXT_LINE_SPACING);
+        final int textLineSpacing = (simplyPdfDocument.getPageContentHeight() ==
+            simplyPdfDocument.getTopMargin() ? 0 : DEFAULT_SPACING);
 
-        canvas.translate(pdfDocument.getLeftMargin(), pdfDocument.getPageContentHeight() + textLineSpacing);
-        pdfDocument.addPageContentHeight(staticLayout.getHeight() + textLineSpacing);
+        canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+        simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
         staticLayout.draw(canvas);
         canvas.restore();
     }
 
     void clean() {
-        pdfDocument = null;
+        simplyPdfDocument = null;
         textPaint = null;
     }
 }

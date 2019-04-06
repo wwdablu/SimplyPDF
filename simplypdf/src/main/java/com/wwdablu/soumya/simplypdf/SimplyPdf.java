@@ -9,10 +9,10 @@ import androidx.annotation.NonNull;
 
 public final class SimplyPdf {
 
-    private PdfDocument document;
+    private SimplyPdfDocument document;
 
     private SimplyPdf(@NonNull Context context, @NonNull File outputPdf) {
-        document = new PdfDocument(context, outputPdf);
+        document = new SimplyPdfDocument(context, outputPdf);
     }
 
     public static SimplyPdf with(@NonNull Context context, @NonNull File outputPdf) {
@@ -34,7 +34,7 @@ public final class SimplyPdf {
         return this;
     }
 
-    public PdfDocument build() {
+    public SimplyPdfDocument build() {
         document.build();
         return document;
     }

@@ -3,10 +3,11 @@ package com.wwdablu.soumya.simplypdf;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
-public class ShapeDrawer {
+public class ShapeDrawer extends Composer {
 
     public enum Alignment {
         LEFT,
@@ -14,12 +15,11 @@ public class ShapeDrawer {
         RIGHT
     }
 
-    private PdfDocument pdfDocument;
     private Paint painter;
     private Path shapePath;
 
-    ShapeDrawer(@NonNull PdfDocument pdfDocument) {
-        this.pdfDocument = pdfDocument;
+    ShapeDrawer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+        this.simplyPdfDocument = simplyPdfDocument;
         painter = new Paint(Paint.ANTI_ALIAS_FLAG);
         shapePath = new Path();
     }
@@ -27,12 +27,7 @@ public class ShapeDrawer {
     public void drawBox(int width, int height, int lineColor, float lineWidth, boolean fill, Alignment alignment) {
 
         shapePath.reset();
-        shapePath.moveTo(0, 0);
-        shapePath.lineTo(0, width);
-        shapePath.lineTo(width, height);
-        shapePath.lineTo(0, height);
-        shapePath.lineTo(0, 0);
-        shapePath.close();
+        shapePath.addRect(new RectF(0, 0, width, height), Path.Direction.CW);
         freeform(shapePath, lineColor, lineWidth, fill, alignment);
     }
 
@@ -40,7 +35,6 @@ public class ShapeDrawer {
 
         shapePath.reset();
         shapePath.addCircle(radius, radius, radius, Path.Direction.CW);
-        shapePath.close();
         freeform(shapePath, lineColor, lineWidth, fill, alignment);
     }
 
@@ -50,9 +44,22 @@ public class ShapeDrawer {
         painter.setStyle(fill ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
         painter.setStrokeWidth(lineWidth);
 
-        Canvas canvas = pdfDocument.getCurrentPage().getCanvas();
+        RectF bounds = new RectF();
+        path.computeBounds(bounds, true);
+
+        if(!canFitContentInPage((int) bounds.height() + DEFAULT_SPACING)) {
+            simplyPdfDocument.newPage();
+        }
+
+        Canvas canvas = getPageCanvas();
         canvas.save();
+
+        final int shapeSpacing = (simplyPdfDocument.getPageContentHeight() ==
+                simplyPdfDocument.getTopMargin() ? 0 : DEFAULT_SPACING);
+
+        canvas.translate(simplyPdfDocument.getLeftMargin(), shapeSpacing + simplyPdfDocument.getPageContentHeight());
         canvas.drawPath(path, painter);
+        simplyPdfDocument.addContentHeight((int) bounds.height() + shapeSpacing);
         canvas.restore();
     }
 }

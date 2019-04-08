@@ -34,6 +34,11 @@ public final class SimplyPdf {
         return this;
     }
 
+    public SimplyPdf paperOrientation(DocumentInfo.Orientation orientation) {
+        document.getDocumentInfo().setOrientation(orientation);
+        return this;
+    }
+
     public SimplyPdfDocument build() {
         document.build();
         return document;

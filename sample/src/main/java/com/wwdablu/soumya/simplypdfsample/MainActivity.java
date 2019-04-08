@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
                 .margin(DocumentInfo.Margins.DEFAULT)
+                .paperOrientation(DocumentInfo.Orientation.LANDSCAPE)
                 .build();
 
         textComposer = simplyPdfDocument.getTextComposer();

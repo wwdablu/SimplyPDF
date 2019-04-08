@@ -15,16 +15,22 @@ public final class DocumentInfo {
         DEFAULT
     }
 
+    public enum Orientation {
+        PORTRAIT,
+        LANDSCAPE
+    }
+
     private PrintAttributes.MediaSize paperSize = PrintAttributes.MediaSize.ISO_A4;
     private ColorMode colorMode = ColorMode.COLOR;
-    private Margins   margins   = Margins.DEFAULT;
+    private Margins margins = Margins.DEFAULT;
+    private Orientation orientation = Orientation.PORTRAIT;
 
     DocumentInfo() {
         //
     }
 
     public PrintAttributes.MediaSize getPaperSize() {
-        return paperSize;
+        return orientation == Orientation.PORTRAIT ? paperSize : paperSize.asLandscape();
     }
 
     void setPaperSize(PrintAttributes.MediaSize paperSize) {
@@ -45,6 +51,14 @@ public final class DocumentInfo {
 
     void setMargins(Margins margins) {
         this.margins = margins;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 
     /*

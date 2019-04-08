@@ -1,43 +1,46 @@
 package com.wwdablu.soumya.simplypdfsample;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.print.PrintAttributes;
 
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
-import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
-import com.wwdablu.soumya.simplypdf.ShapeDrawer;
+import com.wwdablu.soumya.simplypdf.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
-import com.wwdablu.soumya.simplypdf.TextWriter;
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+import com.wwdablu.soumya.simplypdf.TextComposer;
 
 import java.io.File;
 import java.io.IOException;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextWriter textWriter;
-    private ShapeDrawer shapeDrawer;
+    private TextComposer textComposer;
+    private ShapeComposer shapeComposer;
+    private SimplyPdfDocument simplyPdfDocument;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
+        simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
                 .margin(DocumentInfo.Margins.DEFAULT)
                 .build();
 
-        textWriter = simplyPdfDocument.getTextWriter();
-        shapeDrawer = simplyPdfDocument.getShapeDrawer();
+        textComposer = simplyPdfDocument.getTextComposer();
+        shapeComposer = simplyPdfDocument.getShapeComposer();
 
         //testVariableFontSizeText();
-        //testColoredText();
-        testShapes();
+        testHeaderTypeText();
+        testColoredText();
+        //testShapes();
 
         try {
             simplyPdfDocument.finish();
@@ -46,30 +49,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void testHeaderTypeText() {
+
+        TextComposer.Properties textProperties = new TextComposer.Properties();
+        textProperties.setTextSize(16);
+        textComposer.write("This is the header text", textProperties);
+
+        shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, Color.GRAY, 1, true, ShapeComposer.Alignment.LEFT);
+        simplyPdfDocument.insertEmptyLine();
+    }
+
     private void testShapes() {
 
-        shapeDrawer.setSpacing(25);
+        shapeComposer.setSpacing(25);
 
-        shapeDrawer.drawCircle(100, Color.RED, 1, true, ShapeDrawer.Alignment.LEFT);
-        shapeDrawer.drawCircle(100, Color.BLUE, 5, false, ShapeDrawer.Alignment.LEFT);
-        shapeDrawer.drawBox(200, 200, Color.YELLOW, 5, true, ShapeDrawer.Alignment.LEFT);
-        shapeDrawer.drawBox(200, 200, Color.BLACK, 5, false, ShapeDrawer.Alignment.LEFT);
+        shapeComposer.drawCircle(100, Color.RED, 1, true, ShapeComposer.Alignment.LEFT);
+        shapeComposer.drawCircle(100, Color.BLUE, 5, false, ShapeComposer.Alignment.LEFT);
+        shapeComposer.drawBox(200, 200, Color.YELLOW, 5, true, ShapeComposer.Alignment.LEFT);
+        shapeComposer.drawBox(200, 200, Color.BLACK, 5, false, ShapeComposer.Alignment.LEFT);
     }
 
     private void testColoredText() {
 
-        textWriter.write("Black", Color.BLACK, 16);
-        textWriter.write("Red", Color.RED, 16);
-        textWriter.write("Green", Color.GREEN, 16);
-        textWriter.write("Blue", Color.BLUE, 16);
-        textWriter.write("Magenta", Color.MAGENTA, 16);
-        textWriter.write("Custom", Color.parseColor("#C8CFEE"), 16);
+        TextComposer.Properties properties = new TextComposer.Properties();
+        properties.setTextSize(16);
+
+        Typeface typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
+        properties.setTypeface(typeface);
+        textComposer.write("Demonstrate the usage of TextComposer.", properties);
+
+        properties.setTypeface(null);
+        properties.setBullet(true);
+        properties.setBulletSymbol("•");
+        textComposer.write("Black", properties);
+
+        properties.setTextColor(Color.RED);
+        textComposer.write("Red", properties);
+
+        properties.setTextColor(Color.parseColor("#ABCDEF"));
+        textComposer.write("Custom", properties);
+
+        properties.setTextColor(Color.BLACK);
+        textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
+                "This is a very long and interesting string.", properties);
+        textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
+                "This is a very long and interesting string.", properties);
     }
 
     private void testVariableFontSizeText() {
 
+        TextComposer.Properties properties = new TextComposer.Properties();
         for(int i = 1; i <= 10; i++) {
-            textWriter.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", i * 4);
+            properties.setTextSize(i * 4);
+            textComposer.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", properties);
         }
     }
 }

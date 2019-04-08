@@ -11,6 +11,10 @@ import java.io.IOException;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Allows the developer to modify the PDF document. An instance of this can be obtained by using
+ * the {@link SimplyPdf} class.
+ */
 public class SimplyPdfDocument {
 
     private File document;
@@ -20,8 +24,9 @@ public class SimplyPdfDocument {
     private PrintAttributes printAttributes;
     private Page currentPage;
 
-    private TextWriter textWriter;
-    private ShapeDrawer shapeDrawer;
+    private TextComposer textComposer;
+    private ShapeComposer shapeComposer;
+    private ImageComposer imageComposer;
 
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
@@ -46,13 +51,13 @@ public class SimplyPdfDocument {
      * @return Text writer
      */
     @NonNull
-    public TextWriter getTextWriter() {
+    public TextComposer getTextComposer() {
 
-        if(textWriter == null) {
-            textWriter = new TextWriter(this);
+        if(textComposer == null) {
+            textComposer = new TextComposer(this);
         }
 
-        return textWriter;
+        return textComposer;
     }
 
     /**
@@ -60,13 +65,31 @@ public class SimplyPdfDocument {
      * @return Shape drawer
      */
     @NonNull
-    public ShapeDrawer getShapeDrawer() {
+    public ShapeComposer getShapeComposer() {
 
-        if(shapeDrawer == null) {
-            shapeDrawer = new ShapeDrawer(this);
+        if(shapeComposer == null) {
+            shapeComposer = new ShapeComposer(this);
         }
 
-        return shapeDrawer;
+        return shapeComposer;
+    }
+
+    /**
+     * Returns an image drawing helper.
+     * @return Image renderer
+     */
+    @NonNull
+    public ImageComposer getImageComposer() {
+
+        if(imageComposer == null) {
+            imageComposer = new ImageComposer(this);
+        }
+
+        return imageComposer;
+    }
+
+    public void insertEmptyLine() {
+        getTextComposer().insertEmptyLine();
     }
 
     public int pageHeight() {
@@ -82,8 +105,8 @@ public class SimplyPdfDocument {
         pdfDocument.writeTo(new FileOutputStream(document));
         pdfDocument.close();
 
-        if(textWriter != null) {
-            textWriter.clean();
+        if(textComposer != null) {
+            textComposer.clean();
         }
     }
 

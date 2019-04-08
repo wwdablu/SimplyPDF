@@ -21,4 +21,12 @@ abstract class Composer {
     public void setSpacing(int spacing) {
         this.DEFAULT_SPACING = spacing;
     }
+
+    public void insertEmptyLine() {
+        simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
+    }
+
+    void clean() {
+        simplyPdfDocument = null;
+    }
 }

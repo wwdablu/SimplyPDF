@@ -7,7 +7,7 @@ import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
-public class ShapeDrawer extends Composer {
+public class ShapeComposer extends Composer {
 
     public enum Alignment {
         LEFT,
@@ -18,7 +18,7 @@ public class ShapeDrawer extends Composer {
     private Paint painter;
     private Path shapePath;
 
-    ShapeDrawer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+    ShapeComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         painter = new Paint(Paint.ANTI_ALIAS_FLAG);
         shapePath = new Path();
@@ -61,5 +61,12 @@ public class ShapeDrawer extends Composer {
         canvas.drawPath(path, painter);
         simplyPdfDocument.addContentHeight((int) bounds.height() + shapeSpacing);
         canvas.restore();
+    }
+
+    @Override
+    void clean() {
+        super.clean();
+        shapePath = null;
+        painter = null;
     }
 }

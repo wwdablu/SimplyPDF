@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
                 .margin(DocumentInfo.Margins.DEFAULT)
-                .paperOrientation(DocumentInfo.Orientation.LANDSCAPE)
+                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
                 .build();
 
         textComposer = simplyPdfDocument.getTextComposer();
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         //testVariableFontSizeText();
         testHeaderTypeText();
         testColoredText();
+        //testNewPageWithBackground();
         //testShapes();
 
         try {
@@ -108,5 +109,16 @@ public class MainActivity extends AppCompatActivity {
             properties.textSize = i * 4;
             textComposer.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", properties);
         }
+    }
+
+    private void testNewPageWithBackground() {
+        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.setPageBackgroundColor(Color.MAGENTA);
+
+        TextComposer.Properties properties = new TextComposer.Properties();
+        properties.textSize = 32;
+        properties.textColor = Color.WHITE;
+
+        textComposer.write("White text on magenta background page.", properties);
     }
 }

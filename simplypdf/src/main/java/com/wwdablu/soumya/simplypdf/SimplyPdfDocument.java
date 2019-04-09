@@ -1,6 +1,9 @@
 package com.wwdablu.soumya.simplypdf;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.pdf.PdfDocument.Page;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
@@ -100,6 +103,36 @@ public class SimplyPdfDocument {
         return getUsablePageWidth();
     }
 
+    /**
+     * Inserts a new page on which updates will be composed.
+     */
+    public void insertNewPage() {
+        newPage();
+    }
+
+    /**
+     * Returns the current page number on which content is being drawn.
+     * @return Current page number
+     */
+    public int getCurrentPageNumber() {
+        return currentPageNumber;
+    }
+
+    public void setPageBackgroundColor(int color) {
+
+        Canvas canvas = getTextComposer().getPageCanvas();
+        canvas.save();
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(color);
+        canvas.drawRect(new RectF(0, 0, pdfDocument.getPageWidth(),
+            pdfDocument.getPageHeight()), paint);
+        canvas.restore();
+    }
+
+    /**
+     * Complete all the tasks and write the PDF to the location provided.
+     * @throws IOException IO Exception
+     */
     public void finish() throws IOException {
         pdfDocument.finishPage(currentPage);
         pdfDocument.writeTo(new FileOutputStream(document));
@@ -148,14 +181,6 @@ public class SimplyPdfDocument {
     int getBottomMargin() {
         return printAttributes.getMinMargins() == null ? 0 :
             printAttributes.getMinMargins().getBottomMils();
-    }
-
-    /**
-     * Returns the current page number on which content is being drawn.
-     * @return Current page number
-     */
-    int getCurrentPageNumber() {
-        return currentPageNumber;
     }
 
     /**

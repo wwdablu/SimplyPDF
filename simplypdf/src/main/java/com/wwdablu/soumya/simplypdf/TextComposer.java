@@ -37,7 +37,7 @@ public class TextComposer extends Composer {
 
         StaticLayout bulletMarker = null;
         if(textProperties.isBullet) {
-            bulletMarker = new StaticLayout(textProperties.bulletSymbol, textPaint,
+            bulletMarker = new StaticLayout(textProperties.getBulletSymbol(), textPaint,
                     simplyPdfDocument.getUsablePageWidth(), Layout.Alignment.ALIGN_NORMAL,
                     1F, 0F, false);
             widthAdjustForProperties += (textPaint.measureText(textProperties.bulletSymbol) + BULLET_SPACING);
@@ -45,7 +45,7 @@ public class TextComposer extends Composer {
 
         final StaticLayout staticLayout = new StaticLayout(text, textPaint,
                 simplyPdfDocument.getUsablePageWidth() - widthAdjustForProperties,
-                textProperties.alignment, 1F, 0F, false);
+                textProperties.getAlignment(), 1F, 0F, false);
 
         if(!canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
@@ -97,7 +97,6 @@ public class TextComposer extends Composer {
         public Typeface typeface;
         public Layout.Alignment alignment;
         public boolean isBullet;
-        public int indentSpace;
         public String bulletSymbol;
         public boolean underline;
         public boolean strikethrough;
@@ -108,7 +107,6 @@ public class TextComposer extends Composer {
             typeface = null;
             alignment = Layout.Alignment.ALIGN_NORMAL;
             isBullet = false;
-            indentSpace = 0;
             bulletSymbol = "";
             underline = false;
             strikethrough = false;

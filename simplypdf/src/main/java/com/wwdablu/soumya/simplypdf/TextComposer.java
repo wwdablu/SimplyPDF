@@ -36,7 +36,7 @@ public class TextComposer extends Composer {
         int widthAdjustForProperties = 0;
 
         StaticLayout bulletMarker = null;
-        if(textProperties.isBullet()) {
+        if(textProperties.isBullet) {
             bulletMarker = new StaticLayout(textProperties.bulletSymbol, textPaint,
                     simplyPdfDocument.getUsablePageWidth(), Layout.Alignment.ALIGN_NORMAL,
                     1F, 0F, false);
@@ -62,10 +62,17 @@ public class TextComposer extends Composer {
             bulletMarker.draw(canvas);
         }
 
+        setTextPaintProperties(Paint.UNDERLINE_TEXT_FLAG, textProperties.underline);
+        setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, textProperties.strikethrough);
+
         canvas.translate(widthAdjustForProperties, 0);
         simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
         staticLayout.draw(canvas);
         canvas.restore();
+
+        //After every write remove the flags. Will be set again for the next write call
+        setTextPaintProperties(Paint.UNDERLINE_TEXT_FLAG, false);
+        setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, false);
     }
 
     @Override
@@ -74,96 +81,60 @@ public class TextComposer extends Composer {
         textPaint = null;
     }
 
+    private void setTextPaintProperties(int flag, boolean enable) {
+
+        if(enable) {
+            textPaint.setFlags(textPaint.getFlags() | flag);
+        } else if((textPaint.getFlags() & flag) == flag) {
+            textPaint.setFlags(textPaint.getFlags() ^ flag);
+        }
+    }
+
     public static class Properties {
 
-        private int textColor;
-        private int textSize;
-        private Typeface typeface;
-        private Layout.Alignment alignment;
-        private boolean bullet;
-        private int indentSpace;
-        private String bulletSymbol;
+        public int textColor;
+        public int textSize;
+        public Typeface typeface;
+        public Layout.Alignment alignment;
+        public boolean isBullet;
+        public int indentSpace;
+        public String bulletSymbol;
+        public boolean underline;
+        public boolean strikethrough;
 
         public Properties() {
             textColor = Color.BLACK;
             textSize = 10;
             typeface = null;
             alignment = Layout.Alignment.ALIGN_NORMAL;
-            bullet = false;
+            isBullet = false;
             indentSpace = 0;
             bulletSymbol = "";
+            underline = false;
+            strikethrough = false;
         }
 
-        public int getTextColor() {
-            return textColor;
-        }
-
-        public void setTextColor(int textColor) {
-            this.textColor = textColor;
-        }
-
-        public int getTextSize() {
-            return textSize;
-        }
-
-        public void setTextSize(int textSize) {
-            this.textSize = textSize;
-        }
-
-        public Typeface getTypeface() {
-            return typeface;
-        }
-
-        public void setTypeface(@Nullable Typeface typeface) {
-            this.typeface = typeface;
-        }
-
-        public Layout.Alignment getAlignment() {
-            return alignment;
-        }
-
-        public void setAlignment(@Nullable Layout.Alignment alignment) {
+        Layout.Alignment getAlignment() {
 
             if(alignment == null) {
                 alignment = Layout.Alignment.ALIGN_NORMAL;
             }
 
-            this.alignment = alignment;
+            return this.alignment;
         }
 
-        public boolean isBullet() {
-            return bullet;
-        }
-
-        public void setBullet(boolean bullet) {
-            this.bullet = bullet;
-        }
-
-        public int getIndentSpace() {
-            return indentSpace;
-        }
-
-        public void setIndentSpace(int indentSpace) throws UnsupportedOperationException {
-            this.indentSpace = indentSpace;
-            throw new UnsupportedOperationException("This feature has not yet been supported.");
-        }
-
-        public String getBulletSymbol() {
-            return bulletSymbol;
-        }
-
-        public void setBulletSymbol(@Nullable String bulletSymbol) {
+        String getBulletSymbol() {
 
             if(bulletSymbol == null || TextUtils.isEmpty(bulletSymbol)) {
                 this.bulletSymbol = "";
-                return;
+                return "";
             }
 
             if(bulletSymbol.length() >= 2) {
                 bulletSymbol = bulletSymbol.substring(0, 1);
             }
 
-            this.bulletSymbol = bulletSymbol;
+            return this.bulletSymbol;
         }
     }
 }

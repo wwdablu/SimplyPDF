@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private void testHeaderTypeText() {
 
         TextComposer.Properties textProperties = new TextComposer.Properties();
-        textProperties.setTextSize(16);
+        textProperties.textSize = 16;
         textComposer.write("This is the header text", textProperties);
 
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, Color.GRAY, 1, true, ShapeComposer.Alignment.LEFT);
@@ -73,26 +73,30 @@ public class MainActivity extends AppCompatActivity {
     private void testColoredText() {
 
         TextComposer.Properties properties = new TextComposer.Properties();
-        properties.setTextSize(16);
+        properties.textSize = 16;
 
-        Typeface typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
-        properties.setTypeface(typeface);
+        properties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
         textComposer.write("Demonstrate the usage of TextComposer.", properties);
 
-        properties.setTypeface(null);
-        properties.setBullet(true);
-        properties.setBulletSymbol("•");
+        properties.typeface = null;
+        properties.isBullet = true;
+        properties.bulletSymbol = "•";
         textComposer.write("Black", properties);
 
-        properties.setTextColor(Color.RED);
+        properties.textColor = Color.RED;
+        properties.underline = true;
         textComposer.write("Red", properties);
 
-        properties.setTextColor(Color.parseColor("#ABCDEF"));
+        properties.strikethrough = true;
+        properties.textColor = Color.parseColor("#ABCDEF");
         textComposer.write("Custom", properties);
 
-        properties.setTextColor(Color.BLACK);
+        properties.textColor = Color.BLACK;
         textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
                 "This is a very long and interesting string.", properties);
+
+        properties.strikethrough = false;
+        properties.underline = false;
         textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
                 "This is a very long and interesting string.", properties);
     }
@@ -101,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextComposer.Properties properties = new TextComposer.Properties();
         for(int i = 1; i <= 10; i++) {
-            properties.setTextSize(i * 4);
+            properties.textSize = i * 4;
             textComposer.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", properties);
         }
     }

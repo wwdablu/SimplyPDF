@@ -79,6 +79,7 @@ public class TextComposer extends Composer {
     void clean() {
         super.clean();
         textPaint = null;
+        properties = null;
     }
 
     private void setTextPaintProperties(int flag, boolean enable) {

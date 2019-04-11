@@ -2,9 +2,11 @@ package com.wwdablu.soumya.simplypdfsample;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.print.PrintAttributes;
+import android.text.Layout;
 
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
@@ -39,15 +41,58 @@ public class MainActivity extends AppCompatActivity {
         shapeComposer = simplyPdfDocument.getShapeComposer();
 
         //testVariableFontSizeText();
-        testHeaderTypeText();
-        testColoredText();
+        //testHeaderTypeText();
+        //testColoredText();
         //testNewPageWithBackground();
         //testShapes();
+        //testTextAlignments();
+        testShapeAlignment();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void testShapeAlignment() {
+
+        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        shapeProperties.lineWidth = 1;
+        shapeProperties.shouldFill = true;
+
+        shapeComposer.setSpacing(15);
+
+        shapeProperties.lineColor = Color.RED;
+        shapeProperties.alignment = ShapeComposer.Alignment.LEFT;
+        shapeComposer.drawCircle(100, shapeProperties);
+
+        shapeProperties.lineColor = Color.GREEN;
+        shapeProperties.alignment = ShapeComposer.Alignment.CENTER;
+        shapeComposer.drawCircle(100, shapeProperties);
+
+        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.alignment = ShapeComposer.Alignment.RIGHT;
+        shapeComposer.drawCircle(100, shapeProperties);
+    }
+
+    private void testTextAlignments() {
+
+        TextComposer.Properties textProperties = new TextComposer.Properties();
+        textProperties.textSize = 16;
+
+        textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
+        textComposer.write("Left aligned text.", textProperties);
+
+        textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
+        textComposer.write("Center aligned text.", textProperties);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            textProperties.alignment = Layout.Alignment.ALIGN_RIGHT;
+            textComposer.write("Right aligned text.", textProperties);
+        } else {
+            textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
+            textComposer.write("Right alignment needs API 28+", textProperties);
         }
     }
 
@@ -57,18 +102,38 @@ public class MainActivity extends AppCompatActivity {
         textProperties.textSize = 16;
         textComposer.write("This is the header text", textProperties);
 
-        shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, Color.GRAY, 1, true, ShapeComposer.Alignment.LEFT);
+        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        shapeProperties.lineWidth = 1;
+        shapeProperties.lineColor = Color.GRAY;
+        shapeProperties.shouldFill = true;
+        shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
         simplyPdfDocument.insertEmptyLine();
     }
 
     private void testShapes() {
 
+        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        shapeProperties.lineWidth = 1;
+        shapeProperties.lineColor = Color.RED;
+        shapeProperties.shouldFill = true;
+
         shapeComposer.setSpacing(25);
 
-        shapeComposer.drawCircle(100, Color.RED, 1, true, ShapeComposer.Alignment.LEFT);
-        shapeComposer.drawCircle(100, Color.BLUE, 5, false, ShapeComposer.Alignment.LEFT);
-        shapeComposer.drawBox(200, 200, Color.YELLOW, 5, true, ShapeComposer.Alignment.LEFT);
-        shapeComposer.drawBox(200, 200, Color.BLACK, 5, false, ShapeComposer.Alignment.LEFT);
+        shapeComposer.drawCircle(100, shapeProperties);
+
+        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.shouldFill = false;
+        shapeProperties.lineWidth = 5;
+        shapeComposer.drawCircle(100, shapeProperties);
+
+        shapeProperties.lineColor = Color.YELLOW;
+        shapeProperties.shouldFill = true;
+        shapeComposer.drawBox(200, 200, shapeProperties);
+
+        shapeProperties.lineColor = Color.BLACK;
+        shapeProperties.shouldFill = false;
+        shapeProperties.lineWidth = 15;
+        shapeComposer.drawBox(200, 200, shapeProperties);
     }
 
     private void testColoredText() {

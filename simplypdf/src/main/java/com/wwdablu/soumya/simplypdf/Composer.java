@@ -4,6 +4,12 @@ import android.graphics.Canvas;
 
 abstract class Composer {
 
+    public enum Alignment {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+
     int DEFAULT_SPACING = 10;
 
     SimplyPdfDocument simplyPdfDocument;

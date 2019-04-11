@@ -1,48 +1,48 @@
 package com.wwdablu.soumya.simplypdf;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ShapeComposer extends Composer {
 
-    public enum Alignment {
-        LEFT,
-        CENTER,
-        RIGHT
-    }
-
     private Paint painter;
     private Path shapePath;
+    private Properties properties;
 
     ShapeComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         painter = new Paint(Paint.ANTI_ALIAS_FLAG);
         shapePath = new Path();
+        properties = new Properties();
     }
 
-    public void drawBox(int width, int height, int lineColor, float lineWidth, boolean fill, Alignment alignment) {
+    public void drawBox(int width, int height, @Nullable Properties properties) {
 
         shapePath.reset();
         shapePath.addRect(new RectF(0, 0, width, height), Path.Direction.CW);
-        freeform(shapePath, lineColor, lineWidth, fill, alignment);
+        freeform(shapePath, properties);
     }
 
-    public void drawCircle(int radius, int lineColor, float lineWidth, boolean fill, Alignment alignment) {
+    public void drawCircle(int radius, @Nullable Properties properties) {
 
         shapePath.reset();
         shapePath.addCircle(radius, radius, radius, Path.Direction.CW);
-        freeform(shapePath, lineColor, lineWidth, fill, alignment);
+        freeform(shapePath, properties);
     }
 
-    public void freeform(Path path, int lineColor, float lineWidth, boolean fill, Alignment alignment) {
+    public void freeform(Path path, @Nullable Properties properties) {
 
-        painter.setColor(lineColor);
-        painter.setStyle(fill ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
-        painter.setStrokeWidth(lineWidth);
+        Properties shapeProperties = properties != null ? properties : this.properties;
+
+        painter.setColor(shapeProperties.lineColor);
+        painter.setStyle(shapeProperties.shouldFill ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
+        painter.setStrokeWidth(shapeProperties.lineWidth);
 
         RectF bounds = new RectF();
         path.computeBounds(bounds, true);
@@ -57,7 +57,18 @@ public class ShapeComposer extends Composer {
         final int shapeSpacing = (simplyPdfDocument.getPageContentHeight() ==
                 simplyPdfDocument.getTopMargin() ? 0 : DEFAULT_SPACING);
 
-        canvas.translate(simplyPdfDocument.getLeftMargin(), shapeSpacing + simplyPdfDocument.getPageContentHeight());
+        int xTranslate = 0;
+        switch (shapeProperties.alignment) {
+            case CENTER:
+                xTranslate = (int) (simplyPdfDocument.getUsablePageWidth() - bounds.width())/2;
+                break;
+
+            case RIGHT:
+                xTranslate = (int) (simplyPdfDocument.getUsablePageWidth() - bounds.width());
+                break;
+        }
+
+        canvas.translate(simplyPdfDocument.getLeftMargin() + xTranslate, shapeSpacing + simplyPdfDocument.getPageContentHeight());
         canvas.drawPath(path, painter);
         simplyPdfDocument.addContentHeight((int) bounds.height() + shapeSpacing);
         canvas.restore();
@@ -68,5 +79,20 @@ public class ShapeComposer extends Composer {
         super.clean();
         shapePath = null;
         painter = null;
+        properties = null;
+    }
+
+    public static class Properties {
+        public int lineColor;
+        public int lineWidth;
+        public boolean shouldFill;
+        public Alignment alignment;
+
+        public Properties() {
+            lineColor = Color.BLACK;
+            lineWidth = 1;
+            shouldFill = false;
+            alignment = Alignment.LEFT;
+        }
     }
 }

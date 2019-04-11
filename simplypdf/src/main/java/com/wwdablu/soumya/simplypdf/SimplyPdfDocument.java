@@ -33,6 +33,7 @@ public class SimplyPdfDocument {
 
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
+    private boolean finished;
 
     SimplyPdfDocument(@NonNull Context context, @NonNull File document) {
         documentInfo = new DocumentInfo();
@@ -46,6 +47,7 @@ public class SimplyPdfDocument {
      */
     @NonNull
     public DocumentInfo getDocumentInfo() {
+        ensureNotFinished();
         return documentInfo;
     }
 
@@ -56,6 +58,7 @@ public class SimplyPdfDocument {
     @NonNull
     public TextComposer getTextComposer() {
 
+        ensureNotFinished();
         if(textComposer == null) {
             textComposer = new TextComposer(this);
         }
@@ -70,6 +73,7 @@ public class SimplyPdfDocument {
     @NonNull
     public ShapeComposer getShapeComposer() {
 
+        ensureNotFinished();
         if(shapeComposer == null) {
             shapeComposer = new ShapeComposer(this);
         }
@@ -84,6 +88,7 @@ public class SimplyPdfDocument {
     @NonNull
     public ImageComposer getImageComposer() {
 
+        ensureNotFinished();
         if(imageComposer == null) {
             imageComposer = new ImageComposer(this);
         }
@@ -92,14 +97,17 @@ public class SimplyPdfDocument {
     }
 
     public void insertEmptyLine() {
+        ensureNotFinished();
         getTextComposer().insertEmptyLine();
     }
 
     public int pageHeight() {
+        ensureNotFinished();
         return getUsablePageHeight();
     }
 
     public int pageWidth() {
+        ensureNotFinished();
         return getUsablePageWidth();
     }
 
@@ -107,6 +115,7 @@ public class SimplyPdfDocument {
      * Inserts a new page on which updates will be composed.
      */
     public void insertNewPage() {
+        ensureNotFinished();
         newPage();
     }
 
@@ -118,7 +127,13 @@ public class SimplyPdfDocument {
         return currentPageNumber;
     }
 
+    /**
+     * Set the background color of the current page. It will apply it to the entire page.
+     * @param color Color to be applied
+     */
     public void setPageBackgroundColor(int color) {
+
+        ensureNotFinished();
 
         Canvas canvas = getTextComposer().getPageCanvas();
         canvas.save();
@@ -134,12 +149,24 @@ public class SimplyPdfDocument {
      * @throws IOException IO Exception
      */
     public void finish() throws IOException {
+
+        ensureNotFinished();
+
         pdfDocument.finishPage(currentPage);
         pdfDocument.writeTo(new FileOutputStream(document));
         pdfDocument.close();
+        finished = true;
 
         if(textComposer != null) {
             textComposer.clean();
+        }
+
+        if(imageComposer != null) {
+            imageComposer.clean();
+        }
+
+        if(imageComposer != null) {
+            imageComposer.clean();
         }
     }
 
@@ -239,5 +266,9 @@ public class SimplyPdfDocument {
      */
     int getUsablePageWidth() {
         return pdfDocument.getPageWidth() - (getLeftMargin() + getRightMargin());
+    }
+
+    void ensureNotFinished() {
+        if(finished) throw new IllegalStateException("Cannot use as finish has been called.");
     }
 }

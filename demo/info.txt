@@ -1,0 +1,1 @@
+This folder contains the sample pdf file generated using this library.

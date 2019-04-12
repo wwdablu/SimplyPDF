@@ -36,7 +36,7 @@ public class ShapeComposer extends Composer {
         freeform(shapePath, properties);
     }
 
-    public void freeform(Path path, @Nullable Properties properties) {
+    public void freeform(@NonNull Path path, @Nullable Properties properties) {
 
         Properties shapeProperties = properties != null ? properties : this.properties;
 
@@ -54,19 +54,8 @@ public class ShapeComposer extends Composer {
         Canvas canvas = getPageCanvas();
         canvas.save();
 
-        final int shapeSpacing = (simplyPdfDocument.getPageContentHeight() ==
-                simplyPdfDocument.getTopMargin() ? 0 : DEFAULT_SPACING);
-
-        int xTranslate = 0;
-        switch (shapeProperties.alignment) {
-            case CENTER:
-                xTranslate = (int) (simplyPdfDocument.getUsablePageWidth() - bounds.width())/2;
-                break;
-
-            case RIGHT:
-                xTranslate = (int) (simplyPdfDocument.getUsablePageWidth() - bounds.width());
-                break;
-        }
+        final int shapeSpacing = getTopSpacing(DEFAULT_SPACING);
+        int xTranslate = alignmentCanvasTranslation(shapeProperties.alignment, (int) bounds.width());
 
         canvas.translate(simplyPdfDocument.getLeftMargin() + xTranslate, shapeSpacing + simplyPdfDocument.getPageContentHeight());
         canvas.drawPath(path, painter);

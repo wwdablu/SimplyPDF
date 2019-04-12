@@ -14,6 +14,14 @@ abstract class Composer {
 
     SimplyPdfDocument simplyPdfDocument;
 
+    public void setSpacing(int spacing) {
+        this.DEFAULT_SPACING = spacing;
+    }
+
+    public void insertEmptyLine() {
+        simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
+    }
+
     final Canvas getPageCanvas() {
         return simplyPdfDocument.getCurrentPage().getCanvas();
     }
@@ -24,12 +32,26 @@ abstract class Composer {
             (contentHeight + simplyPdfDocument.getPageContentHeight());
     }
 
-    public void setSpacing(int spacing) {
-        this.DEFAULT_SPACING = spacing;
+    final int getTopSpacing(int intendedSpace) {
+
+        return (simplyPdfDocument.getPageContentHeight() ==
+            simplyPdfDocument.getTopMargin() ? 0 : intendedSpace);
     }
 
-    public void insertEmptyLine() {
-        simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
+    final int alignmentCanvasTranslation(Alignment alignment, int width) {
+
+        int xTranslate = 0;
+        switch (alignment) {
+            case CENTER:
+                xTranslate = (simplyPdfDocument.getUsablePageWidth() - width) /2;
+                break;
+
+            case RIGHT:
+                xTranslate = simplyPdfDocument.getUsablePageWidth() - width;
+                break;
+        }
+
+        return xTranslate;
     }
 
     void clean() {

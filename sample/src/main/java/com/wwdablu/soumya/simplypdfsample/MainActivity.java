@@ -1,6 +1,9 @@
 package com.wwdablu.soumya.simplypdfsample;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.print.PrintAttributes;
 import android.text.Layout;
 
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
+import com.wwdablu.soumya.simplypdf.ImageComposer;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
@@ -23,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextComposer textComposer;
     private ShapeComposer shapeComposer;
+    private ImageComposer imageComposer;
     private SimplyPdfDocument simplyPdfDocument;
 
     @Override
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         textComposer = simplyPdfDocument.getTextComposer();
         shapeComposer = simplyPdfDocument.getShapeComposer();
+        imageComposer = simplyPdfDocument.getImageComposer();
 
         //testVariableFontSizeText();
         //testHeaderTypeText();
@@ -46,13 +52,42 @@ public class MainActivity extends AppCompatActivity {
         //testNewPageWithBackground();
         //testShapes();
         //testTextAlignments();
-        testShapeAlignment();
+        //testShapeAlignment();
+        testBitmapRender();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testBitmapRender() {
+
+        Bitmap bitmap = Bitmap.createBitmap(simplyPdfDocument.pageWidth(), 100, Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(bitmap);
+        c.drawColor(Color.BLUE);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(32);
+        c.drawText("Hello Bitmap", 10, 50, paint);
+        imageComposer.drawBitmap(bitmap, null);
+        bitmap.recycle();
+
+        ImageComposer.Properties properties = new ImageComposer.Properties();
+        properties.alignment = ImageComposer.Alignment.LEFT;
+        bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565);
+        c = new Canvas(bitmap);
+        c.drawColor(Color.RED);
+        imageComposer.drawBitmap(bitmap, properties);
+
+        properties.alignment = ImageComposer.Alignment.CENTER;
+        imageComposer.drawBitmap(bitmap, properties);
+
+        properties.alignment = ImageComposer.Alignment.RIGHT;
+        imageComposer.drawBitmap(bitmap, properties);
+
+        bitmap.recycle();
     }
 
     private void testShapeAlignment() {

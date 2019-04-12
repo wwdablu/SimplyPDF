@@ -54,8 +54,7 @@ public class TextComposer extends Composer {
         Canvas canvas = getPageCanvas();
         canvas.save();
 
-        final int textLineSpacing = (simplyPdfDocument.getPageContentHeight() ==
-            simplyPdfDocument.getTopMargin() ? 0 : DEFAULT_SPACING);
+        final int textLineSpacing = getTopSpacing(DEFAULT_SPACING);
 
         canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() + textLineSpacing);
         if(bulletMarker != null) {

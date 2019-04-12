@@ -44,4 +44,4 @@ simplyPdfDocument.finish();
 ~~~  
 This would generate the document in the given path.  
 
-All these are applicable in Version 1.x.x.  
+All these are applicable in Version 1.x.x. The demo folder contains the sample PDF generated using this library.  

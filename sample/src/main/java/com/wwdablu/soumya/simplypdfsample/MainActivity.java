@@ -53,13 +53,60 @@ public class MainActivity extends AppCompatActivity {
         //testShapes();
         //testTextAlignments();
         //testShapeAlignment();
-        testBitmapRender();
+        //testBitmapRender();
+        testSampleOutput();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testSampleOutput() {
+
+        TextComposer.Properties textProperties = new TextComposer.Properties();
+        textProperties.textSize = 24;
+        textProperties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
+        textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
+
+        textComposer.write("SimplyPDF", textProperties);
+
+        textProperties.typeface = null;
+        textProperties.textSize = 20;
+        textComposer.write("An android library that allows the user to generate PDF" +
+                " files within the application ans save them in the device storage." +
+                " This sample PDF is generated using this library", textProperties);
+
+        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        shapeProperties.lineWidth = 1;
+        shapeProperties.shouldFill = true;
+        shapeProperties.lineColor = Color.BLACK;
+        shapeComposer.setSpacing(15);
+        shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
+
+        textProperties.textSize = 16;
+        textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
+        textComposer.write("Version 1.0.0 supports the following basics:", textProperties);
+
+        textProperties.isBullet = true;
+        textProperties.bulletSymbol = ">";
+        textComposer.write("Text", textProperties);
+        textComposer.write("Shapes", textProperties);
+        textComposer.write("Images", textProperties);
+        textComposer.write("Can also set page background color", textProperties);
+
+        simplyPdfDocument.insertEmptyLine();
+        simplyPdfDocument.insertNewPage();
+
+        textProperties.isBullet = false;
+        textComposer.write("It can draw shapes like these:", textProperties);
+
+        testShapeAlignment();
+        testNewPageWithBackground();
+        simplyPdfDocument.insertNewPage();
+
+        textComposer.write("That is all in Version 1.0.0. Will enhance for more.", textProperties);
     }
 
     private void testBitmapRender() {

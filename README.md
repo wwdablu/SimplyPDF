@@ -1,6 +1,17 @@
 # SimplyPDF  
 SimplyPDF is an android library that allows developers to generate PDF documents from within their application. It provides various composers which are used to draw various elements.  
 
+## Using it  
+You can use it in gradle as following:  
+~~~
+
+maven { url 'https://jitpack.io' }
+
+dependencies {
+    implementation 'com.github.wwdablu:SimplyPDF:1.0.0'
+}
+~~~
+
 ## Composers  
 The classes which are responsible for drawing content onto the PDF are called Composers in this library. Currently there are three different composers:  
 * TextComposer  

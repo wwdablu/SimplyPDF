@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/wwdablu/SimplyPDF.svg)](https://jitpack.io/#wwdablu/SimplyPDF)  
+
 # SimplyPDF  
 SimplyPDF is an android library that allows developers to generate PDF documents from within their application. It provides various composers which are used to draw various elements.  
 

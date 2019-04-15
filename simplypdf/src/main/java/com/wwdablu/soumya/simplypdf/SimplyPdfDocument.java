@@ -30,6 +30,7 @@ public class SimplyPdfDocument {
     private TextComposer textComposer;
     private ShapeComposer shapeComposer;
     private ImageComposer imageComposer;
+    private ColumnComposer columnComposer;
 
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
@@ -94,6 +95,21 @@ public class SimplyPdfDocument {
         }
 
         return imageComposer;
+    }
+
+    /**
+     * Returns the column composer to draw columns for a table
+     * @return
+     */
+    @NonNull
+    public ColumnComposer getColumnComposer() {
+
+        ensureNotFinished();
+        if(columnComposer == null) {
+            columnComposer = new ColumnComposer(this);
+        }
+
+        return columnComposer;
     }
 
     public void insertEmptyLine() {

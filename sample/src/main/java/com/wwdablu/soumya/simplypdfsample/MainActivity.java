@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.print.PrintAttributes;
 import android.text.Layout;
 
+import com.wwdablu.soumya.simplypdf.ColumnComposer;
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
 import com.wwdablu.soumya.simplypdf.ImageComposer;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private TextComposer textComposer;
     private ShapeComposer shapeComposer;
     private ImageComposer imageComposer;
+    private ColumnComposer columnComposer;
     private SimplyPdfDocument simplyPdfDocument;
 
     @Override
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         textComposer = simplyPdfDocument.getTextComposer();
         shapeComposer = simplyPdfDocument.getShapeComposer();
         imageComposer = simplyPdfDocument.getImageComposer();
+        columnComposer = simplyPdfDocument.getColumnComposer();
 
         //testVariableFontSizeText();
         //testHeaderTypeText();
@@ -54,13 +57,26 @@ public class MainActivity extends AppCompatActivity {
         //testTextAlignments();
         //testShapeAlignment();
         //testBitmapRender();
-        testSampleOutput();
+        //testSampleOutput();
+        testTextComposed();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testTextComposed() {
+
+        TextComposer.Properties textProperties = new TextComposer.Properties();
+        textProperties.textSize = 24;
+        textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
+
+        int w_50_cent = simplyPdfDocument.pageWidth() / 2;
+
+        columnComposer.draw(textComposer.getComposed("Hello", textProperties, w_50_cent),
+                textComposer.getComposed("World", textProperties, w_50_cent));
     }
 
     private void testSampleOutput() {

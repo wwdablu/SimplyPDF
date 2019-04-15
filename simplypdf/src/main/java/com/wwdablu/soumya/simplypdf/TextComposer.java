@@ -27,6 +27,29 @@ public class TextComposer extends Composer {
 
     public void write(@NonNull String text, @Nullable Properties properties) {
 
+        write(text, properties, simplyPdfDocument.getUsablePageWidth(), false);
+    }
+
+    @Nullable
+    public Composed getComposed(@NonNull String text, @Nullable Properties properties, int width) {
+
+        if(width > simplyPdfDocument.getUsablePageWidth()) {
+            width = simplyPdfDocument.getUsablePageWidth();
+        }
+
+        return write(text, properties, width, true);
+    }
+
+    @Override
+    void clean() {
+        super.clean();
+        textPaint = null;
+        properties = null;
+    }
+
+    private Composed write(@NonNull String text, @Nullable Properties properties, int pageWidth,
+                       boolean isBeingComposed) {
+
         final Properties textProperties = properties == null ? this.properties : properties;
 
         textPaint.setColor(textProperties.textColor);
@@ -44,19 +67,29 @@ public class TextComposer extends Composer {
         }
 
         final StaticLayout staticLayout = new StaticLayout(text, textPaint,
-                simplyPdfDocument.getUsablePageWidth() - widthAdjustForProperties,
+                pageWidth - widthAdjustForProperties,
                 textProperties.getAlignment(), 1F, 0F, false);
 
-        if(!canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
+        Composed composed = null;
+        Canvas canvas = getPageCanvas();
+
+        if(!isBeingComposed && !canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
+        } else if (isBeingComposed) {
+            composed = new Composed(TextComposer.class.getName(),
+                pageWidth, staticLayout.getHeight() +
+                    (bulletMarker == null ? 0 : bulletMarker.getHeight()));
+            canvas = new Canvas(composed.getComposedBitmap());
+            composed.getComposedBitmap().eraseColor(Color.WHITE);
         }
 
-        Canvas canvas = getPageCanvas();
         canvas.save();
 
         final int textLineSpacing = getTopSpacing(DEFAULT_SPACING);
 
-        canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+        canvas.translate(isBeingComposed ? 0 : simplyPdfDocument.getLeftMargin(),
+                isBeingComposed ? 0 : simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+
         if(bulletMarker != null) {
             bulletMarker.draw(canvas);
         }
@@ -65,20 +98,19 @@ public class TextComposer extends Composer {
         setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, textProperties.strikethrough);
 
         canvas.translate(widthAdjustForProperties, 0);
-        simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
+
+        if(!isBeingComposed) {
+            simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
+        }
+
         staticLayout.draw(canvas);
         canvas.restore();
 
         //After every write remove the flags. Will be set again for the next write call
         setTextPaintProperties(Paint.UNDERLINE_TEXT_FLAG, false);
         setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, false);
-    }
 
-    @Override
-    void clean() {
-        super.clean();
-        textPaint = null;
-        properties = null;
+        return composed;
     }
 
     private void setTextPaintProperties(int flag, boolean enable) {

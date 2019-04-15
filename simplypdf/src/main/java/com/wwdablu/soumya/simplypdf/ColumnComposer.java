@@ -35,11 +35,14 @@ public class ColumnComposer extends Composer {
         Canvas canvas = getPageCanvas();
         canvas.save();
 
+        //Translate and fix the Y-axis
+        canvas.translate(0, simplyPdfDocument.getPageContentHeight());
+
         int bitmapXTranslate = simplyPdfDocument.getLeftMargin() - composedArray[0].getComposedBitmap().getWidth();
         for(Composed composed : composedArray) {
 
             bitmapXTranslate += composed.getComposedBitmap().getWidth();
-            canvas.translate(bitmapXTranslate,0);
+            canvas.translate(bitmapXTranslate, 0);
             canvas.drawBitmap(composed.getComposedBitmap(), new Matrix(), bitmapPainter);
             composed.free();
         }

@@ -76,11 +76,9 @@ public class TextComposer extends Composer {
         if(!isBeingComposed && !canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
         } else if (isBeingComposed) {
-            composed = new Composed(TextComposer.class.getName(),
-                pageWidth, staticLayout.getHeight() +
-                    (bulletMarker == null ? 0 : bulletMarker.getHeight()));
-            canvas = new Canvas(composed.getComposedBitmap());
+            composed = new Composed(TextComposer.class.getName(), pageWidth, staticLayout.getHeight());
             composed.getComposedBitmap().eraseColor(Color.WHITE);
+            canvas = new Canvas(composed.getComposedBitmap());
         }
 
         canvas.save();

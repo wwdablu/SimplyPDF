@@ -1,18 +1,28 @@
 package com.wwdablu.soumya.simplypdf;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public class ColumnComposer extends Composer {
+public class ColumnComposer extends GroupComposer {
 
     private Paint bitmapPainter;
+    private Properties colProperties;
 
     ColumnComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         this.bitmapPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.colProperties = new Properties(1, Color.BLACK);
+    }
+
+    public Composed addTextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int cellWidth) {
+
+        return simplyPdfDocument.getTextComposer().getComposed(text, properties,
+            cellWidth - (2 * this.colProperties.borderWidth));
     }
 
     public void draw(@NonNull Composed... composedArray) {
@@ -55,5 +65,25 @@ public class ColumnComposer extends Composer {
     void clean() {
         super.clean();
         bitmapPainter = null;
+    }
+
+    public static class Properties {
+
+        private int borderWidth;
+        private int borderColor;
+
+        public Properties(int borderWidth, int borderColor) {
+
+            this.borderWidth = borderWidth;
+            this.borderColor = borderColor;
+        }
+
+        public int getBorderWidth() {
+            return borderWidth;
+        }
+
+        public int getBorderColor() {
+            return borderColor;
+        }
     }
 }

@@ -8,7 +8,7 @@ import android.graphics.Paint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ImageComposer extends Composer {
+public class ImageComposer extends UnitComposer {
 
     private Properties properties;
     private Paint bitmapPainter;

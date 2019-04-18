@@ -75,33 +75,35 @@ public class MainActivity extends AppCompatActivity {
 
         int w_50_cent = simplyPdfDocument.pageWidth() / 2;
 
-        columnComposer.draw(textComposer.getComposed("Like", textProperties, w_50_cent),
-                textComposer.getComposed("Dislike", textProperties, w_50_cent));
+        ColumnComposer.Properties colProperties = new ColumnComposer.Properties(1, Color.BLACK);
+
+        columnComposer.draw(columnComposer.addTextCell("Likes", textProperties, w_50_cent),
+                columnComposer.addTextCell("Dislikes", textProperties, w_50_cent));
 
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
         textProperties.bulletSymbol = "•";
         textProperties.isBullet = true;
 
-        columnComposer.draw(textComposer.getComposed("Apple", textProperties, w_50_cent),
-                textComposer.getComposed("Guava", textProperties, w_50_cent));
+        columnComposer.draw(columnComposer.addTextCell("Apple", textProperties, w_50_cent),
+                columnComposer.addTextCell("Guava", textProperties, w_50_cent));
 
-        columnComposer.draw(textComposer.getComposed("Banana", textProperties, w_50_cent),
-                textComposer.getComposed("Coconut", textProperties, w_50_cent));
+        columnComposer.draw(columnComposer.addTextCell("Banana", textProperties, w_50_cent),
+                columnComposer.addTextCell("Coconut", textProperties, w_50_cent));
 
-        columnComposer.draw(textComposer.getComposed("Mango", textProperties, w_50_cent));
+        columnComposer.draw(columnComposer.addTextCell("Mango", textProperties, w_50_cent));
 
         simplyPdfDocument.insertEmptyLine();
         textProperties.isBullet = false;
 
-        columnComposer.draw(textComposer.getComposed("Small Left Text", textProperties, w_50_cent),
-            textComposer.getComposed("This is a big text on the right column which will be multiple lines.",
+        columnComposer.draw(columnComposer.addTextCell("Small Left Text", textProperties, w_50_cent),
+                columnComposer.addTextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
 
         simplyPdfDocument.insertEmptyLine();
 
-        columnComposer.draw(textComposer.getComposed(
+        columnComposer.draw(columnComposer.addTextCell(
                 "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent),
-                textComposer.getComposed("Small right text",
+                columnComposer.addTextCell("Small right text",
                         textProperties, w_50_cent));
     }
 

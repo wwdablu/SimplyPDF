@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class TextComposer extends Composer {
+public class TextComposer extends UnitComposer {
 
     private final int BULLET_SPACING = 10;
 
@@ -31,7 +31,7 @@ public class TextComposer extends Composer {
     }
 
     @Nullable
-    public Composed getComposed(@NonNull String text, @Nullable Properties properties, int width) {
+    Composed getComposed(@NonNull String text, @Nullable Properties properties, int width) {
 
         if(width > simplyPdfDocument.getUsablePageWidth()) {
             width = simplyPdfDocument.getUsablePageWidth();
@@ -120,7 +120,7 @@ public class TextComposer extends Composer {
         }
     }
 
-    public static class Properties {
+    public static class Properties extends UnitComposer.Properties {
 
         public int textColor;
         public int textSize;
@@ -163,6 +163,11 @@ public class TextComposer extends Composer {
             }
 
             return this.bulletSymbol;
+        }
+
+        @Override
+        public String getPropId() {
+            return TextComposer.class.getName() + "Properties";
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.wwdablu.soumya.simplypdf;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -11,18 +12,23 @@ import androidx.annotation.Nullable;
 public class ColumnComposer extends GroupComposer {
 
     private Paint bitmapPainter;
+    private Paint borderPainter;
     private Properties colProperties;
 
     ColumnComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         this.bitmapPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
+        this.borderPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.colProperties = new Properties(1, Color.BLACK);
     }
 
+    @Nullable
     public Composed addTextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int cellWidth) {
 
-        return simplyPdfDocument.getTextComposer().getComposed(text, properties,
-            cellWidth - (2 * this.colProperties.borderWidth));
+        Composed composed = simplyPdfDocument.getTextComposer().getComposed(text, properties,
+            cellWidth, this.colProperties.borderWidth);
+        drawBorders(composed);
+        return composed;
     }
 
     public void draw(@NonNull Composed... composedArray) {
@@ -48,10 +54,14 @@ public class ColumnComposer extends GroupComposer {
         //Translate and fix the Y-axis
         canvas.translate(0, simplyPdfDocument.getPageContentHeight());
 
-        int bitmapXTranslate = simplyPdfDocument.getLeftMargin() - composedArray[0].getComposedBitmap().getWidth();
-        for(Composed composed : composedArray) {
+        int bitmapXTranslate = simplyPdfDocument.getLeftMargin();
+        for(int index = 0; index < composedArray.length; index++) {
 
-            bitmapXTranslate += composed.getComposedBitmap().getWidth();
+            Composed composed = composedArray[index];
+            if(index != 0) {
+                bitmapXTranslate = composed.getComposedBitmap().getWidth();
+            }
+
             canvas.translate(bitmapXTranslate, 0);
             canvas.drawBitmap(composed.getComposedBitmap(), new Matrix(), bitmapPainter);
             composed.free();
@@ -65,6 +75,23 @@ public class ColumnComposer extends GroupComposer {
     void clean() {
         super.clean();
         bitmapPainter = null;
+    }
+
+    private void drawBorders(@Nullable Composed composed) {
+
+        if(composed == null) {
+            return;
+        }
+
+        Bitmap composedBitmap = composed.getComposedBitmap();
+        Canvas canvas = new Canvas(composedBitmap);
+        canvas.save();
+        borderPainter.setColor(colProperties.borderColor);
+        canvas.drawLine(0, 0, 0, composedBitmap.getHeight(), borderPainter);
+        canvas.drawLine(0, 0, composedBitmap.getWidth(), 0, borderPainter);
+        canvas.drawLine(composedBitmap.getWidth(), 0, composedBitmap.getWidth(), composedBitmap.getHeight(), borderPainter);
+        canvas.drawLine(composedBitmap.getWidth(), composedBitmap.getHeight(), 0, composedBitmap.getHeight(), borderPainter);
+        canvas.restore();
     }
 
     public static class Properties {

@@ -27,17 +27,17 @@ public class TextComposer extends UnitComposer {
 
     public void write(@NonNull String text, @Nullable Properties properties) {
 
-        write(text, properties, simplyPdfDocument.getUsablePageWidth(), false);
+        write(text, properties, simplyPdfDocument.getUsablePageWidth(), false, 0);
     }
 
     @Nullable
-    Composed getComposed(@NonNull String text, @Nullable Properties properties, int width) {
+    Composed getComposed(@NonNull String text, @Nullable Properties properties, int width, int padding) {
 
         if(width > simplyPdfDocument.getUsablePageWidth()) {
             width = simplyPdfDocument.getUsablePageWidth();
         }
 
-        return write(text, properties, width, true);
+        return write(text, properties, width, true, padding);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class TextComposer extends UnitComposer {
     }
 
     private Composed write(@NonNull String text, @Nullable Properties properties, int pageWidth,
-                       boolean isBeingComposed) {
+                       boolean isBeingComposed, int padding) {
 
         final Properties textProperties = properties == null ? this.properties : properties;
 
@@ -76,7 +76,7 @@ public class TextComposer extends UnitComposer {
         if(!isBeingComposed && !canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
         } else if (isBeingComposed) {
-            composed = new Composed(TextComposer.class.getName(), pageWidth, staticLayout.getHeight());
+            composed = new Composed(TextComposer.class.getName(), pageWidth + (padding * 4), staticLayout.getHeight() + (padding * 4));
             composed.getComposedBitmap().eraseColor(Color.WHITE);
             canvas = new Canvas(composed.getComposedBitmap());
         }
@@ -85,8 +85,8 @@ public class TextComposer extends UnitComposer {
 
         final int textLineSpacing = getTopSpacing(DEFAULT_SPACING);
 
-        canvas.translate(isBeingComposed ? 0 : simplyPdfDocument.getLeftMargin(),
-                isBeingComposed ? 0 : simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+        canvas.translate(isBeingComposed ? padding : simplyPdfDocument.getLeftMargin(),
+                isBeingComposed ? padding : simplyPdfDocument.getPageContentHeight() + textLineSpacing);
 
         if(bulletMarker != null) {
             bulletMarker.draw(canvas);

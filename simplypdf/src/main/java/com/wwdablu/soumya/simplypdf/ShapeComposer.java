@@ -9,7 +9,7 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ShapeComposer extends Composer {
+public class ShapeComposer extends UnitComposer {
 
     private Paint painter;
     private Path shapePath;

@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class TextComposer extends Composer {
+public class TextComposer extends UnitComposer {
 
     private final int BULLET_SPACING = 10;
 
@@ -26,6 +26,29 @@ public class TextComposer extends Composer {
     }
 
     public void write(@NonNull String text, @Nullable Properties properties) {
+
+        write(text, properties, simplyPdfDocument.getUsablePageWidth(), false, 0);
+    }
+
+    @Nullable
+    Composed getComposed(@NonNull String text, @Nullable Properties properties, int width, int padding) {
+
+        if(width > simplyPdfDocument.getUsablePageWidth()) {
+            width = simplyPdfDocument.getUsablePageWidth();
+        }
+
+        return write(text, properties, width, true, padding);
+    }
+
+    @Override
+    void clean() {
+        super.clean();
+        textPaint = null;
+        properties = null;
+    }
+
+    private Composed write(@NonNull String text, @Nullable Properties properties, int pageWidth,
+                       boolean isBeingComposed, int padding) {
 
         final Properties textProperties = properties == null ? this.properties : properties;
 
@@ -44,19 +67,27 @@ public class TextComposer extends Composer {
         }
 
         final StaticLayout staticLayout = new StaticLayout(text, textPaint,
-                simplyPdfDocument.getUsablePageWidth() - widthAdjustForProperties,
+                pageWidth - widthAdjustForProperties,
                 textProperties.getAlignment(), 1F, 0F, false);
 
-        if(!canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
+        Composed composed = null;
+        Canvas canvas = getPageCanvas();
+
+        if(!isBeingComposed && !canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
+        } else if (isBeingComposed) {
+            composed = new Composed(TextComposer.class.getName(), pageWidth + (padding * 4), staticLayout.getHeight() + (padding * 4));
+            composed.getComposedBitmap().eraseColor(Color.WHITE);
+            canvas = new Canvas(composed.getComposedBitmap());
         }
 
-        Canvas canvas = getPageCanvas();
         canvas.save();
 
         final int textLineSpacing = getTopSpacing(DEFAULT_SPACING);
 
-        canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+        canvas.translate(isBeingComposed ? padding : simplyPdfDocument.getLeftMargin(),
+                isBeingComposed ? padding : simplyPdfDocument.getPageContentHeight() + textLineSpacing);
+
         if(bulletMarker != null) {
             bulletMarker.draw(canvas);
         }
@@ -65,20 +96,19 @@ public class TextComposer extends Composer {
         setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, textProperties.strikethrough);
 
         canvas.translate(widthAdjustForProperties, 0);
-        simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
+
+        if(!isBeingComposed) {
+            simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
+        }
+
         staticLayout.draw(canvas);
         canvas.restore();
 
         //After every write remove the flags. Will be set again for the next write call
         setTextPaintProperties(Paint.UNDERLINE_TEXT_FLAG, false);
         setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, false);
-    }
 
-    @Override
-    void clean() {
-        super.clean();
-        textPaint = null;
-        properties = null;
+        return composed;
     }
 
     private void setTextPaintProperties(int flag, boolean enable) {
@@ -90,7 +120,7 @@ public class TextComposer extends Composer {
         }
     }
 
-    public static class Properties {
+    public static class Properties extends UnitComposer.Properties {
 
         public int textColor;
         public int textSize;
@@ -133,6 +163,11 @@ public class TextComposer extends Composer {
             }
 
             return this.bulletSymbol;
+        }
+
+        @Override
+        public String getPropId() {
+            return TextComposer.class.getName() + "Properties";
         }
     }
 }

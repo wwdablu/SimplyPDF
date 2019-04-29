@@ -9,6 +9,8 @@ import android.graphics.Paint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.List;
+
 public class ColumnComposer extends GroupComposer {
 
     private Paint bitmapPainter;
@@ -25,50 +27,57 @@ public class ColumnComposer extends GroupComposer {
     @Nullable
     public Composed addTextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int cellWidth) {
 
-        Composed composed = simplyPdfDocument.getTextComposer().getComposed(text, properties,
+        return simplyPdfDocument.getTextComposer().getComposed(text, properties,
             cellWidth, this.colProperties.borderWidth);
-        drawBorders(composed);
-        return composed;
     }
 
-    public void draw(@NonNull Composed... composedArray) {
+    public void draw(@NonNull List<List<Composed>> composedList) {
 
-        if(composedArray.length == 0) {
+        if(composedList.size() == 0) {
             return;
         }
 
-        int largestHeight = composedArray[0].getComposedBitmap().getHeight();
-        for(Composed composed : composedArray) {
-            if(largestHeight < composed.getComposedBitmap().getHeight()) {
-                largestHeight = composed.getComposedBitmap().getHeight();
-            }
-        }
+        int largestHeight = composedList.get(0).get(0).getComposedBitmap().getHeight();
+        for(List<Composed> rowComposedList : composedList) {
 
-        if(!canFitContentInPage(largestHeight)) {
-            simplyPdfDocument.newPage();
-        }
+            for(Composed composed : rowComposedList) {
 
-        Canvas canvas = getPageCanvas();
-        canvas.save();
-
-        //Translate and fix the Y-axis
-        canvas.translate(0, simplyPdfDocument.getPageContentHeight());
-
-        int bitmapXTranslate = simplyPdfDocument.getLeftMargin();
-        for(int index = 0; index < composedArray.length; index++) {
-
-            Composed composed = composedArray[index];
-            if(index != 0) {
-                bitmapXTranslate = composed.getComposedBitmap().getWidth();
+                if(largestHeight < composed.getComposedBitmap().getHeight()) {
+                    largestHeight = composed.getComposedBitmap().getHeight();
+                }
             }
 
-            canvas.translate(bitmapXTranslate, 0);
-            canvas.drawBitmap(composed.getComposedBitmap(), new Matrix(), bitmapPainter);
-            composed.free();
-        }
+            if(!canFitContentInPage(largestHeight)) {
+                simplyPdfDocument.newPage();
+            }
 
-        simplyPdfDocument.addContentHeight(largestHeight);
-        canvas.restore();
+            Canvas canvas = getPageCanvas();
+            canvas.save();
+
+            //Translate and fix the Y-axis
+            canvas.translate(0, simplyPdfDocument.getPageContentHeight());
+
+            int bitmapXTranslate = simplyPdfDocument.getLeftMargin();
+            int arrayLength = rowComposedList.size();
+            for(int rowIndex = 0; rowIndex < arrayLength; rowIndex++) {
+
+                Composed composed = rowComposedList.get(rowIndex);
+                if(rowIndex != 0) {
+                    bitmapXTranslate = composed.getComposedBitmap().getWidth();
+                }
+
+                canvas.translate(bitmapXTranslate, 0);
+                canvas.drawBitmap(composed.getComposedBitmap(), new Matrix(), bitmapPainter);
+
+                //release the internal bitmap
+                composed.free();
+            }
+
+            simplyPdfDocument.addContentHeight(largestHeight);
+            canvas.restore();
+
+            drawBorders(canvas, largestHeight, rowComposedList);
+        }
     }
 
     @Override
@@ -77,20 +86,35 @@ public class ColumnComposer extends GroupComposer {
         bitmapPainter = null;
     }
 
-    private void drawBorders(@Nullable Composed composed) {
+    private void drawBorders(@NonNull Canvas canvas, int maxHeight, List<Composed> composedList) {
 
-        if(composed == null) {
-            return;
+        canvas.save();
+        canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() - maxHeight);
+        borderPainter.setColor(colProperties.borderColor);
+
+        int colIndex = 0;
+        for(Composed composed : composedList) {
+
+            Bitmap composedBitmap = composed.getComposedBitmap();
+
+            //Left border
+            if(colIndex == 0) {
+                canvas.drawLine(0, 0, 0, maxHeight, borderPainter);
+            }
+
+            //Top border
+            canvas.drawLine(0, 0, composedBitmap.getWidth(), 0, borderPainter);
+
+            //Right border
+            canvas.drawLine(composedBitmap.getWidth(), 0, composedBitmap.getWidth(), maxHeight, borderPainter);
+
+            //Bottom border
+            canvas.drawLine(composedBitmap.getWidth(), maxHeight, 0, maxHeight, borderPainter);
+
+            ++colIndex;
+            canvas.translate(composedBitmap.getWidth(), 0);
         }
 
-        Bitmap composedBitmap = composed.getComposedBitmap();
-        Canvas canvas = new Canvas(composedBitmap);
-        canvas.save();
-        borderPainter.setColor(colProperties.borderColor);
-        canvas.drawLine(0, 0, 0, composedBitmap.getHeight(), borderPainter);
-        canvas.drawLine(0, 0, composedBitmap.getWidth(), 0, borderPainter);
-        canvas.drawLine(composedBitmap.getWidth(), 0, composedBitmap.getWidth(), composedBitmap.getHeight(), borderPainter);
-        canvas.drawLine(composedBitmap.getWidth(), composedBitmap.getHeight(), 0, composedBitmap.getHeight(), borderPainter);
         canvas.restore();
     }
 

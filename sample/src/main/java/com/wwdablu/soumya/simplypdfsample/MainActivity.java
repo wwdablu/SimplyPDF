@@ -12,6 +12,7 @@ import android.print.PrintAttributes;
 import android.text.Layout;
 
 import com.wwdablu.soumya.simplypdf.ColumnComposer;
+import com.wwdablu.soumya.simplypdf.Composed;
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
 import com.wwdablu.soumya.simplypdf.ImageComposer;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
@@ -21,6 +22,8 @@ import com.wwdablu.soumya.simplypdf.TextComposer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         columnComposer = simplyPdfDocument.getColumnComposer();
 
         //testVariableFontSizeText();
-        //testHeaderTypeText();
+        testHeaderTypeText();
         //testColoredText();
         //testNewPageWithBackground();
         //testShapes();
@@ -77,34 +80,58 @@ public class MainActivity extends AppCompatActivity {
 
         ColumnComposer.Properties colProperties = new ColumnComposer.Properties(1, Color.BLACK);
 
-        columnComposer.draw(columnComposer.addTextCell("Likes", textProperties, w_50_cent),
-                columnComposer.addTextCell("Dislikes", textProperties, w_50_cent));
+        List<List<Composed>> composedList = new ArrayList<>();
+        ArrayList<Composed> rowList = new ArrayList<>();
+
+        //1st row
+        rowList.add(columnComposer.addTextCell("Likes", textProperties, w_50_cent));
+        rowList.add(columnComposer.addTextCell("Dislikes", textProperties, w_50_cent));
+        composedList.add(rowList);
 
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
         textProperties.bulletSymbol = "•";
         textProperties.isBullet = true;
 
-        columnComposer.draw(columnComposer.addTextCell("Apple", textProperties, w_50_cent),
-                columnComposer.addTextCell("Guava", textProperties, w_50_cent));
+        //2nd row
+        rowList = new ArrayList<>();
+        rowList.add(columnComposer.addTextCell("Apple", textProperties, w_50_cent));
+        rowList.add(columnComposer.addTextCell("Guava", textProperties, w_50_cent));
+        composedList.add(rowList);
 
-        columnComposer.draw(columnComposer.addTextCell("Banana", textProperties, w_50_cent),
-                columnComposer.addTextCell("Coconut", textProperties, w_50_cent));
+        //3rd row
+        rowList = new ArrayList<>();
+        rowList.add(columnComposer.addTextCell("Banana", textProperties, w_50_cent));
+        rowList.add(columnComposer.addTextCell("Coconut", textProperties, w_50_cent));
+        composedList.add(rowList);
 
-        columnComposer.draw(columnComposer.addTextCell("Mango", textProperties, w_50_cent));
+        //4th row
+        rowList = new ArrayList<>();
+        rowList.add(columnComposer.addTextCell("Mango", textProperties, w_50_cent));
+        composedList.add(rowList);
+        columnComposer.draw(composedList);
 
         simplyPdfDocument.insertEmptyLine();
         textProperties.isBullet = false;
 
-        columnComposer.draw(columnComposer.addTextCell("Small Left Text", textProperties, w_50_cent),
-                columnComposer.addTextCell("This is a big text on the right column which will be multiple lines.",
+        //new table
+        composedList.clear();
+        rowList = new ArrayList<>();
+        rowList.add(columnComposer.addTextCell("Small Left Text", textProperties, w_50_cent));
+        rowList.add(columnComposer.addTextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
+        composedList.add(rowList);
+        columnComposer.draw(composedList);
 
         simplyPdfDocument.insertEmptyLine();
 
-        columnComposer.draw(columnComposer.addTextCell(
-                "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent),
-                columnComposer.addTextCell("Small right text",
-                        textProperties, w_50_cent));
+        //new table
+        composedList.clear();
+        rowList = new ArrayList<>();
+        rowList.add(columnComposer.addTextCell(
+                "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent));
+        rowList.add(columnComposer.addTextCell("Small right text", textProperties, w_50_cent));
+        composedList.add(rowList);
+        columnComposer.draw(composedList);
     }
 
     private void testSampleOutput() {

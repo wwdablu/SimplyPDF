@@ -25,30 +25,13 @@ public class TextComposer extends UnitComposer {
         properties = new Properties();
     }
 
-    public void write(@NonNull String text, @Nullable Properties properties) {
+    public int write(@NonNull String text, @Nullable Properties properties) {
 
-        write(text, properties, simplyPdfDocument.getUsablePageWidth(), false, 0);
+        return write(text, properties, simplyPdfDocument.getUsablePageWidth(), 0, false, 0, true);
     }
 
-    @Nullable
-    Composed getComposed(@NonNull String text, @Nullable Properties properties, int width, int padding) {
-
-        if(width > simplyPdfDocument.getUsablePageWidth()) {
-            width = simplyPdfDocument.getUsablePageWidth();
-        }
-
-        return write(text, properties, width, true, padding);
-    }
-
-    @Override
-    void clean() {
-        super.clean();
-        textPaint = null;
-        properties = null;
-    }
-
-    private Composed write(@NonNull String text, @Nullable Properties properties, int pageWidth,
-                       boolean isBeingComposed, int padding) {
+    int write(@NonNull String text, @Nullable Properties properties, int pageWidth, int padding,
+              boolean isHorizontalDraw, int hPadding, boolean performDraw) {
 
         final Properties textProperties = properties == null ? this.properties : properties;
 
@@ -70,25 +53,18 @@ public class TextComposer extends UnitComposer {
                 pageWidth - widthAdjustForProperties,
                 textProperties.getAlignment(), 1F, 0F, false);
 
-        Composed composed = null;
-        Canvas canvas = getPageCanvas();
-
-        if(!isBeingComposed && !canFitContentInPage(DEFAULT_SPACING + staticLayout.getHeight())) {
+        final int textLineSpacing = getTopSpacing(isHorizontalDraw ? 0 : DEFAULT_SPACING);
+        if(performDraw && !canFitContentInPage(textLineSpacing + staticLayout.getHeight())) {
             simplyPdfDocument.newPage();
-        } else if (isBeingComposed) {
-            composed = new Composed(TextComposer.class.getName(), pageWidth + (padding * 4), staticLayout.getHeight() + (padding * 4));
-            composed.getComposedBitmap().eraseColor(Color.WHITE);
-            canvas = new Canvas(composed.getComposedBitmap());
         }
 
+        Canvas canvas = getPageCanvas();
         canvas.save();
 
-        final int textLineSpacing = getTopSpacing(DEFAULT_SPACING);
+        canvas.translate(isHorizontalDraw ? hPadding : padding + simplyPdfDocument.getLeftMargin(),
+            padding + simplyPdfDocument.getPageContentHeight() + textLineSpacing);
 
-        canvas.translate(isBeingComposed ? padding : simplyPdfDocument.getLeftMargin(),
-                isBeingComposed ? padding : simplyPdfDocument.getPageContentHeight() + textLineSpacing);
-
-        if(bulletMarker != null) {
+        if(performDraw && bulletMarker != null) {
             bulletMarker.draw(canvas);
         }
 
@@ -97,18 +73,35 @@ public class TextComposer extends UnitComposer {
 
         canvas.translate(widthAdjustForProperties, 0);
 
-        if(!isBeingComposed) {
-            simplyPdfDocument.addContentHeight(staticLayout.getHeight() + textLineSpacing);
+        int finalContentHeight = staticLayout.getHeight() + textLineSpacing;
+
+        if(performDraw) {
+
+            if(!isHorizontalDraw) {
+                simplyPdfDocument.addContentHeight(finalContentHeight);
+            }
+            staticLayout.draw(canvas);
         }
 
-        staticLayout.draw(canvas);
         canvas.restore();
 
         //After every write remove the flags. Will be set again for the next write call
         setTextPaintProperties(Paint.UNDERLINE_TEXT_FLAG, false);
         setTextPaintProperties(Paint.STRIKE_THRU_TEXT_FLAG, false);
 
-        return composed;
+        return finalContentHeight;
+    }
+
+    @Override
+    void clean() {
+        super.clean();
+        textPaint = null;
+        properties = null;
+    }
+
+    @Override
+    String getComposerName() {
+        return TextComposer.class.getName();
     }
 
     private void setTextPaintProperties(int flag, boolean enable) {

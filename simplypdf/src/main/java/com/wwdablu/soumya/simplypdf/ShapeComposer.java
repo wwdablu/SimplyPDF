@@ -71,6 +71,11 @@ public class ShapeComposer extends UnitComposer {
         properties = null;
     }
 
+    @Override
+    String getComposerName() {
+        return ShapeComposer.class.getName();
+    }
+
     public static class Properties {
         public int lineColor;
         public int lineWidth;

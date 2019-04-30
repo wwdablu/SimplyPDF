@@ -11,8 +11,9 @@ import android.os.Environment;
 import android.print.PrintAttributes;
 import android.text.Layout;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.wwdablu.soumya.simplypdf.ColumnComposer;
-import com.wwdablu.soumya.simplypdf.Composed;
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
 import com.wwdablu.soumya.simplypdf.ImageComposer;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
@@ -24,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,33 +79,36 @@ public class MainActivity extends AppCompatActivity {
 
         ColumnComposer.Properties colProperties = new ColumnComposer.Properties(1, Color.BLACK);
 
-        List<List<Composed>> composedList = new ArrayList<>();
-        ArrayList<Composed> rowList = new ArrayList<>();
+        List<List<ColumnComposer.Cell>> composedList = new ArrayList<>();
+        ArrayList<ColumnComposer.Cell> rowList = new ArrayList<>();
 
         //1st row
-        rowList.add(columnComposer.addTextCell("Likes", textProperties, w_50_cent));
-        rowList.add(columnComposer.addTextCell("Dislikes", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Likes", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Dislikes", textProperties, w_50_cent));
         composedList.add(rowList);
 
+        textProperties = new TextComposer.Properties();
+        textProperties.textSize = 24;
+        textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
         textProperties.bulletSymbol = "•";
         textProperties.isBullet = true;
 
         //2nd row
         rowList = new ArrayList<>();
-        rowList.add(columnComposer.addTextCell("Apple", textProperties, w_50_cent));
-        rowList.add(columnComposer.addTextCell("Guava", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Apple", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Guava", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //3rd row
         rowList = new ArrayList<>();
-        rowList.add(columnComposer.addTextCell("Banana", textProperties, w_50_cent));
-        rowList.add(columnComposer.addTextCell("Coconut", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Banana", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Coconut", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //4th row
         rowList = new ArrayList<>();
-        rowList.add(columnComposer.addTextCell("Mango", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Mango", textProperties, w_50_cent));
         composedList.add(rowList);
         columnComposer.draw(composedList);
 
@@ -116,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(columnComposer.addTextCell("Small Left Text", textProperties, w_50_cent));
-        rowList.add(columnComposer.addTextCell("This is a big text on the right column which will be multiple lines.",
+        rowList.add(new ColumnComposer.TextCell("Small Left Text", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
         composedList.add(rowList);
         columnComposer.draw(composedList);
@@ -127,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(columnComposer.addTextCell(
+        rowList.add(new ColumnComposer.TextCell(
                 "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent));
-        rowList.add(columnComposer.addTextCell("Small right text", textProperties, w_50_cent));
+        rowList.add(new ColumnComposer.TextCell("Small right text", textProperties, w_50_cent));
         composedList.add(rowList);
         columnComposer.draw(composedList);
     }

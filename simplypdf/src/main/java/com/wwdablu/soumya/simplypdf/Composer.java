@@ -22,6 +22,8 @@ abstract class Composer {
         simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
     }
 
+    abstract String getComposerName();
+
     final Canvas getPageCanvas() {
         return simplyPdfDocument.getCurrentPage().getCanvas();
     }

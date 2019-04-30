@@ -1,9 +1,7 @@
 package com.wwdablu.soumya.simplypdf;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 
 import androidx.annotation.NonNull;
@@ -13,37 +11,35 @@ import java.util.List;
 
 public class ColumnComposer extends GroupComposer {
 
-    private Paint bitmapPainter;
     private Paint borderPainter;
     private Properties colProperties;
 
     ColumnComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
-        this.bitmapPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.borderPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.colProperties = new Properties(1, Color.BLACK);
     }
 
-    @Nullable
-    public Composed addTextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int cellWidth) {
+    public void draw(@NonNull List<List<Cell>> cellList) {
 
-        return simplyPdfDocument.getTextComposer().getComposed(text, properties,
-            cellWidth, this.colProperties.borderWidth);
-    }
-
-    public void draw(@NonNull List<List<Composed>> composedList) {
-
-        if(composedList.size() == 0) {
+        if(cellList.size() == 0) {
             return;
         }
 
-        int largestHeight = composedList.get(0).get(0).getComposedBitmap().getHeight();
-        for(List<Composed> rowComposedList : composedList) {
+        int largestHeight = 0;
+        for(List<Cell> rowCellList : cellList) {
 
-            for(Composed composed : rowComposedList) {
+            for(Cell cell : rowCellList) {
 
-                if(largestHeight < composed.getComposedBitmap().getHeight()) {
-                    largestHeight = composed.getComposedBitmap().getHeight();
+                int cellHeight = 0;
+                if(cell instanceof TextCell) {
+                    cellHeight = simplyPdfDocument.getTextComposer()
+                        .write(((TextCell) cell).text, ((TextCell) cell).properties,
+                            cell.width, 0, true, 0, false);
+                }
+
+                if(largestHeight < cellHeight) {
+                    largestHeight = cellHeight;
                 }
             }
 
@@ -51,51 +47,44 @@ public class ColumnComposer extends GroupComposer {
                 simplyPdfDocument.newPage();
             }
 
-            Canvas canvas = getPageCanvas();
-            canvas.save();
-
-            //Translate and fix the Y-axis
-            canvas.translate(0, simplyPdfDocument.getPageContentHeight());
-
             int bitmapXTranslate = simplyPdfDocument.getLeftMargin();
-            int arrayLength = rowComposedList.size();
+            int arrayLength = rowCellList.size();
             for(int rowIndex = 0; rowIndex < arrayLength; rowIndex++) {
 
-                Composed composed = rowComposedList.get(rowIndex);
-                if(rowIndex != 0) {
-                    bitmapXTranslate = composed.getComposedBitmap().getWidth();
+                Cell cellData = rowCellList.get(rowIndex);
+                if(cellData instanceof TextCell) {
+                    simplyPdfDocument.getTextComposer()
+                        .write(((TextCell) cellData).text, ((TextCell) cellData).properties,
+                            cellData.width, 0,
+                                true, bitmapXTranslate, true);
+                    bitmapXTranslate += cellData.width;
                 }
-
-                canvas.translate(bitmapXTranslate, 0);
-                canvas.drawBitmap(composed.getComposedBitmap(), new Matrix(), bitmapPainter);
-
-                //release the internal bitmap
-                composed.free();
             }
 
             simplyPdfDocument.addContentHeight(largestHeight);
-            canvas.restore();
-
-            drawBorders(canvas, largestHeight, rowComposedList);
+            drawBorders(getPageCanvas(), largestHeight, rowCellList);
         }
     }
 
     @Override
     void clean() {
         super.clean();
-        bitmapPainter = null;
+        borderPainter = null;
     }
 
-    private void drawBorders(@NonNull Canvas canvas, int maxHeight, List<Composed> composedList) {
+    @Override
+    String getComposerName() {
+        return ColumnComposer.class.getName();
+    }
+
+    private void drawBorders(@NonNull Canvas canvas, int maxHeight, List<Cell> rowCellList) {
 
         canvas.save();
         canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() - maxHeight);
         borderPainter.setColor(colProperties.borderColor);
 
         int colIndex = 0;
-        for(Composed composed : composedList) {
-
-            Bitmap composedBitmap = composed.getComposedBitmap();
+        for(Cell cell : rowCellList) {
 
             //Left border
             if(colIndex == 0) {
@@ -103,16 +92,16 @@ public class ColumnComposer extends GroupComposer {
             }
 
             //Top border
-            canvas.drawLine(0, 0, composedBitmap.getWidth(), 0, borderPainter);
+            canvas.drawLine(0, 0, cell.width, 0, borderPainter);
 
             //Right border
-            canvas.drawLine(composedBitmap.getWidth(), 0, composedBitmap.getWidth(), maxHeight, borderPainter);
+            canvas.drawLine(cell.width, 0, cell.width, maxHeight, borderPainter);
 
             //Bottom border
-            canvas.drawLine(composedBitmap.getWidth(), maxHeight, 0, maxHeight, borderPainter);
+            canvas.drawLine(cell.width, maxHeight, 0, maxHeight, borderPainter);
 
             ++colIndex;
-            canvas.translate(composedBitmap.getWidth(), 0);
+            canvas.translate(cell.width, 0);
         }
 
         canvas.restore();
@@ -135,6 +124,22 @@ public class ColumnComposer extends GroupComposer {
 
         public int getBorderColor() {
             return borderColor;
+        }
+    }
+
+    public static abstract class Cell {
+        protected int width;
+    }
+
+    public static class TextCell extends Cell {
+
+        private String text;
+        private TextComposer.Properties properties;
+
+        public TextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int width) {
+            this.text = text;
+            this.properties = properties;
+            this.width = width;
         }
     }
 }

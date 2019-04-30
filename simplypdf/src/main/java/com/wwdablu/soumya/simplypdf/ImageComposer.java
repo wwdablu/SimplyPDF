@@ -50,6 +50,11 @@ public class ImageComposer extends UnitComposer {
         bitmapPainter = null;
     }
 
+    @Override
+    String getComposerName() {
+        return ImageComposer.class.getName();
+    }
+
     public static class Properties {
 
         public Alignment alignment;

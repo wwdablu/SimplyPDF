@@ -1,4 +1,4 @@
 package com.wwdablu.soumya.simplypdf;
 
-class GroupComposer extends Composer {
+abstract class GroupComposer extends Composer {
 }

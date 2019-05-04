@@ -27,11 +27,23 @@ public class TextComposer extends UnitComposer {
 
     public int write(@NonNull String text, @Nullable Properties properties) {
 
-        return write(text, properties, simplyPdfDocument.getUsablePageWidth(), 0, false, 0, true);
+        return write(text, properties, simplyPdfDocument.getUsablePageWidth(), 0, false, 0, 0, true);
     }
 
+    /**
+     * Draws text on the canvas with the provided params
+     * @param text Text to draw
+     * @param properties TextProperties
+     * @param pageWidth Width of the page
+     * @param padding Vertical padding (added to the top only)
+     * @param isHorizontalDraw Is it being drawn in a cell side by side.
+     * @param hAxis The location in x-axis where text will be drawn
+     * @param hPadding Horizontal padding (added to the start only)
+     * @param performDraw Should it actually perform the draw on canvas.
+     * @return The height of the content that can be drawn.
+     */
     int write(@NonNull String text, @Nullable Properties properties, int pageWidth, int padding,
-              boolean isHorizontalDraw, int hPadding, boolean performDraw) {
+              boolean isHorizontalDraw, int hAxis, int hPadding, boolean performDraw) {
 
         final Properties textProperties = properties == null ? this.properties : properties;
 
@@ -50,7 +62,7 @@ public class TextComposer extends UnitComposer {
         }
 
         final StaticLayout staticLayout = new StaticLayout(text, textPaint,
-                pageWidth - widthAdjustForProperties,
+                pageWidth - widthAdjustForProperties + hPadding,
                 textProperties.getAlignment(), 1F, 0F, false);
 
         final int textLineSpacing = getTopSpacing(isHorizontalDraw ? 0 : DEFAULT_SPACING);
@@ -61,7 +73,7 @@ public class TextComposer extends UnitComposer {
         Canvas canvas = getPageCanvas();
         canvas.save();
 
-        canvas.translate(isHorizontalDraw ? hPadding : padding + simplyPdfDocument.getLeftMargin(),
+        canvas.translate(isHorizontalDraw ? hAxis + hPadding : hAxis + hPadding + simplyPdfDocument.getLeftMargin(),
             padding + simplyPdfDocument.getPageContentHeight() + textLineSpacing);
 
         if(performDraw && bulletMarker != null) {
@@ -73,7 +85,7 @@ public class TextComposer extends UnitComposer {
 
         canvas.translate(widthAdjustForProperties, 0);
 
-        int finalContentHeight = staticLayout.getHeight() + textLineSpacing;
+        int finalContentHeight = staticLayout.getHeight() + textLineSpacing + padding;
 
         if(performDraw) {
 

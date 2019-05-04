@@ -9,15 +9,16 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-public class ColumnComposer extends GroupComposer {
+public class TableComposer extends GroupComposer {
 
     private Paint borderPainter;
     private Properties colProperties;
 
-    ColumnComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+    TableComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+
         this.simplyPdfDocument = simplyPdfDocument;
         this.borderPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
-        this.colProperties = new Properties(1, Color.BLACK);
+        initProperties();
     }
 
     public void draw(@NonNull List<List<Cell>> cellList) {
@@ -35,7 +36,7 @@ public class ColumnComposer extends GroupComposer {
                 if(cell instanceof TextCell) {
                     cellHeight = simplyPdfDocument.getTextComposer()
                         .write(((TextCell) cell).text, ((TextCell) cell).properties,
-                            cell.width, 0, true, 0, false);
+                            cell.width, cell.verticalPadding, true, 0, cell.horizontalPadding, false);
                 }
 
                 if(largestHeight < cellHeight) {
@@ -55,14 +56,24 @@ public class ColumnComposer extends GroupComposer {
                 if(cellData instanceof TextCell) {
                     simplyPdfDocument.getTextComposer()
                         .write(((TextCell) cellData).text, ((TextCell) cellData).properties,
-                            cellData.width, 0,
-                                true, bitmapXTranslate, true);
-                    bitmapXTranslate += cellData.width;
+                            cellData.width, cellData.verticalPadding,
+                                true, bitmapXTranslate, cellData.horizontalPadding, true);
+                    bitmapXTranslate += (cellData.width);
                 }
             }
 
             simplyPdfDocument.addContentHeight(largestHeight);
             drawBorders(getPageCanvas(), largestHeight, rowCellList);
+            largestHeight = 0;
+        }
+    }
+
+    public void setProperties(@Nullable Properties properties) {
+
+        if(properties != null) {
+            this.colProperties = properties;
+        } else {
+            initProperties();
         }
     }
 
@@ -74,7 +85,11 @@ public class ColumnComposer extends GroupComposer {
 
     @Override
     String getComposerName() {
-        return ColumnComposer.class.getName();
+        return TableComposer.class.getName();
+    }
+
+    private void initProperties() {
+        this.colProperties = new Properties(1, Color.BLACK);
     }
 
     private void drawBorders(@NonNull Canvas canvas, int maxHeight, List<Cell> rowCellList) {
@@ -128,7 +143,25 @@ public class ColumnComposer extends GroupComposer {
     }
 
     public static abstract class Cell {
-        protected int width;
+        int width;
+        int horizontalPadding;
+        int verticalPadding;
+
+        public int getHorizontalPadding() {
+            return horizontalPadding;
+        }
+
+        public void setHorizontalPadding(int horizontalPadding) {
+            this.horizontalPadding = horizontalPadding;
+        }
+
+        public int getVerticalPadding() {
+            return verticalPadding;
+        }
+
+        public void setVerticalPadding(int verticalPadding) {
+            this.verticalPadding = verticalPadding;
+        }
     }
 
     public static class TextCell extends Cell {

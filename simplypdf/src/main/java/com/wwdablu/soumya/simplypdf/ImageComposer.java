@@ -51,7 +51,7 @@ public class ImageComposer extends UnitComposer {
     }
 
     @Override
-    String getComposerName() {
+    protected String getComposerName() {
         return ImageComposer.class.getName();
     }
 

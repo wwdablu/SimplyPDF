@@ -112,7 +112,7 @@ public class TextComposer extends UnitComposer {
     }
 
     @Override
-    String getComposerName() {
+    protected String getComposerName() {
         return TextComposer.class.getName();
     }
 

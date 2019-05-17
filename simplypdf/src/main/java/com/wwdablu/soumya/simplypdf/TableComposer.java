@@ -84,7 +84,7 @@ public class TableComposer extends GroupComposer {
     }
 
     @Override
-    String getComposerName() {
+    protected String getComposerName() {
         return TableComposer.class.getName();
     }
 

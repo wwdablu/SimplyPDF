@@ -72,7 +72,7 @@ public class ShapeComposer extends UnitComposer {
     }
 
     @Override
-    String getComposerName() {
+    protected String getComposerName() {
         return ShapeComposer.class.getName();
     }
 

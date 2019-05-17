@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import com.wwdablu.soumya.simplypdf.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 import com.wwdablu.soumya.simplypdf.TextComposer;
+import com.wwdablu.soumya.simplypdf.UnitComposer;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,12 +63,20 @@ public class MainActivity extends AppCompatActivity {
         //testBitmapRender();
         //testSampleOutput();
         testTextComposed();
+        //testCustomComposer();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testCustomComposer() {
+
+        MyUnitComposer myUnitComposer = new MyUnitComposer();
+        myUnitComposer.setSimplyPdfDocument(simplyPdfDocument);
+        myUnitComposer.draw();
     }
 
     private void testTextComposed() {
@@ -350,5 +360,28 @@ public class MainActivity extends AppCompatActivity {
         properties.textColor = Color.WHITE;
 
         textComposer.write("White text on magenta background page.", properties);
+    }
+
+
+
+    public class MyUnitComposer extends UnitComposer {
+
+        @Override
+        protected String getComposerName() {
+            return null;
+        }
+
+        public void draw() {
+
+            simplyPdfDocument.insertNewPage();
+
+            Canvas canvas = getPageCanvas();
+            Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            p.setColor(Color.RED);
+            canvas.drawRect(new Rect(0,0,100,100), p);
+
+            canvas.translate(0, 150);
+            canvas.drawText("Custom composer", 0, 0, p);
+        }
     }
 }

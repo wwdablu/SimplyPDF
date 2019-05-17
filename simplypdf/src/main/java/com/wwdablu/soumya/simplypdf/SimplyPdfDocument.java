@@ -99,7 +99,7 @@ public class SimplyPdfDocument {
 
     /**
      * Returns the column composer to draw columns for a table
-     * @return
+     * @return Table composer
      */
     @NonNull
     public TableComposer getTableComposer() {
@@ -228,7 +228,7 @@ public class SimplyPdfDocument {
 
     /**
      * Returns the current page being used
-     * @return
+     * @return Current page object
      */
     Page getCurrentPage() {
         return currentPage;

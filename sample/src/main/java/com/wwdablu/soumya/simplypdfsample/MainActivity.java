@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,13 +14,14 @@ import android.text.Layout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.wwdablu.soumya.simplypdf.ColumnComposer;
+import com.wwdablu.soumya.simplypdf.TableComposer;
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
 import com.wwdablu.soumya.simplypdf.ImageComposer;
 import com.wwdablu.soumya.simplypdf.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 import com.wwdablu.soumya.simplypdf.TextComposer;
+import com.wwdablu.soumya.simplypdf.UnitComposer;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private TextComposer textComposer;
     private ShapeComposer shapeComposer;
     private ImageComposer imageComposer;
-    private ColumnComposer columnComposer;
+    private TableComposer tableComposer;
     private SimplyPdfDocument simplyPdfDocument;
 
     @Override
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         textComposer = simplyPdfDocument.getTextComposer();
         shapeComposer = simplyPdfDocument.getShapeComposer();
         imageComposer = simplyPdfDocument.getImageComposer();
-        columnComposer = simplyPdfDocument.getColumnComposer();
+        tableComposer = simplyPdfDocument.getTableComposer();
 
         //testVariableFontSizeText();
         testHeaderTypeText();
@@ -61,12 +63,20 @@ public class MainActivity extends AppCompatActivity {
         //testBitmapRender();
         //testSampleOutput();
         testTextComposed();
+        //testCustomComposer();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testCustomComposer() {
+
+        MyUnitComposer myUnitComposer = new MyUnitComposer();
+        myUnitComposer.setSimplyPdfDocument(simplyPdfDocument);
+        myUnitComposer.draw();
     }
 
     private void testTextComposed() {
@@ -77,14 +87,15 @@ public class MainActivity extends AppCompatActivity {
 
         int w_50_cent = simplyPdfDocument.pageWidth() / 2;
 
-        ColumnComposer.Properties colProperties = new ColumnComposer.Properties(1, Color.BLACK);
+        TableComposer.Properties colProperties = new TableComposer.Properties(1, Color.BLACK);
+        tableComposer.setProperties(colProperties);
 
-        List<List<ColumnComposer.Cell>> composedList = new ArrayList<>();
-        ArrayList<ColumnComposer.Cell> rowList = new ArrayList<>();
+        List<List<TableComposer.Cell>> composedList = new ArrayList<>();
+        ArrayList<TableComposer.Cell> rowList = new ArrayList<>();
 
         //1st row
-        rowList.add(new ColumnComposer.TextCell("Likes", textProperties, w_50_cent));
-        rowList.add(new ColumnComposer.TextCell("Dislikes", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("Likes", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("Dislikes", textProperties, w_50_cent));
         composedList.add(rowList);
 
         textProperties = new TextComposer.Properties();
@@ -96,21 +107,22 @@ public class MainActivity extends AppCompatActivity {
 
         //2nd row
         rowList = new ArrayList<>();
-        rowList.add(new ColumnComposer.TextCell("Apple", textProperties, w_50_cent));
-        rowList.add(new ColumnComposer.TextCell("Guava", textProperties, w_50_cent));
+        TableComposer.Cell cell = new TableComposer.TextCell("Apple", textProperties, w_50_cent);
+        rowList.add(cell);
+        rowList.add(new TableComposer.TextCell("Guava", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //3rd row
         rowList = new ArrayList<>();
-        rowList.add(new ColumnComposer.TextCell("Banana", textProperties, w_50_cent));
-        rowList.add(new ColumnComposer.TextCell("Coconut", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("Banana", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("Coconut", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //4th row
         rowList = new ArrayList<>();
-        rowList.add(new ColumnComposer.TextCell("Mango", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("Mango", textProperties, w_50_cent));
         composedList.add(rowList);
-        columnComposer.draw(composedList);
+        tableComposer.draw(composedList);
 
         simplyPdfDocument.insertEmptyLine();
         textProperties.isBullet = false;
@@ -118,22 +130,30 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(new ColumnComposer.TextCell("Small Left Text", textProperties, w_50_cent));
-        rowList.add(new ColumnComposer.TextCell("This is a big text on the right column which will be multiple lines.",
+        rowList.add(new TableComposer.TextCell("Small Left Text", textProperties, w_50_cent));
+        rowList.add(new TableComposer.TextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
         composedList.add(rowList);
-        columnComposer.draw(composedList);
+        tableComposer.draw(composedList);
 
         simplyPdfDocument.insertEmptyLine();
 
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(new ColumnComposer.TextCell(
-                "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent));
-        rowList.add(new ColumnComposer.TextCell("Small right text", textProperties, w_50_cent));
+
+        cell = new TableComposer.TextCell(
+                "This is a big text a a the right column which will be multiple lines.", textProperties, w_50_cent);
+        cell.setHorizontalPadding(25);
+        cell.setVerticalPadding(50);
+        rowList.add(cell);
+
+        cell = new TableComposer.TextCell("Small right text", textProperties, w_50_cent);
+        cell.setHorizontalPadding(25);
+        cell.setVerticalPadding(50);
+        rowList.add(cell);
         composedList.add(rowList);
-        columnComposer.draw(composedList);
+        tableComposer.draw(composedList);
     }
 
     private void testSampleOutput() {
@@ -340,5 +360,28 @@ public class MainActivity extends AppCompatActivity {
         properties.textColor = Color.WHITE;
 
         textComposer.write("White text on magenta background page.", properties);
+    }
+
+
+
+    public class MyUnitComposer extends UnitComposer {
+
+        @Override
+        protected String getComposerName() {
+            return null;
+        }
+
+        public void draw() {
+
+            simplyPdfDocument.insertNewPage();
+
+            Canvas canvas = getPageCanvas();
+            Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            p.setColor(Color.RED);
+            canvas.drawRect(new Rect(0,0,100,100), p);
+
+            canvas.translate(0, 150);
+            canvas.drawText("Custom composer", 0, 0, p);
+        }
     }
 }

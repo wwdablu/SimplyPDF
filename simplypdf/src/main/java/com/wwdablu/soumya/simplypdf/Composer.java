@@ -2,6 +2,8 @@ package com.wwdablu.soumya.simplypdf;
 
 import android.graphics.Canvas;
 
+import androidx.annotation.NonNull;
+
 abstract class Composer {
 
     public enum Alignment {
@@ -14,33 +16,37 @@ abstract class Composer {
 
     SimplyPdfDocument simplyPdfDocument;
 
+    protected abstract String getComposerName();
+
     public void setSpacing(int spacing) {
         this.DEFAULT_SPACING = spacing;
     }
 
-    public void insertEmptyLine() {
+    public void setSimplyPdfDocument(@NonNull SimplyPdfDocument simplyPdfDocument) {
+        this.simplyPdfDocument = simplyPdfDocument;
+    }
+
+    protected void insertEmptyLine() {
         simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
     }
 
-    abstract String getComposerName();
-
-    final Canvas getPageCanvas() {
+    protected final Canvas getPageCanvas() {
         return simplyPdfDocument.getCurrentPage().getCanvas();
     }
 
-    final boolean canFitContentInPage(int contentHeight) {
+    protected final boolean canFitContentInPage(int contentHeight) {
 
         return simplyPdfDocument.getUsablePageHeight() >=
             (contentHeight + simplyPdfDocument.getPageContentHeight());
     }
 
-    final int getTopSpacing(int intendedSpace) {
+    protected final int getTopSpacing(int intendedSpace) {
 
         return (simplyPdfDocument.getPageContentHeight() ==
             simplyPdfDocument.getTopMargin() ? 0 : intendedSpace);
     }
 
-    final int alignmentCanvasTranslation(Alignment alignment, int width) {
+    protected final int alignmentCanvasTranslation(Alignment alignment, int width) {
 
         int xTranslate = 0;
         switch (alignment) {

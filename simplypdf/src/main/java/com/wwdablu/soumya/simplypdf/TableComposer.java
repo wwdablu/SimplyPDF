@@ -147,6 +147,11 @@ public class TableComposer extends GroupComposer {
         int horizontalPadding;
         int verticalPadding;
 
+        Cell() {
+            horizontalPadding = 10;
+            verticalPadding = 10;
+        }
+
         public int getHorizontalPadding() {
             return horizontalPadding;
         }

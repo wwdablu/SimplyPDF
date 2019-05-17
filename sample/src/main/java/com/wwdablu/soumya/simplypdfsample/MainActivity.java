@@ -98,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
         //2nd row
         rowList = new ArrayList<>();
         TableComposer.Cell cell = new TableComposer.TextCell("Apple", textProperties, w_50_cent);
-        cell.setHorizontalPadding(25);
-        cell.setVerticalPadding(100);
         rowList.add(cell);
         rowList.add(new TableComposer.TextCell("Guava", textProperties, w_50_cent));
         composedList.add(rowList);
@@ -133,9 +131,17 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell(
-                "This is a big text on the right column which will be multiple lines.", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("Small right text", textProperties, w_50_cent));
+
+        cell = new TableComposer.TextCell(
+                "This is a big text a a the right column which will be multiple lines.", textProperties, w_50_cent);
+        cell.setHorizontalPadding(25);
+        cell.setVerticalPadding(50);
+        rowList.add(cell);
+
+        cell = new TableComposer.TextCell("Small right text", textProperties, w_50_cent);
+        cell.setHorizontalPadding(25);
+        cell.setVerticalPadding(50);
+        rowList.add(cell);
         composedList.add(rowList);
         tableComposer.draw(composedList);
     }

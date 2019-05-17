@@ -3,6 +3,7 @@ package com.wwdablu.soumya.simplypdf;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -62,7 +63,7 @@ public class TextComposer extends UnitComposer {
         }
 
         final StaticLayout staticLayout = new StaticLayout(text, textPaint,
-                pageWidth - widthAdjustForProperties + hPadding,
+                (pageWidth - widthAdjustForProperties) - (hPadding * 2),
                 textProperties.getAlignment(), 1F, 0F, false);
 
         final int textLineSpacing = getTopSpacing(isHorizontalDraw ? 0 : DEFAULT_SPACING);
@@ -85,7 +86,7 @@ public class TextComposer extends UnitComposer {
 
         canvas.translate(widthAdjustForProperties, 0);
 
-        int finalContentHeight = staticLayout.getHeight() + textLineSpacing + padding;
+        int finalContentHeight = staticLayout.getHeight() + textLineSpacing + (padding * 2);
 
         if(performDraw) {
 

@@ -3,6 +3,6 @@ package com.wwdablu.soumya.simplypdf.composers;
 public abstract class UnitComposer extends Composer {
 
     public static abstract class Properties {
-        abstract String getPropId();
+        abstract public String getPropId();
     }
 }

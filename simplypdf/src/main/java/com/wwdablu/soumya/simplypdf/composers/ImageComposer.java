@@ -9,26 +9,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
 
 public class ImageComposer extends UnitComposer {
 
-    private Properties properties;
+    private ImageProperties properties;
     private Paint bitmapPainter;
 
     public ImageComposer(SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
-        this.properties = new Properties();
+        this.properties = new ImageProperties();
         this.bitmapPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
-    public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Properties properties) {
+    public void drawBitmap(@NonNull Bitmap bitmap, @Nullable ImageProperties properties) {
 
         //If recycled, hence nothing to do
         if(bitmap.isRecycled()) {
             return;
         }
 
-        Properties bitmapProperties = properties != null ? properties : this.properties;
+        ImageProperties bitmapProperties = properties != null ? properties : this.properties;
         int xTranslate = alignmentCanvasTranslation(bitmapProperties.alignment, bitmap.getWidth());
 
         if(!canFitContentInPage(bitmap.getHeight() + DEFAULT_SPACING)) {
@@ -55,14 +56,5 @@ public class ImageComposer extends UnitComposer {
     @Override
     public String getComposerName() {
         return ImageComposer.class.getName();
-    }
-
-    public static class Properties {
-
-        public Alignment alignment;
-
-        public Properties() {
-            alignment = Alignment.LEFT;
-        }
     }
 }

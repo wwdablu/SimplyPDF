@@ -3,9 +3,13 @@ package com.wwdablu.soumya.simplypdf;
 import android.content.Context;
 import android.print.PrintAttributes;
 
+import androidx.annotation.NonNull;
+
+import com.wwdablu.soumya.simplypdf.jsonengine.SimplyJson;
+
 import java.io.File;
 
-import androidx.annotation.NonNull;
+import io.reactivex.Observable;
 
 public final class SimplyPdf {
 
@@ -17,6 +21,13 @@ public final class SimplyPdf {
 
     public static SimplyPdf with(@NonNull Context context, @NonNull File outputPdf) {
         return new SimplyPdf(context, outputPdf);
+    }
+
+    public static Observable<Boolean> use(@NonNull Context context,
+                                           @NonNull SimplyPdf simplyPdf,
+                                           @NonNull String payload) {
+
+        return new SimplyJson(context, payload).generateWith(simplyPdf.document);
     }
 
     public SimplyPdf colorMode(DocumentInfo.ColorMode colorMode) {

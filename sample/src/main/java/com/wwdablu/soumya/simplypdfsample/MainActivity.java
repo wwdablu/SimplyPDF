@@ -1,5 +1,6 @@
 package com.wwdablu.soumya.simplypdfsample;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.print.PrintAttributes;
 import android.text.Layout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,11 +24,18 @@ import com.wwdablu.soumya.simplypdf.composers.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.composers.TableComposer;
 import com.wwdablu.soumya.simplypdf.composers.TextComposer;
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
+import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
-                .colorMode(DocumentInfo.ColorMode.COLOR)
-                .paperSize(PrintAttributes.MediaSize.ISO_A4)
-                .margin(DocumentInfo.Margins.DEFAULT)
-                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-                .build();
+//        simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
+//                .colorMode(DocumentInfo.ColorMode.COLOR)
+//                .paperSize(PrintAttributes.MediaSize.ISO_A4)
+//                .margin(DocumentInfo.Margins.DEFAULT)
+//                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+//                .build();
 
         textComposer = new TextComposer(simplyPdfDocument);
         shapeComposer = new ShapeComposer(simplyPdfDocument);
@@ -54,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         tableComposer = new TableComposer(simplyPdfDocument);
 
         //testVariableFontSizeText();
-        testHeaderTypeText();
+        //testHeaderTypeText();
         //testColoredText();
         //testNewPageWithBackground();
         //testShapes();
@@ -62,14 +71,48 @@ public class MainActivity extends AppCompatActivity {
         //testShapeAlignment();
         //testBitmapRender();
         //testSampleOutput();
-        testTextComposed();
+        //testTextComposed();
         //testCustomComposer();
+
+        generateFromJson();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void generateFromJson() {
+
+        String payload = "{\"content\":[{\"type\":\"text\",\"content\":\"Hello World!\"}]}";
+
+        SimplyPdf simplyPdf = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
+                .colorMode(DocumentInfo.ColorMode.COLOR)
+                .paperSize(PrintAttributes.MediaSize.ISO_A4)
+                .margin(DocumentInfo.Margins.DEFAULT)
+                .paperOrientation(DocumentInfo.Orientation.PORTRAIT);
+
+        simplyPdf.build();
+        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdf, payload)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribeWith(new DisposableObserver<Boolean>() {
+                @Override
+                public void onNext(Boolean aBoolean) {
+                    Toast.makeText(MainActivity.this, "Success: " + aBoolean, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onComplete() {
+                    //
+                }
+            });
     }
 
     private void testCustomComposer() {
@@ -81,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testTextComposed() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
 
@@ -98,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         rowList.add(new TableComposer.TextCell("Dislikes", textProperties, w_50_cent));
         composedList.add(rowList);
 
-        textProperties = new TextComposer.Properties();
+        textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
@@ -158,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testSampleOutput() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
@@ -214,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         imageComposer.drawBitmap(bitmap, null);
         bitmap.recycle();
 
-        ImageComposer.Properties properties = new ImageComposer.Properties();
+        ImageProperties properties = new ImageProperties();
         properties.alignment = ImageComposer.Alignment.LEFT;
         bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565);
         c = new Canvas(bitmap);
@@ -253,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testTextAlignments() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 16;
 
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
@@ -273,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testHeaderTypeText() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 16;
         textComposer.write("This is the header text", textProperties);
 
@@ -313,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testColoredText() {
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         properties.textSize = 16;
 
         properties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
@@ -344,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testVariableFontSizeText() {
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         for(int i = 1; i <= 10; i++) {
             properties.textSize = i * 4;
             textComposer.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", properties);
@@ -355,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
         simplyPdfDocument.insertNewPage();
         simplyPdfDocument.setPageBackgroundColor(Color.MAGENTA);
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         properties.textSize = 32;
         properties.textColor = Color.WHITE;
 

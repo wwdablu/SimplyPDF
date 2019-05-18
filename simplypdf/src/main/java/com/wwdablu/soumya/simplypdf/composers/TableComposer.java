@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
 
 import java.util.List;
 
@@ -180,9 +181,9 @@ public class TableComposer extends GroupComposer {
     public static class TextCell extends Cell {
 
         private final String text;
-        private final TextComposer.Properties properties;
+        private final TextProperties properties;
 
-        public TextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int width) {
+        public TextCell(@NonNull String text, @Nullable TextProperties properties, int width) {
             this.text = text;
             this.properties = properties;
             this.width = width;

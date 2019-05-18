@@ -4,9 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.pdf.PdfDocument.Page;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
+import android.graphics.pdf.PdfDocument.Page;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,24 +22,25 @@ public class SimplyPdfDocument {
 
     private File document;
     private Context context;
+
     private DocumentInfo documentInfo;
     private PrintedPdfDocument pdfDocument;
     private PrintAttributes printAttributes;
     private Page currentPage;
 
-    private TextComposer textComposer;
-    private ShapeComposer shapeComposer;
-    private ImageComposer imageComposer;
-    private TableComposer tableComposer;
-
     private int currentPageNumber = 0;
     private int pageContentHeight = 0;
+
     private boolean finished;
 
     SimplyPdfDocument(@NonNull Context context, @NonNull File document) {
-        documentInfo = new DocumentInfo();
         this.document = document;
         this.context = context;
+        documentInfo = new DocumentInfo();
+    }
+
+    void build() {
+        build(context);
     }
 
     /**
@@ -52,69 +53,8 @@ public class SimplyPdfDocument {
         return documentInfo;
     }
 
-    /**
-     * Returns a helper to write texts
-     * @return Text writer
-     */
-    @NonNull
-    public TextComposer getTextComposer() {
-
-        ensureNotFinished();
-        if(textComposer == null) {
-            textComposer = new TextComposer(this);
-        }
-
-        return textComposer;
-    }
-
-    /**
-     * Returns a shape drawing helper.
-     * @return Shape drawer
-     */
-    @NonNull
-    public ShapeComposer getShapeComposer() {
-
-        ensureNotFinished();
-        if(shapeComposer == null) {
-            shapeComposer = new ShapeComposer(this);
-        }
-
-        return shapeComposer;
-    }
-
-    /**
-     * Returns an image drawing helper.
-     * @return Image renderer
-     */
-    @NonNull
-    public ImageComposer getImageComposer() {
-
-        ensureNotFinished();
-        if(imageComposer == null) {
-            imageComposer = new ImageComposer(this);
-        }
-
-        return imageComposer;
-    }
-
-    /**
-     * Returns the column composer to draw columns for a table
-     * @return Table composer
-     */
-    @NonNull
-    public TableComposer getTableComposer() {
-
-        ensureNotFinished();
-        if(tableComposer == null) {
-            tableComposer = new TableComposer(this);
-        }
-
-        return tableComposer;
-    }
-
-    public void insertEmptyLine() {
-        ensureNotFinished();
-        getTextComposer().insertEmptyLine();
+    public void insertEmptySpace(int height) {
+        addContentHeight(height);
     }
 
     public int pageHeight() {
@@ -151,7 +91,7 @@ public class SimplyPdfDocument {
 
         ensureNotFinished();
 
-        Canvas canvas = getTextComposer().getPageCanvas();
+        Canvas canvas = getCurrentPage().getCanvas();
         canvas.save();
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(color);
@@ -168,33 +108,13 @@ public class SimplyPdfDocument {
 
         ensureNotFinished();
 
-        pdfDocument.finishPage(currentPage);
+        pdfDocument.finishPage(getCurrentPage());
         pdfDocument.writeTo(new FileOutputStream(document));
         pdfDocument.close();
         finished = true;
-
-        if(textComposer != null) {
-            textComposer.clean();
-        }
-
-        if(imageComposer != null) {
-            imageComposer.clean();
-        }
-
-        if(imageComposer != null) {
-            imageComposer.clean();
-        }
     }
 
-    /*
-     *
-     * --- STOP ---
-     *     ANYTHING BELOW IS MAINTAINED INTERNALLY BY SIMPLY PDF AND IS NOT EXPOSED
-     * --- STOP ---
-     *
-     */
-
-    void build() {
+    public void build(@NonNull Context context) {
         printAttributes = new PrintAttributes.Builder()
                 .setColorMode(documentInfo.resolveColorMode())
                 .setMediaSize(documentInfo.getPaperSize())
@@ -206,31 +126,31 @@ public class SimplyPdfDocument {
         pageContentHeight = getTopMargin();
     }
 
-    int getLeftMargin() {
+    public int getLeftMargin() {
         return printAttributes.getMinMargins() == null ? 0 :
-            printAttributes.getMinMargins().getLeftMils();
+                printAttributes.getMinMargins().getLeftMils();
     }
 
-    int getTopMargin() {
+    public int getTopMargin() {
         return printAttributes.getMinMargins() == null ? 0 :
-            printAttributes.getMinMargins().getTopMils();
+                printAttributes.getMinMargins().getTopMils();
     }
 
-    int getRightMargin() {
+    public int getRightMargin() {
         return printAttributes.getMinMargins() == null ? 0 :
-            printAttributes.getMinMargins().getRightMils();
+                printAttributes.getMinMargins().getRightMils();
     }
 
-    int getBottomMargin() {
+    public int getBottomMargin() {
         return printAttributes.getMinMargins() == null ? 0 :
-            printAttributes.getMinMargins().getBottomMils();
+                printAttributes.getMinMargins().getBottomMils();
     }
 
     /**
      * Returns the current page being used
      * @return Current page object
      */
-    Page getCurrentPage() {
+    public Page getCurrentPage() {
         return currentPage;
     }
 
@@ -238,21 +158,20 @@ public class SimplyPdfDocument {
      * Creates a new page in the PDF document and resets the internal markers on the document.
      * @return The new page on which content will be drawn
      */
-    Page newPage() {
+    public void newPage() {
         pdfDocument.finishPage(currentPage);
         ++this.currentPageNumber;
         currentPage = pdfDocument.startPage(currentPageNumber);
         pageContentHeight = getTopMargin();
         addContentHeight(printAttributes.getMinMargins() == null ? 0 :
-            printAttributes.getMinMargins().getTopMils());
-        return currentPage;
+                printAttributes.getMinMargins().getTopMils());
     }
 
     /**
      * Returns the height of the content written in the current page.
      * @return Height of content for the current page
      */
-    int getPageContentHeight() {
+    public int getPageContentHeight() {
         return pageContentHeight;
     }
 
@@ -261,7 +180,7 @@ public class SimplyPdfDocument {
      * present in the current page.
      * @param pageContentHeight Page Content Height
      */
-    void addContentHeight(int pageContentHeight) {
+    public void addContentHeight(int pageContentHeight) {
         this.pageContentHeight += pageContentHeight;
     }
 
@@ -270,9 +189,9 @@ public class SimplyPdfDocument {
      * margins on the page.
      * @return Usable height of the page
      */
-    int getUsablePageHeight() {
+    public int getUsablePageHeight() {
         return pdfDocument == null ? 0 : (pdfDocument.getPageContentRect().height() -
-            (getTopMargin() + getBottomMargin()));
+                (getTopMargin() + getBottomMargin()));
     }
 
     /**
@@ -280,7 +199,7 @@ public class SimplyPdfDocument {
      * margins on the page.
      * @return Usable width of the page
      */
-    int getUsablePageWidth() {
+    public int getUsablePageWidth() {
         return pdfDocument.getPageWidth() - (getLeftMargin() + getRightMargin());
     }
 

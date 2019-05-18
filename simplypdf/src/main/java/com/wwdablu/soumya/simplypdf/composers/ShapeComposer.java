@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,13 +9,15 @@ import android.graphics.RectF;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+
 public class ShapeComposer extends UnitComposer {
 
     private Paint painter;
     private Path shapePath;
     private Properties properties;
 
-    ShapeComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+    public ShapeComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         painter = new Paint(Paint.ANTI_ALIAS_FLAG);
         shapePath = new Path();
@@ -47,7 +49,7 @@ public class ShapeComposer extends UnitComposer {
         RectF bounds = new RectF();
         path.computeBounds(bounds, true);
 
-        if(!canFitContentInPage((int) bounds.height() + DEFAULT_SPACING)) {
+        if(!canFitContentInPage((int) bounds.height() + getSpacing())) {
             simplyPdfDocument.newPage();
         }
 
@@ -72,7 +74,7 @@ public class ShapeComposer extends UnitComposer {
     }
 
     @Override
-    protected String getComposerName() {
+    public String getComposerName() {
         return ShapeComposer.class.getName();
     }
 

@@ -14,14 +14,14 @@ import android.text.Layout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.wwdablu.soumya.simplypdf.TableComposer;
 import com.wwdablu.soumya.simplypdf.DocumentInfo;
-import com.wwdablu.soumya.simplypdf.ImageComposer;
-import com.wwdablu.soumya.simplypdf.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.SimplyPdf;
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
-import com.wwdablu.soumya.simplypdf.TextComposer;
-import com.wwdablu.soumya.simplypdf.UnitComposer;
+import com.wwdablu.soumya.simplypdf.composers.ImageComposer;
+import com.wwdablu.soumya.simplypdf.composers.ShapeComposer;
+import com.wwdablu.soumya.simplypdf.composers.TableComposer;
+import com.wwdablu.soumya.simplypdf.composers.TextComposer;
+import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
                 .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
                 .build();
 
-        textComposer = simplyPdfDocument.getTextComposer();
-        shapeComposer = simplyPdfDocument.getShapeComposer();
-        imageComposer = simplyPdfDocument.getImageComposer();
-        tableComposer = simplyPdfDocument.getTableComposer();
+        textComposer = new TextComposer(simplyPdfDocument);
+        shapeComposer = new ShapeComposer(simplyPdfDocument);
+        imageComposer = new ImageComposer(simplyPdfDocument);
+        tableComposer = new TableComposer(simplyPdfDocument);
 
         //testVariableFontSizeText();
         testHeaderTypeText();
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         composedList.add(rowList);
         tableComposer.draw(composedList);
 
-        simplyPdfDocument.insertEmptyLine();
+        simplyPdfDocument.insertEmptySpace(25);
         textProperties.isBullet = false;
 
         //new table
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         composedList.add(rowList);
         tableComposer.draw(composedList);
 
-        simplyPdfDocument.insertEmptyLine();
+        simplyPdfDocument.insertEmptySpace(25);
 
         //new table
         composedList.clear();
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         textComposer.write("Images", textProperties);
         textComposer.write("Can also set page background color", textProperties);
 
-        simplyPdfDocument.insertEmptyLine();
+        simplyPdfDocument.insertEmptySpace(25);
         simplyPdfDocument.insertNewPage();
 
         textProperties.isBullet = false;
@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
         shapeProperties.lineColor = Color.GRAY;
         shapeProperties.shouldFill = true;
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
-        simplyPdfDocument.insertEmptyLine();
+        simplyPdfDocument.insertEmptySpace(25);
     }
 
     private void testShapes() {
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
     public class MyUnitComposer extends UnitComposer {
 
         @Override
-        protected String getComposerName() {
+        public String getComposerName() {
             return null;
         }
 

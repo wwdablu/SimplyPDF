@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+
 import java.util.List;
 
 public class TableComposer extends GroupComposer {
@@ -14,11 +16,14 @@ public class TableComposer extends GroupComposer {
     private Paint borderPainter;
     private Properties colProperties;
 
-    TableComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+    private TextComposer textComposer;
+
+    public TableComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
 
         this.simplyPdfDocument = simplyPdfDocument;
         this.borderPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
         initProperties();
+        initSupportedComposers(simplyPdfDocument);
     }
 
     public void draw(@NonNull List<List<Cell>> cellList) {
@@ -34,7 +39,7 @@ public class TableComposer extends GroupComposer {
 
                 int cellHeight = 0;
                 if(cell instanceof TextCell) {
-                    cellHeight = simplyPdfDocument.getTextComposer()
+                    cellHeight = textComposer
                         .write(((TextCell) cell).text, ((TextCell) cell).properties,
                             cell.width, cell.verticalPadding, true, 0, cell.horizontalPadding, false);
                 }
@@ -54,10 +59,9 @@ public class TableComposer extends GroupComposer {
 
                 Cell cellData = rowCellList.get(rowIndex);
                 if(cellData instanceof TextCell) {
-                    simplyPdfDocument.getTextComposer()
-                        .write(((TextCell) cellData).text, ((TextCell) cellData).properties,
-                            cellData.width, cellData.verticalPadding,
-                                true, bitmapXTranslate, cellData.horizontalPadding, true);
+                    textComposer.write(((TextCell) cellData).text, ((TextCell) cellData).properties,
+                        cellData.width, cellData.verticalPadding,
+                            true, bitmapXTranslate, cellData.horizontalPadding, true);
                     bitmapXTranslate += (cellData.width);
                 }
             }
@@ -84,12 +88,16 @@ public class TableComposer extends GroupComposer {
     }
 
     @Override
-    protected String getComposerName() {
+    public String getComposerName() {
         return TableComposer.class.getName();
     }
 
     private void initProperties() {
         this.colProperties = new Properties(1, Color.BLACK);
+    }
+
+    private void initSupportedComposers(@NonNull SimplyPdfDocument simplyPdfDocument) {
+        textComposer = new TextComposer(simplyPdfDocument);
     }
 
     private void drawBorders(@NonNull Canvas canvas, int maxHeight, List<Cell> rowCellList) {
@@ -124,8 +132,8 @@ public class TableComposer extends GroupComposer {
 
     public static class Properties {
 
-        private int borderWidth;
-        private int borderColor;
+        private final int borderWidth;
+        private final int borderColor;
 
         public Properties(int borderWidth, int borderColor) {
 
@@ -171,8 +179,8 @@ public class TableComposer extends GroupComposer {
 
     public static class TextCell extends Cell {
 
-        private String text;
-        private TextComposer.Properties properties;
+        private final String text;
+        private final TextComposer.Properties properties;
 
         public TextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int width) {
             this.text = text;

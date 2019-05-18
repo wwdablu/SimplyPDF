@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 
 public final class SimplyPdf {
 
-    private SimplyPdfDocument document;
+    private final SimplyPdfDocument document;
 
     private SimplyPdf(@NonNull Context context, @NonNull File outputPdf) {
         document = new SimplyPdfDocument(context, outputPdf);

@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,12 +8,14 @@ import android.graphics.Paint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+
 public class ImageComposer extends UnitComposer {
 
     private Properties properties;
     private Paint bitmapPainter;
 
-    ImageComposer(SimplyPdfDocument simplyPdfDocument) {
+    public ImageComposer(SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         this.properties = new Properties();
         this.bitmapPainter = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -51,7 +53,7 @@ public class ImageComposer extends UnitComposer {
     }
 
     @Override
-    protected String getComposerName() {
+    public String getComposerName() {
         return ImageComposer.class.getName();
     }
 

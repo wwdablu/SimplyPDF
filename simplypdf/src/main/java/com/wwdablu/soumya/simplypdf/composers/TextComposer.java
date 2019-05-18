@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +12,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+
 public class TextComposer extends UnitComposer {
 
     private final int BULLET_SPACING = 10;
@@ -19,15 +21,14 @@ public class TextComposer extends UnitComposer {
     private TextPaint textPaint;
     private Properties properties;
 
-    TextComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
+    public TextComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         properties = new Properties();
     }
 
-    public int write(@NonNull String text, @Nullable Properties properties) {
-
-        return write(text, properties, simplyPdfDocument.getUsablePageWidth(), 0, false, 0, 0, true);
+    public void write(@NonNull String text, @Nullable Properties properties) {
+        write(text, properties, simplyPdfDocument.getUsablePageWidth(), 0, false, 0, 0, true);
     }
 
     /**
@@ -112,7 +113,7 @@ public class TextComposer extends UnitComposer {
     }
 
     @Override
-    protected String getComposerName() {
+    public String getComposerName() {
         return TextComposer.class.getName();
     }
 

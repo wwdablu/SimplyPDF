@@ -1,8 +1,10 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Canvas;
 
 import androidx.annotation.NonNull;
+
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 
 abstract class Composer {
 
@@ -12,14 +14,22 @@ abstract class Composer {
         RIGHT
     }
 
-    int DEFAULT_SPACING = 10;
+    protected static final int DEFAULT_SPACING = 10;
 
-    SimplyPdfDocument simplyPdfDocument;
+    private int defaultSpacing = 10;
 
-    protected abstract String getComposerName();
+    protected SimplyPdfDocument simplyPdfDocument;
+
+    public abstract String getComposerName();
 
     public void setSpacing(int spacing) {
-        this.DEFAULT_SPACING = spacing;
+
+        if(spacing <= -1) spacing = DEFAULT_SPACING;
+        this.defaultSpacing = spacing;
+    }
+
+    protected int getSpacing() {
+        return this.defaultSpacing;
     }
 
     public void setSimplyPdfDocument(@NonNull SimplyPdfDocument simplyPdfDocument) {
@@ -27,7 +37,7 @@ abstract class Composer {
     }
 
     protected void insertEmptyLine() {
-        simplyPdfDocument.addContentHeight(DEFAULT_SPACING);
+        simplyPdfDocument.addContentHeight(defaultSpacing);
     }
 
     protected final Canvas getPageCanvas() {

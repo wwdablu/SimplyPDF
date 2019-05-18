@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf;
+package com.wwdablu.soumya.simplypdf.composers;
 
 public abstract class UnitComposer extends Composer {
 

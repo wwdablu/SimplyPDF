@@ -1,6 +1,5 @@
 package com.wwdablu.soumya.simplypdfsample;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,14 +24,16 @@ import com.wwdablu.soumya.simplypdf.composers.TableComposer;
 import com.wwdablu.soumya.simplypdf.composers.TextComposer;
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
 import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.TableProperties;
 import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -50,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
-//                .colorMode(DocumentInfo.ColorMode.COLOR)
-//                .paperSize(PrintAttributes.MediaSize.ISO_A4)
-//                .margin(DocumentInfo.Margins.DEFAULT)
-//                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-//                .build();
+        simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
+                .colorMode(DocumentInfo.ColorMode.COLOR)
+                .paperSize(PrintAttributes.MediaSize.ISO_A4)
+                .margin(DocumentInfo.Margins.DEFAULT)
+                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+                .build();
 
         textComposer = new TextComposer(simplyPdfDocument);
         shapeComposer = new ShapeComposer(simplyPdfDocument);
@@ -85,16 +86,83 @@ public class MainActivity extends AppCompatActivity {
 
     private void generateFromJson() {
 
-        String payload = "{\"content\":[{\"type\":\"text\",\"content\":\"Hello World!\"}]}";
+        String payload = "{\n" +
+                "  \"contents\" : [\n" +
+                "    {\n" +
+                "      \"type\" : \"text\",\n" +
+                "      \"content\" : \"SimplyPdf developer, Soumya Kanti Kar\",\n" +
+                "      \"properties\" : {\n" +
+                "        \"size\" : 24,\n" +
+                "        \"color\" : \"#000000\",\n" +
+                "        \"underline\" : true,\n" +
+                "        \"strikethrough\" : false\n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"type\" : \"image\",\n" +
+                "      \"imageurl\" : \"https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"type\" : \"table\",\n" +
+                "      \"contents\" : [\n" +
+                "        {\n" +
+                "          \"row\" : [\n" +
+                "            {\n" +
+                "              \"type\" : \"text\",\n" +
+                "              \"content\" : \"Version\",\n" +
+                "              \"width\" : 50,\n" +
+                "              \"properties\" : {\n" +
+                "                \"size\" : 12,\n" +
+                "                \"color\" : \"#000000\",\n" +
+                "                \"underline\" : false,\n" +
+                "                \"strikethrough\" : false\n" +
+                "              }\n" +
+                "            },\n" +
+                "            {\n" +
+                "              \"type\" : \"text\",\n" +
+                "              \"content\" : \"1.1.0\",\n" +
+                "              \"width\" : 50,\n" +
+                "              \"properties\" : {\n" +
+                "                \"size\" : 12,\n" +
+                "                \"color\" : \"#000000\",\n" +
+                "                \"underline\" : false,\n" +
+                "                \"strikethrough\" : false\n" +
+                "              }\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"row\" : [\n" +
+                "            {\n" +
+                "              \"type\" : \"text\",\n" +
+                "              \"content\" : \"Source code is available in GitHub\",\n" +
+                "              \"width\" : 100,\n" +
+                "              \"properties\" : {\n" +
+                "                \"size\" : 18,\n" +
+                "                \"color\" : \"#0000FF\",\n" +
+                "                \"underline\" : false,\n" +
+                "                \"strikethrough\" : false\n" +
+                "              }\n" +
+                "            }\n" +
+                "          ]\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"properties\" : {\n" +
+                "        \"width\" : 1,\n" +
+                "        \"color\" : \"#000000\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
 
-        SimplyPdf simplyPdf = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
+        SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
                 .margin(DocumentInfo.Margins.DEFAULT)
-                .paperOrientation(DocumentInfo.Orientation.PORTRAIT);
+                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+                .build();
 
-        simplyPdf.build();
-        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdf, payload)
+        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdfDocument, payload)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
             .subscribeWith(new DisposableObserver<Boolean>() {
@@ -130,15 +198,17 @@ public class MainActivity extends AppCompatActivity {
 
         int w_50_cent = simplyPdfDocument.pageWidth() / 2;
 
-        TableComposer.Properties colProperties = new TableComposer.Properties(1, Color.BLACK);
+        TableProperties colProperties = new TableProperties();
+        colProperties.borderWidth = 1;
+        colProperties.borderColor = "#000000";
         tableComposer.setProperties(colProperties);
 
-        List<List<TableComposer.Cell>> composedList = new ArrayList<>();
-        ArrayList<TableComposer.Cell> rowList = new ArrayList<>();
+        List<List<Cell>> composedList = new ArrayList<>();
+        ArrayList<Cell> rowList = new ArrayList<>();
 
         //1st row
-        rowList.add(new TableComposer.TextCell("Likes", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("Dislikes", textProperties, w_50_cent));
+        rowList.add(new TextCell("Likes", textProperties, w_50_cent));
+        rowList.add(new TextCell("Dislikes", textProperties, w_50_cent));
         composedList.add(rowList);
 
         textProperties = new TextProperties();
@@ -150,20 +220,20 @@ public class MainActivity extends AppCompatActivity {
 
         //2nd row
         rowList = new ArrayList<>();
-        TableComposer.Cell cell = new TableComposer.TextCell("Apple", textProperties, w_50_cent);
+        Cell cell = new TextCell("Apple", textProperties, w_50_cent);
         rowList.add(cell);
-        rowList.add(new TableComposer.TextCell("Guava", textProperties, w_50_cent));
+        rowList.add(new TextCell("Guava", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //3rd row
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Banana", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("Coconut", textProperties, w_50_cent));
+        rowList.add(new TextCell("Banana", textProperties, w_50_cent));
+        rowList.add(new TextCell("Coconut", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //4th row
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Mango", textProperties, w_50_cent));
+        rowList.add(new TextCell("Mango", textProperties, w_50_cent));
         composedList.add(rowList);
         tableComposer.draw(composedList);
 
@@ -173,8 +243,8 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Small Left Text", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("This is a big text on the right column which will be multiple lines.",
+        rowList.add(new TextCell("Small Left Text", textProperties, w_50_cent));
+        rowList.add(new TextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
         composedList.add(rowList);
         tableComposer.draw(composedList);
@@ -185,13 +255,13 @@ public class MainActivity extends AppCompatActivity {
         composedList.clear();
         rowList = new ArrayList<>();
 
-        cell = new TableComposer.TextCell(
+        cell = new TextCell(
                 "This is a big text a a the right column which will be multiple lines.", textProperties, w_50_cent);
         cell.setHorizontalPadding(25);
         cell.setVerticalPadding(50);
         rowList.add(cell);
 
-        cell = new TableComposer.TextCell("Small right text", textProperties, w_50_cent);
+        cell = new TextCell("Small right text", textProperties, w_50_cent);
         cell.setHorizontalPadding(25);
         cell.setVerticalPadding(50);
         rowList.add(cell);
@@ -367,15 +437,15 @@ public class MainActivity extends AppCompatActivity {
         properties.bulletSymbol = "•";
         textComposer.write("Black", properties);
 
-        properties.textColor = Color.RED;
+        properties.textColor = "#FF0000";
         properties.underline = true;
         textComposer.write("Red", properties);
 
         properties.strikethrough = true;
-        properties.textColor = Color.parseColor("#ABCDEF");
+        properties.textColor = "#ABCDEF";
         textComposer.write("Custom", properties);
 
-        properties.textColor = Color.BLACK;
+        properties.textColor = "#FFFFFF";
         textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
                 "This is a very long and interesting string.", properties);
 
@@ -400,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextProperties properties = new TextProperties();
         properties.textSize = 32;
-        properties.textColor = Color.WHITE;
+        properties.textColor = "#000000";
 
         textComposer.write("White text on magenta background page.", properties);
     }

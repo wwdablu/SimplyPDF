@@ -1,6 +1,5 @@
 package com.wwdablu.soumya.simplypdf.composers.models;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.TextUtils;
@@ -12,7 +11,7 @@ import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
 public class TextProperties extends UnitComposer.Properties {
 
     @SerializedName("color")
-    public int textColor;
+    public String textColor;
 
     @SerializedName("size")
     public int textSize;
@@ -23,17 +22,17 @@ public class TextProperties extends UnitComposer.Properties {
     @SerializedName("bulletSymbol")
     public String bulletSymbol;
 
-    @SerializedName("isUnderline")
+    @SerializedName("underline")
     public boolean underline;
 
-    @SerializedName("isStrikethrough")
+    @SerializedName("strikethrough")
     public boolean strikethrough;
 
     public Typeface typeface;
     public Layout.Alignment alignment;
 
     public TextProperties() {
-        textColor = Color.BLACK;
+        textColor = "#FFFFFF";
         textSize = 10;
         typeface = null;
         alignment = Layout.Alignment.ALIGN_NORMAL;

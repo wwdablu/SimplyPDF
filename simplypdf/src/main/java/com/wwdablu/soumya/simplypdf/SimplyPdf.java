@@ -24,10 +24,10 @@ public final class SimplyPdf {
     }
 
     public static Observable<Boolean> use(@NonNull Context context,
-                                           @NonNull SimplyPdf simplyPdf,
+                                           @NonNull SimplyPdfDocument simplyPdfDocument,
                                            @NonNull String payload) {
 
-        return new SimplyJson(context, payload).generateWith(simplyPdf.document);
+        return new SimplyJson(context, payload).generateWith(simplyPdfDocument);
     }
 
     public SimplyPdf colorMode(DocumentInfo.ColorMode colorMode) {

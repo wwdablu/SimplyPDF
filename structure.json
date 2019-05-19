@@ -1,0 +1,68 @@
+{
+  "contents" : [
+    {
+      "type" : "text",
+      "content" : "SimplyPdf developer, Soumya Kanti Kar",
+      "properties" : {
+        "size" : 24,
+        "color" : "#000000",
+        "underline" : true,
+        "strikethrough" : false
+      }
+    },
+    {
+      "type" : "image",
+      "imageurl" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4"
+    },
+    {
+      "type" : "table",
+      "contents" : [
+        {
+          "row" : [
+            {
+              "type" : "text",
+              "content" : "Version",
+              "width" : 50,
+              "properties" : {
+                "size" : 12,
+                "color" : "#000000",
+                "underline" : false,
+                "strikethrough" : false
+              }
+            },
+            {
+              "type" : "text",
+              "content" : "1.1.0",
+              "width" : 50,
+              "properties" : {
+                "size" : 12,
+                "color" : "#000000",
+                "underline" : false,
+                "strikethrough" : false
+              }
+            }
+          ]
+        },
+        {
+          "row" : [
+            {
+              "type" : "text",
+              "content" : "Source code is available in GitHub",
+              "width" : 100,
+              "properties" : {
+                "size" : 18,
+                "color" : "#0000FF",
+                "underline" : false,
+                "strikethrough" : false
+              }
+            }
+          ]
+        }
+      ],
+      "properties" : {
+        "width" : 1,
+        "color" : "#000000"
+      }
+    }
+  ]
+}

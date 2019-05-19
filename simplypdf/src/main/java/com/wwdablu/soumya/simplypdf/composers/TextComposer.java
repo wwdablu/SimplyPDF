@@ -1,6 +1,7 @@
 package com.wwdablu.soumya.simplypdf.composers;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -46,7 +47,7 @@ public class TextComposer extends UnitComposer {
 
         final TextProperties textProperties = properties == null ? this.properties : properties;
 
-        textPaint.setColor(textProperties.textColor);
+        textPaint.setColor(Color.parseColor(textProperties.textColor));
         textPaint.setTextSize(textProperties.textSize);
         textPaint.setTypeface(textProperties.typeface);
 

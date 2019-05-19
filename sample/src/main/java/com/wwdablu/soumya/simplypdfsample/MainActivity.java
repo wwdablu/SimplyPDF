@@ -24,6 +24,7 @@ import com.wwdablu.soumya.simplypdf.composers.TableComposer;
 import com.wwdablu.soumya.simplypdf.composers.TextComposer;
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
 import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties;
 import com.wwdablu.soumya.simplypdf.composers.models.TableProperties;
 import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
 import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell;
@@ -86,75 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void generateFromJson() {
 
-        String payload = "{\n" +
-                "  \"contents\" : [\n" +
-                "    {\n" +
-                "      \"type\" : \"text\",\n" +
-                "      \"content\" : \"SimplyPdf developer, Soumya Kanti Kar\",\n" +
-                "      \"properties\" : {\n" +
-                "        \"size\" : 24,\n" +
-                "        \"color\" : \"#000000\",\n" +
-                "        \"underline\" : true,\n" +
-                "        \"strikethrough\" : false\n" +
-                "      }\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\" : \"image\",\n" +
-                "      \"imageurl\" : \"https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\" : \"table\",\n" +
-                "      \"contents\" : [\n" +
-                "        {\n" +
-                "          \"row\" : [\n" +
-                "            {\n" +
-                "              \"type\" : \"text\",\n" +
-                "              \"content\" : \"Version\",\n" +
-                "              \"width\" : 50,\n" +
-                "              \"properties\" : {\n" +
-                "                \"size\" : 12,\n" +
-                "                \"color\" : \"#000000\",\n" +
-                "                \"underline\" : false,\n" +
-                "                \"strikethrough\" : false\n" +
-                "              }\n" +
-                "            },\n" +
-                "            {\n" +
-                "              \"type\" : \"text\",\n" +
-                "              \"content\" : \"1.1.0\",\n" +
-                "              \"width\" : 50,\n" +
-                "              \"properties\" : {\n" +
-                "                \"size\" : 12,\n" +
-                "                \"color\" : \"#000000\",\n" +
-                "                \"underline\" : false,\n" +
-                "                \"strikethrough\" : false\n" +
-                "              }\n" +
-                "            }\n" +
-                "          ]\n" +
-                "        },\n" +
-                "        {\n" +
-                "          \"row\" : [\n" +
-                "            {\n" +
-                "              \"type\" : \"text\",\n" +
-                "              \"content\" : \"Source code is available in GitHub\",\n" +
-                "              \"width\" : 100,\n" +
-                "              \"properties\" : {\n" +
-                "                \"size\" : 18,\n" +
-                "                \"color\" : \"#0000FF\",\n" +
-                "                \"underline\" : false,\n" +
-                "                \"strikethrough\" : false\n" +
-                "              }\n" +
-                "            }\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"properties\" : {\n" +
-                "        \"width\" : 1,\n" +
-                "        \"color\" : \"#000000\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-
         SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
                 .colorMode(DocumentInfo.ColorMode.COLOR)
                 .paperSize(PrintAttributes.MediaSize.ISO_A4)
@@ -162,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
                 .build();
 
-        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdfDocument, payload)
+        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdfDocument, JSONStruct.payload)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
             .subscribeWith(new DisposableObserver<Boolean>() {
@@ -284,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
                 " files within the application ans save them in the device storage." +
                 " This sample PDF is generated using this library", textProperties);
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
         shapeProperties.shouldFill = true;
-        shapeProperties.lineColor = Color.BLACK;
+        shapeProperties.lineColor = "#000000";
         shapeComposer.setSpacing(15);
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
 
@@ -303,14 +235,14 @@ public class MainActivity extends AppCompatActivity {
         textComposer.write("Can also set page background color", textProperties);
 
         simplyPdfDocument.insertEmptySpace(25);
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
 
         textProperties.isBullet = false;
         textComposer.write("It can draw shapes like these:", textProperties);
 
         testShapeAlignment();
         testNewPageWithBackground();
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
 
         textComposer.write("That is all in Version 1.0.0. Will enhance for more.", textProperties);
     }
@@ -345,21 +277,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void testShapeAlignment() {
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
         shapeProperties.shouldFill = true;
 
         shapeComposer.setSpacing(15);
 
-        shapeProperties.lineColor = Color.RED;
+        shapeProperties.lineColor = "#FF0000";
         shapeProperties.alignment = ShapeComposer.Alignment.LEFT;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.GREEN;
+        shapeProperties.lineColor = "#00FF00";
         shapeProperties.alignment = ShapeComposer.Alignment.CENTER;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.lineColor = "#0000FF";
         shapeProperties.alignment = ShapeComposer.Alignment.RIGHT;
         shapeComposer.drawCircle(100, shapeProperties);
     }
@@ -390,9 +322,9 @@ public class MainActivity extends AppCompatActivity {
         textProperties.textSize = 16;
         textComposer.write("This is the header text", textProperties);
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
-        shapeProperties.lineColor = Color.GRAY;
+        shapeProperties.lineColor = "#C4C4C4";
         shapeProperties.shouldFill = true;
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
         simplyPdfDocument.insertEmptySpace(25);
@@ -400,25 +332,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void testShapes() {
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
-        shapeProperties.lineColor = Color.RED;
+        shapeProperties.lineColor = "#FF0000";
         shapeProperties.shouldFill = true;
 
         shapeComposer.setSpacing(25);
 
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.lineColor = "#0000FF";
         shapeProperties.shouldFill = false;
         shapeProperties.lineWidth = 5;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.YELLOW;
+        shapeProperties.lineColor = "#00FF00";
         shapeProperties.shouldFill = true;
         shapeComposer.drawBox(200, 200, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLACK;
+        shapeProperties.lineColor = "#000000";
         shapeProperties.shouldFill = false;
         shapeProperties.lineWidth = 15;
         shapeComposer.drawBox(200, 200, shapeProperties);
@@ -465,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testNewPageWithBackground() {
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
         simplyPdfDocument.setPageBackgroundColor(Color.MAGENTA);
 
         TextProperties properties = new TextProperties();
@@ -486,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void draw() {
 
-            simplyPdfDocument.insertNewPage();
+            simplyPdfDocument.newPage();
 
             Canvas canvas = getPageCanvas();
             Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);

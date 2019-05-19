@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 
-abstract class Composer {
+public abstract class Composer {
 
     public enum Alignment {
         LEFT,

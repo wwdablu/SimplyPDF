@@ -1,30 +1,19 @@
 package com.wwdablu.soumya.simplypdf.jsonengine;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
 import com.wwdablu.soumya.simplypdf.composers.ImageComposer;
+import com.wwdablu.soumya.simplypdf.composers.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.composers.TableComposer;
 import com.wwdablu.soumya.simplypdf.composers.TextComposer;
-import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
-import com.wwdablu.soumya.simplypdf.composers.models.TableProperties;
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
-import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell;
-import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -36,10 +25,6 @@ public final class SimplyJson {
     private SimplyPdfDocument simplyPdfDocument;
 
     private ObservableEmitter<Boolean> emitter;
-
-    private TextComposer textComposer;
-    private ImageComposer imageComposer;
-    private TableComposer tableComposer;
 
     public SimplyJson(@NonNull Context context, @NonNull String payload) {
         this.context = context;
@@ -80,6 +65,16 @@ public final class SimplyJson {
             return;
         }
 
+        TextComposer textComposer = null;
+        ImageComposer imageComposer = null;
+        TableComposer tableComposer = null;
+        ShapeComposer shapeComposer = null;
+
+        TextConverter textConverter = null;
+        ImageConverter imageConverter = null;
+        TableConverter tableConverter = null;
+        ShapeConverter shapeConverter = null;
+
         for(int index = 0; index < contentArray.length(); index++) {
 
             JSONObject compose = contentArray.getJSONObject(index);
@@ -93,87 +88,49 @@ public final class SimplyJson {
                 case Node.TYPE_TEXT:
                     if(textComposer == null) {
                         textComposer = new TextComposer(simplyPdfDocument);
+                        textConverter = new TextConverter();
                     }
 
-                    //Check if properties has been defined
-                    String textProperties = getProperties(compose);
-                    textComposer.write(compose.getString(Node.COMPOSER_TEXT_CONTENT),
-                        TextUtils.isEmpty(textProperties) ? null :
-                            new Gson().fromJson(textProperties, TextProperties.class));
+                    textConverter.generate(textComposer, compose);
                     break;
 
                 case Node.TYPE_IMAGE:
                     if(imageComposer == null) {
                         imageComposer = new ImageComposer(simplyPdfDocument);
+                        imageConverter = new ImageConverter(context);
                     }
 
-                    String imageProperties = getProperties(compose);
-                    Bitmap bitmap = Glide.with(context)
-                        .asBitmap()
-                        .load(compose.getString(Node.COMPOSER_IMAGE_URL))
-                        .submit()
-                        .get();
-                    imageComposer.drawBitmap(bitmap, TextUtils.isEmpty(imageProperties) ? null :
-                            new Gson().fromJson(imageProperties, ImageProperties.class));
-                    bitmap.recycle();
+                    imageConverter.generate(imageComposer, compose);
                     break;
 
                 case Node.TYPE_TABLE:
                     if(tableComposer == null) {
                         tableComposer = new TableComposer(simplyPdfDocument);
+                        tableConverter = new TableConverter();
                     }
 
-                    String tableProperties = getProperties(compose);
-                    tableComposer.setProperties(TextUtils.isEmpty(tableProperties) ? null :
-                            new Gson().fromJson(tableProperties, TableProperties.class));
+                    tableConverter.generate(tableComposer, compose);
+                    break;
 
-                    //Generate the cell information
-                    List<List<Cell>> rowList = new ArrayList<>();
-
-                    JSONArray rowArray = compose.getJSONArray(Node.COMPOSER_TABLE_CONTENTS);
-                    int rowCount = rowArray.length();
-                    for(int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-
-                        JSONObject rowObject = rowArray.getJSONObject(rowIndex);
-                        JSONArray columnArray = rowObject.getJSONArray(Node.COMPOSER_TABLE_ROW);
-
-                        int colCount = columnArray.length();
-                        ArrayList<Cell> columnList = new ArrayList<>(colCount);
-                        rowList.add(columnList);
-                        for(int colIndex = 0; colIndex < colCount; colIndex++) {
-
-                            JSONObject colObject = columnArray.getJSONObject(colIndex);
-
-                            switch (colObject.getString(Node.TYPE).toLowerCase()) {
-
-                                case Node.TYPE_TEXT:
-                                    String colTextProperties = getProperties(colObject);
-                                    TextCell textCell = new TextCell(
-                                            colObject.getString(Node.COMPOSER_TEXT_CONTENT),
-                                            TextUtils.isEmpty(colTextProperties) ? null :
-                                                new Gson().fromJson(colTextProperties, TextProperties.class),
-                                            resolveCellWidth(colObject.getInt(Node.COMPOSER_TABLE_WIDTH))
-                                    );
-                                    columnList.add(textCell);
-                                    break;
-                            }
-                        }
+                case Node.TYPE_SHAPE:
+                    if(shapeComposer == null) {
+                        shapeComposer = new ShapeComposer(simplyPdfDocument);
+                        shapeConverter = new ShapeConverter();
                     }
 
-                    tableComposer.draw(rowList);
+                    shapeConverter.generate(shapeComposer, compose);
+                    break;
+
+                case Node.TYPE_SPACE:
+                    simplyPdfDocument.insertEmptySpace(compose.getInt(Node.COMPOSER_SPACE_HEIGHT));
+                    break;
+
+                case Node.TYPE_NEWPAGE:
+                    simplyPdfDocument.newPage();
                     break;
             }
         }
 
         emitSuccess();
-    }
-
-    private String getProperties(JSONObject compose) throws JSONException {
-        return compose.has(Node.TYPE_PROPERTIES) ?
-            compose.getJSONObject(Node.TYPE_PROPERTIES).toString() : null;
-    }
-
-    private int resolveCellWidth(int widthPercent) {
-        return simplyPdfDocument.pageWidth() / (100 / widthPercent);
     }
 }

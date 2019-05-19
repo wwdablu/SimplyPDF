@@ -15,6 +15,57 @@
       "imageurl" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4"
     },
     {
+      "type" : "shape",
+      "shape" : "circle",
+      "radius" : 50,
+      "properties" : {
+        "linecolor" : "#000000",
+        "linewidth" : 1,
+        "shouldfill" : true
+      }
+    },
+    {
+      "type" : "shape",
+      "shape" : "box",
+      "width" : 100,
+      "height" : 50,
+      "properties" : {
+        "linecolor" : "#000000",
+        "linewidth" : 1,
+        "shouldfill" : true
+      }
+    },
+    {
+      "type" : "newpage"
+    },
+    {
+      "type" : "shape",
+      "shape" : "freeform",
+      "points" : [
+        {
+          "line" : [0,0]
+        },
+        {
+          "line" : [100, 0]
+        },
+        {
+          "line" : [100,100]
+        },
+        {
+          "line" : [0,0]
+        }
+      ],
+      "properties" : {
+        "linecolor" : "#FF0000",
+        "linewidth" : 4,
+        "shouldfill" : true
+      }
+    },
+    {
+      "type" : "space",
+      "height" : 25
+    },
+    {
       "type" : "table",
       "contents" : [
         {

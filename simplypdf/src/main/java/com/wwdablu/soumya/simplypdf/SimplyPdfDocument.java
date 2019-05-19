@@ -68,14 +68,6 @@ public class SimplyPdfDocument {
     }
 
     /**
-     * Inserts a new page on which updates will be composed.
-     */
-    public void insertNewPage() {
-        ensureNotFinished();
-        newPage();
-    }
-
-    /**
      * Returns the current page number on which content is being drawn.
      * @return Current page number
      */
@@ -159,6 +151,7 @@ public class SimplyPdfDocument {
      * @return The new page on which content will be drawn
      */
     public void newPage() {
+        ensureNotFinished();
         pdfDocument.finishPage(currentPage);
         ++this.currentPageNumber;
         currentPage = pdfDocument.startPage(currentPageNumber);

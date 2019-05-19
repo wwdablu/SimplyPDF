@@ -8,13 +8,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+import com.wwdablu.soumya.simplypdf.composers.models.TableProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell;
 
 import java.util.List;
 
 public class TableComposer extends GroupComposer {
 
     private Paint borderPainter;
-    private Properties colProperties;
+    private TableProperties colProperties;
 
     private TextComposer textComposer;
 
@@ -72,7 +76,7 @@ public class TableComposer extends GroupComposer {
         }
     }
 
-    public void setProperties(@Nullable Properties properties) {
+    public void setProperties(@Nullable TableProperties properties) {
 
         if(properties != null) {
             this.colProperties = properties;
@@ -93,7 +97,9 @@ public class TableComposer extends GroupComposer {
     }
 
     private void initProperties() {
-        this.colProperties = new Properties(1, Color.BLACK);
+        this.colProperties = new TableProperties();
+        colProperties.borderColor = "#000000";
+        colProperties.borderWidth = 1;
     }
 
     private void initSupportedComposers(@NonNull SimplyPdfDocument simplyPdfDocument) {
@@ -104,7 +110,7 @@ public class TableComposer extends GroupComposer {
 
         canvas.save();
         canvas.translate(simplyPdfDocument.getLeftMargin(), simplyPdfDocument.getPageContentHeight() - maxHeight);
-        borderPainter.setColor(colProperties.borderColor);
+        borderPainter.setColor(Color.parseColor(colProperties.borderColor));
 
         int colIndex = 0;
         for(Cell cell : rowCellList) {
@@ -128,64 +134,5 @@ public class TableComposer extends GroupComposer {
         }
 
         canvas.restore();
-    }
-
-    public static class Properties {
-
-        private final int borderWidth;
-        private final int borderColor;
-
-        public Properties(int borderWidth, int borderColor) {
-
-            this.borderWidth = borderWidth;
-            this.borderColor = borderColor;
-        }
-
-        public int getBorderWidth() {
-            return borderWidth;
-        }
-
-        public int getBorderColor() {
-            return borderColor;
-        }
-    }
-
-    public static abstract class Cell {
-        int width;
-        int horizontalPadding;
-        int verticalPadding;
-
-        Cell() {
-            horizontalPadding = 10;
-            verticalPadding = 10;
-        }
-
-        public int getHorizontalPadding() {
-            return horizontalPadding;
-        }
-
-        public void setHorizontalPadding(int horizontalPadding) {
-            this.horizontalPadding = horizontalPadding;
-        }
-
-        public int getVerticalPadding() {
-            return verticalPadding;
-        }
-
-        public void setVerticalPadding(int verticalPadding) {
-            this.verticalPadding = verticalPadding;
-        }
-    }
-
-    public static class TextCell extends Cell {
-
-        private final String text;
-        private final TextComposer.Properties properties;
-
-        public TextCell(@NonNull String text, @Nullable TextComposer.Properties properties, int width) {
-            this.text = text;
-            this.properties = properties;
-            this.width = width;
-        }
     }
 }

@@ -10,39 +10,40 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument;
+import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties;
 
 public class ShapeComposer extends UnitComposer {
 
     private Paint painter;
     private Path shapePath;
-    private Properties properties;
+    private ShapeProperties properties;
 
     public ShapeComposer(@NonNull SimplyPdfDocument simplyPdfDocument) {
         this.simplyPdfDocument = simplyPdfDocument;
         painter = new Paint(Paint.ANTI_ALIAS_FLAG);
         shapePath = new Path();
-        properties = new Properties();
+        properties = new ShapeProperties();
     }
 
-    public void drawBox(int width, int height, @Nullable Properties properties) {
+    public void drawBox(int width, int height, @Nullable ShapeProperties properties) {
 
         shapePath.reset();
         shapePath.addRect(new RectF(0, 0, width, height), Path.Direction.CW);
         freeform(shapePath, properties);
     }
 
-    public void drawCircle(int radius, @Nullable Properties properties) {
+    public void drawCircle(int radius, @Nullable ShapeProperties properties) {
 
         shapePath.reset();
         shapePath.addCircle(radius, radius, radius, Path.Direction.CW);
         freeform(shapePath, properties);
     }
 
-    public void freeform(@NonNull Path path, @Nullable Properties properties) {
+    public void freeform(@NonNull Path path, @Nullable ShapeProperties properties) {
 
-        Properties shapeProperties = properties != null ? properties : this.properties;
+        ShapeProperties shapeProperties = properties != null ? properties : this.properties;
 
-        painter.setColor(shapeProperties.lineColor);
+        painter.setColor(Color.parseColor(shapeProperties.lineColor));
         painter.setStyle(shapeProperties.shouldFill ? Paint.Style.FILL_AND_STROKE : Paint.Style.STROKE);
         painter.setStrokeWidth(shapeProperties.lineWidth);
 
@@ -76,19 +77,5 @@ public class ShapeComposer extends UnitComposer {
     @Override
     public String getComposerName() {
         return ShapeComposer.class.getName();
-    }
-
-    public static class Properties {
-        public int lineColor;
-        public int lineWidth;
-        public boolean shouldFill;
-        public Alignment alignment;
-
-        public Properties() {
-            lineColor = Color.BLACK;
-            lineWidth = 1;
-            shouldFill = false;
-            alignment = Alignment.LEFT;
-        }
     }
 }

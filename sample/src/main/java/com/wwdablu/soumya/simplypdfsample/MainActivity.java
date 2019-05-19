@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.print.PrintAttributes;
 import android.text.Layout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,11 +23,21 @@ import com.wwdablu.soumya.simplypdf.composers.ShapeComposer;
 import com.wwdablu.soumya.simplypdf.composers.TableComposer;
 import com.wwdablu.soumya.simplypdf.composers.TextComposer;
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer;
+import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.TableProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell;
+import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         tableComposer = new TableComposer(simplyPdfDocument);
 
         //testVariableFontSizeText();
-        testHeaderTypeText();
+        //testHeaderTypeText();
         //testColoredText();
         //testNewPageWithBackground();
         //testShapes();
@@ -62,14 +73,46 @@ public class MainActivity extends AppCompatActivity {
         //testShapeAlignment();
         //testBitmapRender();
         //testSampleOutput();
-        testTextComposed();
+        //testTextComposed();
         //testCustomComposer();
+
+        generateFromJson();
 
         try {
             simplyPdfDocument.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void generateFromJson() {
+
+        SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
+                .colorMode(DocumentInfo.ColorMode.COLOR)
+                .paperSize(PrintAttributes.MediaSize.ISO_A4)
+                .margin(DocumentInfo.Margins.DEFAULT)
+                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+                .build();
+
+        final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdfDocument, JSONStruct.payload)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribeWith(new DisposableObserver<Boolean>() {
+                @Override
+                public void onNext(Boolean aBoolean) {
+                    Toast.makeText(MainActivity.this, "Success: " + aBoolean, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onComplete() {
+                    //
+                }
+            });
     }
 
     private void testCustomComposer() {
@@ -81,24 +124,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void testTextComposed() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
 
         int w_50_cent = simplyPdfDocument.pageWidth() / 2;
 
-        TableComposer.Properties colProperties = new TableComposer.Properties(1, Color.BLACK);
+        TableProperties colProperties = new TableProperties();
+        colProperties.borderWidth = 1;
+        colProperties.borderColor = "#000000";
         tableComposer.setProperties(colProperties);
 
-        List<List<TableComposer.Cell>> composedList = new ArrayList<>();
-        ArrayList<TableComposer.Cell> rowList = new ArrayList<>();
+        List<List<Cell>> composedList = new ArrayList<>();
+        ArrayList<Cell> rowList = new ArrayList<>();
 
         //1st row
-        rowList.add(new TableComposer.TextCell("Likes", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("Dislikes", textProperties, w_50_cent));
+        rowList.add(new TextCell("Likes", textProperties, w_50_cent));
+        rowList.add(new TextCell("Dislikes", textProperties, w_50_cent));
         composedList.add(rowList);
 
-        textProperties = new TextComposer.Properties();
+        textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
@@ -107,20 +152,20 @@ public class MainActivity extends AppCompatActivity {
 
         //2nd row
         rowList = new ArrayList<>();
-        TableComposer.Cell cell = new TableComposer.TextCell("Apple", textProperties, w_50_cent);
+        Cell cell = new TextCell("Apple", textProperties, w_50_cent);
         rowList.add(cell);
-        rowList.add(new TableComposer.TextCell("Guava", textProperties, w_50_cent));
+        rowList.add(new TextCell("Guava", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //3rd row
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Banana", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("Coconut", textProperties, w_50_cent));
+        rowList.add(new TextCell("Banana", textProperties, w_50_cent));
+        rowList.add(new TextCell("Coconut", textProperties, w_50_cent));
         composedList.add(rowList);
 
         //4th row
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Mango", textProperties, w_50_cent));
+        rowList.add(new TextCell("Mango", textProperties, w_50_cent));
         composedList.add(rowList);
         tableComposer.draw(composedList);
 
@@ -130,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
         //new table
         composedList.clear();
         rowList = new ArrayList<>();
-        rowList.add(new TableComposer.TextCell("Small Left Text", textProperties, w_50_cent));
-        rowList.add(new TableComposer.TextCell("This is a big text on the right column which will be multiple lines.",
+        rowList.add(new TextCell("Small Left Text", textProperties, w_50_cent));
+        rowList.add(new TextCell("This is a big text on the right column which will be multiple lines.",
                 textProperties, w_50_cent));
         composedList.add(rowList);
         tableComposer.draw(composedList);
@@ -142,13 +187,13 @@ public class MainActivity extends AppCompatActivity {
         composedList.clear();
         rowList = new ArrayList<>();
 
-        cell = new TableComposer.TextCell(
+        cell = new TextCell(
                 "This is a big text a a the right column which will be multiple lines.", textProperties, w_50_cent);
         cell.setHorizontalPadding(25);
         cell.setVerticalPadding(50);
         rowList.add(cell);
 
-        cell = new TableComposer.TextCell("Small right text", textProperties, w_50_cent);
+        cell = new TextCell("Small right text", textProperties, w_50_cent);
         cell.setHorizontalPadding(25);
         cell.setVerticalPadding(50);
         rowList.add(cell);
@@ -158,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testSampleOutput() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 24;
         textProperties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
         textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
@@ -171,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
                 " files within the application ans save them in the device storage." +
                 " This sample PDF is generated using this library", textProperties);
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
         shapeProperties.shouldFill = true;
-        shapeProperties.lineColor = Color.BLACK;
+        shapeProperties.lineColor = "#000000";
         shapeComposer.setSpacing(15);
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
 
@@ -190,14 +235,14 @@ public class MainActivity extends AppCompatActivity {
         textComposer.write("Can also set page background color", textProperties);
 
         simplyPdfDocument.insertEmptySpace(25);
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
 
         textProperties.isBullet = false;
         textComposer.write("It can draw shapes like these:", textProperties);
 
         testShapeAlignment();
         testNewPageWithBackground();
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
 
         textComposer.write("That is all in Version 1.0.0. Will enhance for more.", textProperties);
     }
@@ -214,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         imageComposer.drawBitmap(bitmap, null);
         bitmap.recycle();
 
-        ImageComposer.Properties properties = new ImageComposer.Properties();
+        ImageProperties properties = new ImageProperties();
         properties.alignment = ImageComposer.Alignment.LEFT;
         bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565);
         c = new Canvas(bitmap);
@@ -232,28 +277,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void testShapeAlignment() {
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
         shapeProperties.shouldFill = true;
 
         shapeComposer.setSpacing(15);
 
-        shapeProperties.lineColor = Color.RED;
+        shapeProperties.lineColor = "#FF0000";
         shapeProperties.alignment = ShapeComposer.Alignment.LEFT;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.GREEN;
+        shapeProperties.lineColor = "#00FF00";
         shapeProperties.alignment = ShapeComposer.Alignment.CENTER;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.lineColor = "#0000FF";
         shapeProperties.alignment = ShapeComposer.Alignment.RIGHT;
         shapeComposer.drawCircle(100, shapeProperties);
     }
 
     private void testTextAlignments() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 16;
 
         textProperties.alignment = Layout.Alignment.ALIGN_NORMAL;
@@ -273,13 +318,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void testHeaderTypeText() {
 
-        TextComposer.Properties textProperties = new TextComposer.Properties();
+        TextProperties textProperties = new TextProperties();
         textProperties.textSize = 16;
         textComposer.write("This is the header text", textProperties);
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
-        shapeProperties.lineColor = Color.GRAY;
+        shapeProperties.lineColor = "#C4C4C4";
         shapeProperties.shouldFill = true;
         shapeComposer.drawBox(simplyPdfDocument.pageWidth(), 1, shapeProperties);
         simplyPdfDocument.insertEmptySpace(25);
@@ -287,25 +332,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void testShapes() {
 
-        ShapeComposer.Properties shapeProperties = new ShapeComposer.Properties();
+        ShapeProperties shapeProperties = new ShapeProperties();
         shapeProperties.lineWidth = 1;
-        shapeProperties.lineColor = Color.RED;
+        shapeProperties.lineColor = "#FF0000";
         shapeProperties.shouldFill = true;
 
         shapeComposer.setSpacing(25);
 
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLUE;
+        shapeProperties.lineColor = "#0000FF";
         shapeProperties.shouldFill = false;
         shapeProperties.lineWidth = 5;
         shapeComposer.drawCircle(100, shapeProperties);
 
-        shapeProperties.lineColor = Color.YELLOW;
+        shapeProperties.lineColor = "#00FF00";
         shapeProperties.shouldFill = true;
         shapeComposer.drawBox(200, 200, shapeProperties);
 
-        shapeProperties.lineColor = Color.BLACK;
+        shapeProperties.lineColor = "#000000";
         shapeProperties.shouldFill = false;
         shapeProperties.lineWidth = 15;
         shapeComposer.drawBox(200, 200, shapeProperties);
@@ -313,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testColoredText() {
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         properties.textSize = 16;
 
         properties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
@@ -324,15 +369,15 @@ public class MainActivity extends AppCompatActivity {
         properties.bulletSymbol = "•";
         textComposer.write("Black", properties);
 
-        properties.textColor = Color.RED;
+        properties.textColor = "#FF0000";
         properties.underline = true;
         textComposer.write("Red", properties);
 
         properties.strikethrough = true;
-        properties.textColor = Color.parseColor("#ABCDEF");
+        properties.textColor = "#ABCDEF";
         textComposer.write("Custom", properties);
 
-        properties.textColor = Color.BLACK;
+        properties.textColor = "#FFFFFF";
         textComposer.write("The quick brown fox, jumps over the hungry lazy dog. " +
                 "This is a very long and interesting string.", properties);
 
@@ -344,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void testVariableFontSizeText() {
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         for(int i = 1; i <= 10; i++) {
             properties.textSize = i * 4;
             textComposer.write("The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]", properties);
@@ -352,12 +397,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testNewPageWithBackground() {
-        simplyPdfDocument.insertNewPage();
+        simplyPdfDocument.newPage();
         simplyPdfDocument.setPageBackgroundColor(Color.MAGENTA);
 
-        TextComposer.Properties properties = new TextComposer.Properties();
+        TextProperties properties = new TextProperties();
         properties.textSize = 32;
-        properties.textColor = Color.WHITE;
+        properties.textColor = "#000000";
 
         textComposer.write("White text on magenta background page.", properties);
     }
@@ -373,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void draw() {
 
-            simplyPdfDocument.insertNewPage();
+            simplyPdfDocument.newPage();
 
             Canvas canvas = getPageCanvas();
             Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);

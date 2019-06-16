@@ -41,8 +41,10 @@ public class ImageComposer extends UnitComposer {
         Canvas canvas = getPageCanvas();
         canvas.save();
         canvas.translate(simplyPdfDocument.getLeftMargin() + xTranslate, simplyPdfDocument.getPageContentHeight() + bmpSpacing);
-        canvas.drawBitmap(bitmap, new Matrix(), bitmapPainter);
-        simplyPdfDocument.addContentHeight(bitmap.getHeight() + bmpSpacing);
+        Bitmap scaledBitmap = scaleToFit(bitmap, simplyPdfDocument.getPageContentHeight() + bmpSpacing);
+        canvas.drawBitmap(scaledBitmap, new Matrix(), bitmapPainter);
+        simplyPdfDocument.addContentHeight(scaledBitmap.getHeight() + bmpSpacing);
+        scaledBitmap.recycle();
         canvas.restore();
     }
 
@@ -56,5 +58,27 @@ public class ImageComposer extends UnitComposer {
     @Override
     public String getComposerName() {
         return ImageComposer.class.getName();
+    }
+
+    private Bitmap scaleToFit(@NonNull Bitmap bitmap, int topSpacing) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+
+        int useableWidth = simplyPdfDocument.getUsablePageWidth();
+        int useableHeight = (simplyPdfDocument.getUsablePageHeight() - topSpacing);
+
+        float heightFactor = (float)originalHeight / (float)useableHeight;
+        float widthFactor = (float)originalWidth / (float)useableWidth;
+        float useFactor = heightFactor;
+
+        if(widthFactor >= heightFactor) {
+            useFactor = widthFactor;
+        }
+
+        int scaleWidth = (int)(originalWidth / useFactor);
+        int scaleHeight = (int)(originalHeight / useFactor);
+
+        return Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
     }
 }

@@ -30,18 +30,20 @@ public class ImageComposer extends UnitComposer {
         }
 
         ImageProperties bitmapProperties = properties != null ? properties : this.properties;
-        int xTranslate = alignmentCanvasTranslation(bitmapProperties.alignment, bitmap.getWidth());
-
-        if(!canFitContentInPage(bitmap.getHeight() + DEFAULT_SPACING)) {
-            simplyPdfDocument.newPage();
-        }
 
         final int bmpSpacing = getTopSpacing(DEFAULT_SPACING);
+        Bitmap scaledBitmap = scaleToFit(bitmap, simplyPdfDocument.getPageContentHeight() + bmpSpacing);
+
+        int xTranslate = alignmentCanvasTranslation(bitmapProperties.alignment, scaledBitmap.getWidth());
+
+        if(!canFitContentInPage(scaledBitmap.getHeight() + DEFAULT_SPACING) &&
+                simplyPdfDocument.getPageContentHeight() != simplyPdfDocument.getTopMargin()) {
+            simplyPdfDocument.newPage();
+        }
 
         Canvas canvas = getPageCanvas();
         canvas.save();
         canvas.translate(simplyPdfDocument.getLeftMargin() + xTranslate, simplyPdfDocument.getPageContentHeight() + bmpSpacing);
-        Bitmap scaledBitmap = scaleToFit(bitmap, simplyPdfDocument.getPageContentHeight() + bmpSpacing);
         canvas.drawBitmap(scaledBitmap, new Matrix(), bitmapPainter);
         simplyPdfDocument.addContentHeight(scaledBitmap.getHeight() + bmpSpacing);
         scaledBitmap.recycle();

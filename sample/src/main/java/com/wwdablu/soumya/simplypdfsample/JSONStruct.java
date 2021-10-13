@@ -9,7 +9,7 @@ public class JSONStruct {
             "      \"content\" : \"SimplyPdf developer, Soumya Kanti Kar\",\n" +
             "      \"properties\" : {\n" +
             "        \"size\" : 24,\n" +
-            "        \"color\" : \"#000000\",\n" +
+            "        \"color\" : \"#FF0000\",\n" +
             "        \"underline\" : true,\n" +
             "        \"strikethrough\" : false\n" +
             "      }\n" +
@@ -34,7 +34,7 @@ public class JSONStruct {
             "      \"width\" : 100,\n" +
             "      \"height\" : 50,\n" +
             "      \"properties\" : {\n" +
-            "        \"linecolor\" : \"#000000\",\n" +
+            "        \"linecolor\" : \"#FF0000\",\n" +
             "        \"linewidth\" : 1,\n" +
             "        \"shouldfill\" : true\n" +
             "      }\n" +

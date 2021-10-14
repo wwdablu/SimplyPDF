@@ -3,12 +3,13 @@ package com.wwdablu.soumya.simplypdf.jsonengine
 import android.graphics.Path
 import android.text.TextUtils
 import com.google.gson.Gson
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
 import org.json.JSONObject
 
-internal class ShapeConverter : BaseConverter() {
+internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {
 
     @Throws(Exception::class)
     public override fun generate(composer: Composer, compose: JSONObject) {
@@ -17,8 +18,8 @@ internal class ShapeConverter : BaseConverter() {
         }
 
         val shapePropertiesString = getProperties(compose)
-        val shapeProperties = if (TextUtils.isEmpty(shapePropertiesString)) null else Gson().fromJson(
-                shapePropertiesString, ShapeProperties::class.java)
+        val shapeProperties = if (TextUtils.isEmpty(shapePropertiesString)) ShapeProperties()
+            else Gson().fromJson(shapePropertiesString, ShapeProperties::class.java)
 
         when (compose.getString(Node.COMPOSER_SHAPE_SHAPE).lowercase()) {
             "circle" -> drawCircle(composer, compose, shapeProperties)
@@ -31,7 +32,7 @@ internal class ShapeConverter : BaseConverter() {
     private fun drawCircle(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
-        shapeProperties: ShapeProperties?
+        shapeProperties: ShapeProperties
     ) {
 
         val radius = compose.getInt(Node.COMPOSER_SHAPE_RADIUS).toFloat()
@@ -42,7 +43,7 @@ internal class ShapeConverter : BaseConverter() {
     private fun drawBox(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
-        shapeProperties: ShapeProperties?
+        shapeProperties: ShapeProperties
     ) {
         val width = compose.getInt(Node.COMPOSER_SHAPE_WIDTH)
         val height = compose.getInt(Node.COMPOSER_SHAPE_HEIGHT)
@@ -53,7 +54,7 @@ internal class ShapeConverter : BaseConverter() {
     private fun drawFreeform(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
-        shapeProperties: ShapeProperties?
+        shapeProperties: ShapeProperties
     ) {
         val pointsArray = compose.getJSONArray(Node.COMPOSER_SHAPE_POINTS)
         val pointsArrayLength = pointsArray.length()
@@ -67,6 +68,6 @@ internal class ShapeConverter : BaseConverter() {
                 path.lineTo(lineArray.getInt(0).toFloat(), lineArray.getInt(1).toFloat())
             }
         }
-        shapeComposer.freeform(0f, 0f, path, shapeProperties)
+        shapeComposer.freeform(path, shapeProperties)
     }
 }

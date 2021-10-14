@@ -6,11 +6,17 @@ import com.wwdablu.soumya.simplypdf.composers.ImageComposer
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer
 
 class ImageProperties : UnitComposer.Properties() {
-    @SerializedName("imageurl")
-    var imageUrl: String? = null
+
+    @SerializedName("source")
+    @kotlin.jvm.JvmField
+    var source: String? = null
+
+    @SerializedName("format")
+    @kotlin.jvm.JvmField
+    var format: String? = null
+
     @kotlin.jvm.JvmField
     var alignment: Composer.Alignment = Composer.Alignment.LEFT
-    override val propId: String
-        get() = ImageComposer::class.java.name + "Properties"
 
+    override val propId = ImageComposer::class.java.name + "Properties"
 }

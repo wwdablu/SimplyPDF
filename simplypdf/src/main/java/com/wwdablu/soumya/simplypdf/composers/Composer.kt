@@ -11,7 +11,7 @@ abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
         LEFT, CENTER, RIGHT
     }
 
-    abstract val composerName: String?
+    val composerName: String = this::class.java.simpleName
 
     var spacing: Int = DEFAULT_SPACING
         set(spacing) {

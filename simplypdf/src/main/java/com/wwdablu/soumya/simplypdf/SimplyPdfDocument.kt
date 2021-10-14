@@ -6,21 +6,36 @@ import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import android.print.PrintAttributes
 import android.print.pdf.PrintedPdfDocument
+import androidx.annotation.ColorInt
+import com.wwdablu.soumya.simplypdf.composers.ImageComposer
+import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
+import com.wwdablu.soumya.simplypdf.composers.TableComposer
+import com.wwdablu.soumya.simplypdf.composers.TextComposer
+import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
+import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
+import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 /**
  * Allows the developer to modify the PDF document. An instance of this can be obtained by using
  * the [SimplyPdf] class.
  */
 class SimplyPdfDocument internal constructor(
-    private val context: Context,
+    internal val context: Context,
     private val document: File
 ) {
     val documentInfo: DocumentInfo = DocumentInfo()
     private lateinit var pdfDocument: PrintedPdfDocument
     private lateinit var printAttributes: PrintAttributes
+
+    val text: TextComposer by lazy { TextComposer(this) }
+    val shape: ShapeComposer by lazy { ShapeComposer(this) }
+    val image: ImageComposer by lazy { ImageComposer(this) }
+    val table: TableComposer by lazy { TableComposer(this) }
 
     /**
      * Returns the current page being used
@@ -42,7 +57,9 @@ class SimplyPdfDocument internal constructor(
      */
     var pageContentHeight = 0
         private set
+
     private var finished = false
+
     fun build() {
         build(context)
     }
@@ -65,7 +82,7 @@ class SimplyPdfDocument internal constructor(
      * Set the background color of the current page. It will apply it to the entire page.
      * @param color Color to be applied
      */
-    fun setPageBackgroundColor(color: Int) {
+    fun setPageBackgroundColor(@ColorInt color: Int) {
         ensureNotFinished()
         val canvas = currentPage.canvas
         canvas.save()
@@ -82,15 +99,18 @@ class SimplyPdfDocument internal constructor(
 
     /**
      * Complete all the tasks and write the PDF to the location provided.
-     * @throws IOException IO Exception
      */
-    @Throws(IOException::class)
-    fun finish() {
-        ensureNotFinished()
-        pdfDocument.finishPage(currentPage)
-        pdfDocument.writeTo(FileOutputStream(document))
-        pdfDocument.close()
-        finished = true
+    suspend fun finish() : Boolean {
+        return withContext(Dispatchers.IO) {
+            val result = runCatching {
+                ensureNotFinished()
+                pdfDocument.finishPage(currentPage)
+                pdfDocument.writeTo(FileOutputStream(document))
+                pdfDocument.close()
+                finished = true
+            }
+            result.isSuccess
+        }
     }
 
     fun build(context: Context) {
@@ -130,11 +150,17 @@ class SimplyPdfDocument internal constructor(
 
     /**
      * Adds the height of the content drawn currently to the total height of content already
-     * present in the current page.
+     * present in the current page. If the total content height crosses the usable limit, then a
+     * new page will be inserted.
      * @param pageContentHeight Page Content Height
      */
     fun addContentHeight(pageContentHeight: Int) {
         this.pageContentHeight += pageContentHeight
+
+        //If the page content height crosses the height limit, create new page
+        if(this.pageContentHeight >= usablePageHeight) {
+            newPage()
+        }
     }
 
     /**
@@ -153,7 +179,7 @@ class SimplyPdfDocument internal constructor(
     val usablePageWidth: Int
         get() = pdfDocument.pageWidth - (leftMargin + rightMargin)
 
-    fun ensureNotFinished() {
+    private fun ensureNotFinished() {
         check(!finished) { "Cannot use as finish has been called." }
     }
 }

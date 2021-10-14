@@ -10,28 +10,28 @@ import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
 
 class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simplyPdfDocument) {
 
-    private var colProperties: TableProperties = TableProperties()
-    private var textComposer: TextComposer = TextComposer(simplyPdfDocument)
-
-    init {
-        colProperties.borderColor = "#000000"
-        colProperties.borderWidth = 1
+    var tableProperties: TableProperties = TableProperties().apply {
+        borderColor = "#000000"
+        borderWidth = 1
     }
+
+    private val borderPainter = Paint(Paint.ANTI_ALIAS_FLAG)
 
     fun draw(cellList: List<List<Cell>>) {
         if (cellList.isEmpty()) {
             return
         }
-        var largestHeight = 0
+        var largestHeight: Int
         for (rowCellList in cellList) {
+
+            largestHeight = 0
+
+            /* This will loop through all the cells on the row and then find the cell with the
+             * largest height. That will be used to draw all the other cells in the same row
+             */
             for (cell in rowCellList) {
-                var cellHeight = 0
-                if (cell is TextCell) {
-                    cellHeight = textComposer
-                        .write(cell.text, cell.properties,
-                            cell.width, cell.verticalPadding, true, 0,
-                            cell.horizontalPadding, false)
-                }
+                val cellHeight = cell.getCellHeight()
+
                 if (largestHeight < cellHeight) {
                     largestHeight = cellHeight
                 }
@@ -42,31 +42,19 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             var bitmapXTranslate = simplyPdfDocument.leftMargin
             val arrayLength = rowCellList.size
             for (rowIndex in 0 until arrayLength) {
-                val cellData = rowCellList[rowIndex]
-                if (cellData is TextCell) {
-                    textComposer.write(cellData.text, cellData.properties,
-                        cellData.width, cellData.verticalPadding,
-                        true, bitmapXTranslate, cellData.horizontalPadding, true)
-                    bitmapXTranslate += cellData.width
+                rowCellList[rowIndex].apply {
+                    render(bitmapXTranslate)
+                    bitmapXTranslate += getCellWidth()
                 }
             }
             simplyPdfDocument.addContentHeight(largestHeight)
             drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList)
-            largestHeight = 0
         }
     }
 
-    fun setProperties(properties: TableProperties?) {
-        colProperties = properties ?: TableProperties()
-    }
-
-    override val composerName: String
-        get() = TableComposer::class.java.name
-
     private fun drawBorders(canvas: Canvas, maxHeight: Float, rowCellList: List<Cell>) {
 
-        val borderPainter = Paint(Paint.ANTI_ALIAS_FLAG)
-        borderPainter.color = Color.parseColor(colProperties.borderColor)
+        borderPainter.color = Color.parseColor(tableProperties.borderColor)
 
         canvas.save()
         canvas.translate(simplyPdfDocument.leftMargin.toFloat(),
@@ -80,27 +68,20 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             }
 
             //Top border
-            canvas.drawLine(0f, 0f, cell.width.toFloat(), 0f, borderPainter)
+            canvas.drawLine(0f, 0f, cell.getCellWidth().toFloat(),
+                0f, borderPainter)
 
             //Right border
-            canvas.drawLine(
-                cell.width.toFloat(),
-                0f,
-                cell.width.toFloat(),
-                maxHeight,
-                borderPainter
-            )
+            canvas.drawLine(cell.getCellWidth().toFloat(), 0f,
+                cell.getCellWidth().toFloat(), maxHeight, borderPainter)
 
             //Bottom border
-            canvas.drawLine(
-                cell.width.toFloat(),
-                maxHeight,
-                0f,
-                maxHeight,
-                borderPainter
-            )
-            canvas.translate(cell.width.toFloat(), 0f)
+            canvas.drawLine(cell.getCellWidth().toFloat(), maxHeight,
+                0f, maxHeight, borderPainter)
+
+            canvas.translate(cell.getCellWidth().toFloat(), 0f)
         }
+
         canvas.restore()
     }
 }

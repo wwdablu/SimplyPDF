@@ -1,10 +1,11 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import org.json.JSONException
 import org.json.JSONObject
 
-internal abstract class BaseConverter {
+internal abstract class BaseConverter(val simplyPdfDocument: SimplyPdfDocument) {
     @Throws(Exception::class)
     protected abstract fun generate(composer: Composer, compose: JSONObject)
 

@@ -16,7 +16,8 @@ public class JSONStruct {
             "    },\n" +
             "    {\n" +
             "      \"type\" : \"image\",\n" +
-            "      \"imageurl\" : \"https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4\"\n" +
+            "      \"source\" : \"https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4\"\n" +
+            "      \"format\" : \"url\",\n" +
             "    },\n" +
             "    {\n" +
             "      \"type\" : \"shape\",\n" +

@@ -12,9 +12,9 @@ const val BULLET_SPACING = 10
 
 class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 
-    private var properties: TextProperties = TextProperties()
+    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
 
-    fun write(text: String, properties: TextProperties?) {
+    fun write(text: String, properties: TextProperties) {
         write(text, properties, simplyPdfDocument.usablePageWidth, 0,
             false, 0, 0, true)
     }
@@ -31,32 +31,29 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
      * @param performDraw Should it actually perform the draw on canvas.
      * @return The height of the content that can be drawn.
      */
-    fun write(
-        text: String, properties: TextProperties?, pageWidth: Int, padding: Int,
-        isHorizontalDraw: Boolean, hAxis: Int, hPadding: Int, performDraw: Boolean
-    ): Int {
+    fun write(text: String, properties: TextProperties, pageWidth: Int, padding: Int,
+        isHorizontalDraw: Boolean, hAxis: Int, hPadding: Int, performDraw: Boolean) : Int {
 
-        val textProperties = properties ?: this.properties
-        val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(textProperties.textColor)
-            textSize = textProperties.textSize.toFloat()
-            typeface = textProperties.typeface
+        textPaint.apply {
+            color = Color.parseColor(properties.textColor)
+            textSize = properties.textSize.toFloat()
+            typeface = properties.typeface
         }
 
         var widthAdjustForProperties = 0
         var bulletMarker: StaticLayout? = null
 
-        if (textProperties.isBullet) {
+        if (properties.isBullet) {
             bulletMarker = StaticLayout(
-                textProperties.getBulletSymbol(), textPaint, simplyPdfDocument.usablePageWidth,
+                properties.getBulletSymbol(), textPaint, simplyPdfDocument.usablePageWidth,
                 Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false
             )
-            widthAdjustForProperties += (textPaint.measureText(textProperties.bulletSymbol) + BULLET_SPACING).toInt()
+            widthAdjustForProperties += (textPaint.measureText(properties.bulletSymbol) + BULLET_SPACING).toInt()
         }
 
         val staticLayout = StaticLayout(text, textPaint,
             pageWidth - widthAdjustForProperties - hPadding * 2,
-            textProperties.getAlignment(), 1f, 0f, false)
+            properties.getAlignment(), 1f, 0f, false)
 
         val textLineSpacing = getTopSpacing(if (isHorizontalDraw) 0 else DEFAULT_SPACING)
         if (performDraw && !canFitContentInPage(textLineSpacing + staticLayout.height)) {
@@ -73,8 +70,8 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
             bulletMarker.draw(pageCanvas)
         }
 
-        setTextPaintProperties(textPaint, Paint.UNDERLINE_TEXT_FLAG, textProperties.underline)
-        setTextPaintProperties(textPaint, Paint.STRIKE_THRU_TEXT_FLAG, textProperties.strikethrough)
+        setTextPaintProperties(textPaint, Paint.UNDERLINE_TEXT_FLAG, properties.underline)
+        setTextPaintProperties(textPaint, Paint.STRIKE_THRU_TEXT_FLAG, properties.strikethrough)
 
         pageCanvas.translate(widthAdjustForProperties.toFloat(), 0f)
 
@@ -93,9 +90,6 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         return finalContentHeight
     }
-
-    override val composerName: String
-        get() = TextComposer::class.java.name
 
     private fun setTextPaintProperties(textPaint: TextPaint, flag: Int, enable: Boolean) {
         if (enable) {

@@ -6,41 +6,55 @@ import android.graphics.Paint
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
 
-open class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
+class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 
-    private var properties: ImageProperties = ImageProperties()
     private var bitmapPainter: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    fun drawBitmap(bitmap: Bitmap, properties: ImageProperties?) {
+    fun drawBitmap(bmp: Bitmap, properties: ImageProperties) {
+        drawBitmap(bmp, properties, 0, 0, false, 0)
+    }
 
-        //If recycled, hence nothing to do
-        if (bitmap.isRecycled) {
+    internal fun drawBitmap(bmp: Bitmap, properties: ImageProperties, vMargin:Int, hMargin: Int,
+                            isHorizontalDraw: Boolean, hPadding: Int) {
+
+        var bitmap = bmp
+
+        //If recycled, do nothing
+        if (bmp.isRecycled) {
             return
         }
 
-        val bitmapProperties = properties ?: this.properties
         val bmpSpacing = getTopSpacing(DEFAULT_SPACING)
-        val scaledBitmap = scaleToFit(bitmap, simplyPdfDocument.pageContentHeight + bmpSpacing)
-        val xTranslate = alignmentCanvasTranslation(bitmapProperties.alignment, scaledBitmap.width)
-        if (!canFitContentInPage(scaledBitmap.height + DEFAULT_SPACING) &&
-            simplyPdfDocument.pageContentHeight != simplyPdfDocument.topMargin
-        ) {
+        bitmap = if(bitmap.width >= simplyPdfDocument.usablePageWidth ||
+                bitmap.height >= simplyPdfDocument.usablePageHeight) {
+            scaleToFit(bmp, simplyPdfDocument.pageContentHeight + bmpSpacing)
+        } else {
+            bmp
+        }
+
+        val xTranslate = alignmentCanvasTranslation(properties.alignment, bitmap.width)
+        if (!canFitContentInPage(bitmap.height + DEFAULT_SPACING) &&
+            simplyPdfDocument.pageContentHeight != simplyPdfDocument.topMargin) {
             simplyPdfDocument.newPage()
         }
+
         val canvas = pageCanvas
         canvas.save()
-        canvas.translate(
-            (simplyPdfDocument.leftMargin + xTranslate).toFloat(),
-            (simplyPdfDocument.pageContentHeight + bmpSpacing).toFloat()
-        )
-        canvas.drawBitmap(scaledBitmap, Matrix(), bitmapPainter)
-        simplyPdfDocument.addContentHeight(scaledBitmap.height + bmpSpacing)
-        scaledBitmap.recycle()
+        canvas.translate((if(isHorizontalDraw) 0 else simplyPdfDocument.leftMargin) +
+                (xTranslate + hPadding + hMargin).toFloat(),
+            (if(isHorizontalDraw) 0 else simplyPdfDocument.leftMargin) +
+                    (simplyPdfDocument.pageContentHeight + vMargin).toFloat())
+
+        canvas.drawBitmap(bitmap, Matrix(), bitmapPainter)
+        if(!isHorizontalDraw) {
+            simplyPdfDocument.addContentHeight(bitmap.height + bmpSpacing)
+        }
+
+        if(bitmap != bmp) {
+            bitmap.recycle()
+        }
         canvas.restore()
     }
-
-    override val composerName: String
-        get() = ImageComposer::class.java.name
 
     private fun scaleToFit(bitmap: Bitmap, topSpacing: Int): Bitmap {
         val originalWidth = bitmap.width

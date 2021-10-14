@@ -15,14 +15,14 @@ class DocumentInfo internal constructor() {
         PORTRAIT, LANDSCAPE
     }
 
-    var paperSize = PrintAttributes.MediaSize.ISO_A4
-     get() {
-         return if (orientation == Orientation.PORTRAIT) field else field.asLandscape()
-     }
+    var paperSize: PrintAttributes.MediaSize = PrintAttributes.MediaSize.ISO_A4
+        get() {
+            return if (orientation == Orientation.PORTRAIT) field else field.asLandscape()
+        }
 
-    var colorMode: ColorMode? = ColorMode.COLOR
-    var margins: Margins? = Margins.DEFAULT
-    var orientation = Orientation.PORTRAIT
+    var colorMode: ColorMode = ColorMode.COLOR
+    var margins: Margins = Margins.DEFAULT
+    var orientation: Orientation = Orientation.PORTRAIT
 
     /*
      *

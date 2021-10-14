@@ -10,12 +10,12 @@ class SimplyPdf private constructor(context: Context, outputPdf: File) {
 
     private val document: SimplyPdfDocument = SimplyPdfDocument(context, outputPdf)
 
-    fun colorMode(colorMode: ColorMode?): SimplyPdf {
+    fun colorMode(colorMode: ColorMode): SimplyPdf {
         document.documentInfo.colorMode = colorMode
         return this
     }
 
-    fun margin(margins: DocumentInfo.Margins?): SimplyPdf {
+    fun margin(margins: DocumentInfo.Margins): SimplyPdf {
         document.documentInfo.margins = margins
         return this
     }
@@ -41,8 +41,19 @@ class SimplyPdf private constructor(context: Context, outputPdf: File) {
             return SimplyPdf(context, outputPdf)
         }
 
-        @kotlin.jvm.JvmStatic
+        @Deprecated("Will be removed in future", ReplaceWith(
+            "usingJson(context, simplyPdfDocument, payload)",
+            "com.wwdablu.soumya.simplypdf.SimplyPdf.Companion.usingJson"))
         suspend fun use(
+            context: Context,
+            simplyPdfDocument: SimplyPdfDocument,
+            payload: String
+        ) {
+            usingJson(context, simplyPdfDocument, payload)
+        }
+
+        @kotlin.jvm.JvmStatic
+        suspend fun usingJson(
             context: Context,
             simplyPdfDocument: SimplyPdfDocument,
             payload: String

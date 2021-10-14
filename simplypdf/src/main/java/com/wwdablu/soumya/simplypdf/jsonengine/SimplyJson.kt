@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-class SimplyJson(private val context: Context, private val payload: String) {
+internal class SimplyJson(private val context: Context, private val payload: String) {
     
     private lateinit var simplyPdfDocument: SimplyPdfDocument
     
@@ -22,7 +22,7 @@ class SimplyJson(private val context: Context, private val payload: String) {
     }
 
     @Throws(Exception::class)
-    private fun parsePayload() {
+    private suspend fun parsePayload() {
 
         val contentArray = JSONObject(payload).getJSONArray(Node.CONTENT)
         if (contentArray.length() == 0) {
@@ -34,11 +34,11 @@ class SimplyJson(private val context: Context, private val payload: String) {
         val tableComposer: TableComposer by lazy { TableComposer(simplyPdfDocument) }
         val shapeComposer: ShapeComposer by lazy { ShapeComposer(simplyPdfDocument) }
 
-        val textConverter: TextConverter by lazy { TextConverter() }
-        val tableConverter: TableConverter by lazy { TableConverter() }
-        val shapeConverter: ShapeConverter by lazy { ShapeConverter() }
+        val textConverter: TextConverter by lazy { TextConverter(simplyPdfDocument) }
+        val tableConverter: TableConverter by lazy { TableConverter(simplyPdfDocument) }
+        val shapeConverter: ShapeConverter by lazy { ShapeConverter(simplyPdfDocument) }
 
-        val imageConverter: ImageConverter by lazy { ImageConverter(context) }
+        val imageConverter: ImageConverter by lazy { ImageConverter(context, simplyPdfDocument) }
 
         for (index in 0 until contentArray.length()) {
             val compose = contentArray.getJSONObject(index)

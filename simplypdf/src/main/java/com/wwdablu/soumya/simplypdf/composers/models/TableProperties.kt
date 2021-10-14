@@ -5,6 +5,7 @@ import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.UnitComposer
 
 class TableProperties : UnitComposer.Properties() {
+
     @kotlin.jvm.JvmField
     @SerializedName("width")
     var borderWidth = 0
@@ -12,6 +13,6 @@ class TableProperties : UnitComposer.Properties() {
     @kotlin.jvm.JvmField
     @SerializedName("color")
     var borderColor: String? = null
-    override val propId: String
-        get() = TableComposer::class.java.name + "Properties"
+
+    override val propId = TableComposer::class.java.name + "Properties"
 }

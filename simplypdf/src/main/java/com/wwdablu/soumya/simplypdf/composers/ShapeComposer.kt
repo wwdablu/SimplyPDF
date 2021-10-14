@@ -7,35 +7,37 @@ import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
 class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 
     private var shapePath: Path = Path()
-    private var properties: ShapeProperties = ShapeProperties()
 
-    fun drawBox(x:Float, y:Float, width: Float, height: Float, properties: ShapeProperties?) {
+    fun drawBox(x:Float, y:Float, width: Float, height: Float, properties: ShapeProperties) {
 
         shapePath.apply {
             reset()
             addRect(RectF(x, y, width + x, height + y), Path.Direction.CW)
         }
 
-        freeform(x, y, shapePath, properties)
+        draw(x, y, shapePath, properties)
     }
 
-    fun drawCircle(x:Float, y:Float, radius: Float, properties: ShapeProperties?) {
+    fun drawCircle(x:Float, y:Float, radius: Float, properties: ShapeProperties) {
 
         shapePath.apply {
             reset()
             addCircle(x, y, radius, Path.Direction.CW)
         }
 
-        freeform(x, y, shapePath, properties)
+        draw(x, y, shapePath, properties)
     }
 
-    fun freeform(x:Float, y:Float, path: Path, properties: ShapeProperties?) {
-        val shapeProperties = properties ?: this.properties
+    fun freeform(path: Path, properties: ShapeProperties) {
+        draw(0f, 0f, path, properties)
+    }
+
+    private fun draw(x:Float, y:Float, path: Path, properties: ShapeProperties) {
 
         val painter: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor(shapeProperties.lineColor)
-            style = if (shapeProperties.shouldFill) Paint.Style.FILL_AND_STROKE else Paint.Style.STROKE
-            strokeWidth = shapeProperties.lineWidth.toFloat()
+            color = Color.parseColor(properties.lineColor)
+            style = if (properties.shouldFill) Paint.Style.FILL_AND_STROKE else Paint.Style.STROKE
+            strokeWidth = properties.lineWidth.toFloat()
         }
 
         val bounds = RectF()
@@ -46,7 +48,7 @@ class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
         pageCanvas.save()
         val shapeSpacing = getTopSpacing(DEFAULT_SPACING)
-        val xTranslate = alignmentCanvasTranslation(shapeProperties.alignment, bounds.width().toInt())
+        val xTranslate = alignmentCanvasTranslation(properties.alignment, bounds.width().toInt())
         pageCanvas.translate((simplyPdfDocument.leftMargin + xTranslate).toFloat(),
             (shapeSpacing + simplyPdfDocument.pageContentHeight).toFloat())
 
@@ -55,7 +57,4 @@ class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
         pageCanvas.restore()
     }
-
-    override val composerName: String
-        get() = ShapeComposer::class.java.name
 }

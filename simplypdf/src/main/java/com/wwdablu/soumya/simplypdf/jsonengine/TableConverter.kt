@@ -1,19 +1,23 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.text.TextUtils
-import com.wwdablu.soumya.simplypdf.composers.TableComposer
-import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
-import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
-import kotlin.Throws
-import org.json.JSONObject
+import android.util.Base64
 import com.google.gson.Gson
+import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
+import com.wwdablu.soumya.simplypdf.composers.TableComposer
+import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
+import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
+import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell
-import java.lang.Exception
-import java.util.ArrayList
+import com.wwdablu.soumya.simplypdf.composers.models.cell.ImageCell
+import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
+import org.json.JSONObject
+import java.util.*
 
-internal class TableConverter : BaseConverter() {
+internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {
 
     @Throws(Exception::class)
     public override fun generate(composer: Composer, compose: JSONObject) {
@@ -21,12 +25,9 @@ internal class TableConverter : BaseConverter() {
             return
         }
         val tableProperties = getProperties(compose)
-        composer.setProperties(
-            if (TextUtils.isEmpty(tableProperties)) null else Gson().fromJson(
-                tableProperties,
-                TableProperties::class.java
-            )
-        )
+        composer.tableProperties =
+            if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
+                tableProperties, TableProperties::class.java)
 
         //Generate the cell information
         val rowList: MutableList<List<Cell>> = ArrayList()
@@ -45,13 +46,27 @@ internal class TableConverter : BaseConverter() {
                         val colTextProperties = getProperties(colObject)
                         val textCell = TextCell(
                             colObject.getString(Node.COMPOSER_TEXT_CONTENT),
-                            if (TextUtils.isEmpty(colTextProperties)) null else Gson().fromJson(
+                            simplyPdfDocument,
+                            if (TextUtils.isEmpty(colTextProperties)) TextProperties() else Gson().fromJson(
                                 colTextProperties,
                                 TextProperties::class.java
                             ),
                             composer.resolveCellWidth(colObject.getInt(Node.COMPOSER_TABLE_WIDTH))
                         )
                         columnList.add(textCell)
+                    }
+                    Node.TYPE_IMAGE -> {
+                        val colImageProperties = getProperties(colObject)
+                        val imageProperties = if (TextUtils.isEmpty(colImageProperties)) ImageProperties()
+                                else Gson().fromJson(colImageProperties, ImageProperties::class.java)
+
+                        val bitmap: Bitmap? = when(imageProperties.format?.lowercase()) {
+                            Node.IMAGE_FORMAT_BASE64 -> {
+                                val decodedString = Base64.decode(imageProperties.source, Base64.URL_SAFE)
+                                BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                            }
+                            else -> null
+                        }
                     }
                 }
             }

@@ -7,6 +7,8 @@ internal interface Node {
         const val TYPE_PROPERTIES = "properties"
         const val TYPE_TEXT = "text"
         const val TYPE_IMAGE = "image"
+        const val IMAGE_FORMAT_BASE64 = "base64"
+        const val IMAGE_FORMAT_URL = "url"
         const val TYPE_TABLE = "table"
         const val TYPE_SHAPE = "shape"
         const val TYPE_SPACE = "space"

@@ -20,7 +20,7 @@ class ShapeProperties : UnitComposer.Properties() {
     var shouldFill = false
 
     @kotlin.jvm.JvmField
-    var alignment: Composer.Alignment = Composer.Alignment.LEFT
+    var alignment: Composer.Alignment = Composer.Alignment.START
 
     override val propId = ShapeComposer::class.java.name + "Properties"
 }

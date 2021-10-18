@@ -2,7 +2,9 @@ package com.wwdablu.soumya.simplypdf
 
 import android.content.Context
 import android.print.PrintAttributes
-import com.wwdablu.soumya.simplypdf.DocumentInfo.ColorMode
+import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
+import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo.ColorMode
+import com.wwdablu.soumya.simplypdf.documentinfo.Margin
 import com.wwdablu.soumya.simplypdf.jsonengine.SimplyJson
 import java.io.File
 
@@ -15,7 +17,7 @@ class SimplyPdf private constructor(context: Context, outputPdf: File) {
         return this
     }
 
-    fun margin(margins: DocumentInfo.Margins): SimplyPdf {
+    fun margin(margins: Margin): SimplyPdf {
         document.documentInfo.margins = margins
         return this
     }

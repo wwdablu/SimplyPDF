@@ -16,7 +16,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.wwdablu.soumya.simplypdf.DocumentInfo
 import com.wwdablu.soumya.simplypdf.SimplyPdf.Companion.usingJson
 import com.wwdablu.soumya.simplypdf.SimplyPdf.Companion.with
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
@@ -28,19 +27,44 @@ import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell
 import com.wwdablu.soumya.simplypdf.composers.models.cell.ImageCell
 import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
+import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
+import com.wwdablu.soumya.simplypdf.documentinfo.Margin
+import com.wwdablu.soumya.simplypdfsample.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    
+
+    private lateinit var binding: ActivityMainBinding
     private lateinit var simplyPdfDocument: SimplyPdfDocument
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnTextTest.setOnClickListener {
+            if(this::binding.isInitialized) {
+                testTextComposer()
+            }
+        }
+
+        binding.btnImageTest.setOnClickListener {
+            if(this::binding.isInitialized) {
+                testImageComposer()
+            }
+        }
+
+        binding.btnShapeTest.setOnClickListener {
+            if(this::binding.isInitialized) {
+                testShapeComposer()
+            }
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
         ) {
@@ -66,7 +90,156 @@ class MainActivity : AppCompatActivity() {
             }
             return
         }
-        executeTestCases()
+        createSimplyPdfDocument()
+    }
+
+    private fun testTextComposer() {
+
+        //Create text entries of variable font size
+        val properties = TextProperties()
+        for (i in 1..10) {
+            properties.textSize = i * 4
+            simplyPdfDocument.text.write(
+                "The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]",
+                properties
+            )
+        }
+
+        //Insert a new page
+        simplyPdfDocument.newPage()
+
+        //Text with red color
+        properties.textSize = 16
+        properties.textColor = "#FF0000"
+        simplyPdfDocument.text.write("Text with red color font", properties)
+
+        //Text with custom color
+        properties.textColor = "#ABCDEF"
+        simplyPdfDocument.text.write("Text with color set as #ABCDEF", properties)
+
+        //Text with bullet
+        properties.textColor = "#000000"
+        properties.bulletSymbol = "•"
+        properties.isBullet = true
+        simplyPdfDocument.text.write("Text with bullet mark at the start", properties)
+
+        //Text with alignments
+        properties.alignment = Layout.Alignment.ALIGN_NORMAL
+        properties.isBullet = false
+        simplyPdfDocument.text.write("Normal text alignment", properties)
+
+        properties.alignment = Layout.Alignment.ALIGN_CENTER
+        simplyPdfDocument.text.write("Center text alignment", properties)
+
+        properties.alignment = Layout.Alignment.ALIGN_OPPOSITE
+        simplyPdfDocument.text.write("Opposite text alignment", properties)
+
+        //Bold typeface
+        properties.alignment = Layout.Alignment.ALIGN_NORMAL
+        properties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        simplyPdfDocument.text.write("Bold text", properties)
+
+        //Underlined text
+        properties.underline = true
+        properties.typeface = null
+        simplyPdfDocument.text.write("Underlined text", properties)
+
+        finishDoc(simplyPdfDocument)
+    }
+
+    private fun testImageComposer() {
+
+        val properties = ImageProperties()
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 12
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        //Load an image from a URL
+        simplyPdfDocument.text.write("Loading image from URL", textProperties)
+        simplyPdfDocument.image.drawFromUrl("https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4", this, properties)
+
+        simplyPdfDocument.newPage()
+
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)
+        bitmap.eraseColor(Color.RED)
+        simplyPdfDocument.text.write("Loading a red color bitmap", textProperties)
+        simplyPdfDocument.image.drawBitmap(bitmap, properties)
+        bitmap.recycle()
+
+        finishDoc(simplyPdfDocument)
+    }
+
+    private fun testShapeComposer() {
+
+        val properties = ShapeProperties().apply {
+            lineColor = "#000000"
+            lineWidth = 1
+        }
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 12
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        //Drawing a hollow circle
+        simplyPdfDocument.text.write("Drawing a circle", textProperties)
+        simplyPdfDocument.shape.drawCircle(125f, properties)
+        simplyPdfDocument.insertEmptySpace(25)
+
+        //Drawing a filled box
+        simplyPdfDocument.apply {
+            properties.shouldFill = true
+            text.write("Drawing a filled box", textProperties)
+            shape.drawBox(100f, 100f, properties)
+        }
+
+        //Draw filled circles with alignment
+        simplyPdfDocument.insertEmptySpace(25)
+        simplyPdfDocument.text.write("Draw filled shapes with alignments", textProperties)
+
+        //Draw red filled circle
+        simplyPdfDocument.apply {
+            properties.lineColor = "#FF0000"
+            properties.alignment = Composer.Alignment.START
+            shape.drawCircle(25f, properties)
+        }
+
+        //Draw green filled circle center aligned
+        simplyPdfDocument.apply {
+            properties.lineColor = "#00FF00"
+            properties.alignment = Composer.Alignment.CENTER
+            shape.drawCircle(25f, properties)
+        }
+
+        //Draw blue filled circle end aligned
+        simplyPdfDocument.apply {
+            properties.lineColor = "#0000FF"
+            properties.alignment = Composer.Alignment.END
+            shape.drawCircle(25f, properties)
+        }
+
+        //Create a new page
+        simplyPdfDocument.newPage()
+
+        //Draw a freeform
+        simplyPdfDocument.text.write("Drawing a freeform using path", textProperties)
+        simplyPdfDocument.insertEmptySpace(10)
+        properties.alignment = Composer.Alignment.START
+        val triangle = ShapeComposer.FreeformPath(simplyPdfDocument).apply {
+            moveTo(0f, 0f)
+            lineTo(100f, 0f)
+            lineTo(50f, 100f)
+            lineTo(0f, 0f)
+            close()
+        }
+        simplyPdfDocument.shape.drawFreeform(triangle, properties)
+
+        //Validate page content height
+        simplyPdfDocument.text.write("Complete", textProperties)
+
+        finishDoc(simplyPdfDocument)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -74,7 +247,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 2296) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
-                    executeTestCases()
+                    createSimplyPdfDocument()
                 } else {
                     Toast.makeText(this, "Allow permission for storage access!",
                         Toast.LENGTH_SHORT).show()
@@ -90,38 +263,25 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == 1000) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                executeTestCases()
+                createSimplyPdfDocument()
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun executeTestCases() {
+    private fun createSimplyPdfDocument() {
 
-        simplyPdfDocument =
-            with(this, File(Environment.getExternalStorageDirectory().absolutePath + "/test.pdf"))
-                .colorMode(DocumentInfo.ColorMode.COLOR)
-                .paperSize(PrintAttributes.MediaSize.ISO_A4)
-                .margin(DocumentInfo.Margins.DEFAULT)
-                .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-                .build()
+        simplyPdfDocument = with(this, File(Environment.getExternalStorageDirectory().absolutePath + "/test.pdf"))
+            .colorMode(DocumentInfo.ColorMode.COLOR)
+            .paperSize(PrintAttributes.MediaSize.ISO_A4)
+            .margin(Margin(15U, 15U, 15U, 15U))
+            .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+            .build()
+    }
 
+    private fun finishDoc(simplyPdfDocument: SimplyPdfDocument) {
         CoroutineScope(Dispatchers.IO).launch {
-
-//            testVariableFontSizeText()
-//            testHeaderTypeText()
-//            testColoredText()
-//            testNewPageWithBackground()
-//            testShapes()
-//            testTextAlignments()
-//            testShapeAlignment()
-//            testBitmapRender()
-//            testSampleOutput()
-            testTextComposed()
-//            testCustomComposer()
-//            generateFromJson()
-
             val result = simplyPdfDocument.finish()
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@MainActivity, "PDF $result", Toast.LENGTH_SHORT).show()
@@ -134,7 +294,7 @@ class MainActivity : AppCompatActivity() {
                 File(Environment.getExternalStorageDirectory().absolutePath + "/test_json.pdf"))
             .colorMode(DocumentInfo.ColorMode.COLOR)
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
-            .margin(DocumentInfo.Margins.DEFAULT)
+            .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
             .build()
         
@@ -308,14 +468,14 @@ class MainActivity : AppCompatActivity() {
         simplyPdfDocument.image.drawBitmap(bitmap, ImageProperties())
         bitmap.recycle()
         val properties = ImageProperties()
-        properties.alignment = Composer.Alignment.LEFT
+        properties.alignment = Composer.Alignment.START
         bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)
         c = Canvas(bitmap)
         c.drawColor(Color.RED)
         simplyPdfDocument.image.drawBitmap(bitmap, properties)
         properties.alignment = Composer.Alignment.CENTER
         simplyPdfDocument.image.drawBitmap(bitmap, properties)
-        properties.alignment = Composer.Alignment.RIGHT
+        properties.alignment = Composer.Alignment.END
         simplyPdfDocument.image.drawBitmap(bitmap, properties)
         bitmap.recycle()
     }
@@ -326,7 +486,7 @@ class MainActivity : AppCompatActivity() {
         shapeProperties.shouldFill = true
         simplyPdfDocument.shape.spacing = 15
         shapeProperties.lineColor = "#FF0000"
-        shapeProperties.alignment = Composer.Alignment.LEFT
+        shapeProperties.alignment = Composer.Alignment.START
         simplyPdfDocument.shape.drawCircle(100f, 100f, 100f, shapeProperties)
 
         shapeProperties.lineColor = "#00FF00"
@@ -334,24 +494,8 @@ class MainActivity : AppCompatActivity() {
         simplyPdfDocument.shape.drawCircle(0f, 0f,100f, shapeProperties)
 
         shapeProperties.lineColor = "#0000FF"
-        shapeProperties.alignment = Composer.Alignment.RIGHT
+        shapeProperties.alignment = Composer.Alignment.END
         simplyPdfDocument.shape.drawCircle(0f, 0f, 100f, shapeProperties)
-    }
-
-    private fun testTextAlignments() {
-        val textProperties = TextProperties()
-        textProperties.textSize = 16
-        textProperties.alignment = Layout.Alignment.ALIGN_NORMAL
-        simplyPdfDocument.text.write("Left aligned text.", textProperties)
-        textProperties.alignment = Layout.Alignment.ALIGN_CENTER
-        simplyPdfDocument.text.write("Center aligned text.", textProperties)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            textProperties.alignment = Layout.Alignment.ALIGN_OPPOSITE
-            simplyPdfDocument.text.write("Right aligned text.", textProperties)
-        } else {
-            textProperties.alignment = Layout.Alignment.ALIGN_NORMAL
-            simplyPdfDocument.text.write("Right alignment needs API 28+", textProperties)
-        }
     }
 
     private fun testHeaderTypeText() {
@@ -415,17 +559,6 @@ class MainActivity : AppCompatActivity() {
             "The quick brown fox, jumps over the hungry lazy dog. " +
                     "This is a very long and interesting string.", properties
         )
-    }
-
-    private fun testVariableFontSizeText() {
-        val properties = TextProperties()
-        for (i in 1..10) {
-            properties.textSize = i * 4
-            simplyPdfDocument.text.write(
-                "The quick brown fox jumps over the hungry lazy dog. [Size: " + i * 4 + "]",
-                properties
-            )
-        }
     }
 
     private fun testNewPageWithBackground() {

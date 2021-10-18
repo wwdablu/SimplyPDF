@@ -11,10 +11,7 @@ import com.wwdablu.soumya.simplypdf.composers.ImageComposer
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.TextComposer
-import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
-import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
-import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
+import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -117,21 +114,21 @@ class SimplyPdfDocument internal constructor(
         printAttributes = PrintAttributes.Builder()
             .setColorMode(documentInfo.resolveColorMode())
             .setMediaSize(documentInfo.paperSize)
-            .setMinMargins(documentInfo.resolveMargin())
+            .setMinMargins(documentInfo.margins.getMargin())
             .build()
         pdfDocument = PrintedPdfDocument(context, printAttributes)
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight = topMargin
     }
 
-    val leftMargin: Int
-        get() = if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.leftMils ?: 0
+    val startMargin: Int
+        get() = if (!this::printAttributes.isInitialized) 0 else printAttributes.minMargins?.leftMils ?: 0
     val topMargin: Int
-        get() = if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.topMils ?: 0
-    val rightMargin: Int
-        get() = if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.rightMils ?: 0
+        get() = if (!this::printAttributes.isInitialized) 0 else printAttributes.minMargins?.topMils ?: 0
+    val endMargin: Int
+        get() = if (!this::printAttributes.isInitialized) 0 else printAttributes.minMargins?.rightMils ?: 0
     val bottomMargin: Int
-        get() = if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.bottomMils ?: 0
+        get() = if (!this::printAttributes.isInitialized) 0 else printAttributes.minMargins?.bottomMils ?: 0
 
     /**
      * Creates a new page in the PDF document and resets the internal markers on the document.
@@ -177,7 +174,7 @@ class SimplyPdfDocument internal constructor(
      * @return Usable width of the page
      */
     val usablePageWidth: Int
-        get() = pdfDocument.pageWidth - (leftMargin + rightMargin)
+        get() = pdfDocument.pageWidth - (startMargin + endMargin)
 
     private fun ensureNotFinished() {
         check(!finished) { "Cannot use as finish has been called." }

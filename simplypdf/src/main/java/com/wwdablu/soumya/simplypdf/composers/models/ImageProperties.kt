@@ -16,7 +16,7 @@ class ImageProperties : UnitComposer.Properties() {
     var format: String? = null
 
     @kotlin.jvm.JvmField
-    var alignment: Composer.Alignment = Composer.Alignment.LEFT
+    var alignment: Composer.Alignment = Composer.Alignment.START
 
     override val propId = ImageComposer::class.java.name + "Properties"
 }

@@ -62,7 +62,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         pageCanvas.save()
         pageCanvas.translate(
-            (if (isHorizontalDraw) hAxis + hPadding else hAxis + hPadding + simplyPdfDocument.leftMargin
+            (if (isHorizontalDraw) hAxis + hPadding else hAxis + hPadding + simplyPdfDocument.startMargin
                 .toFloat()).toFloat(), (
                     padding + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
 

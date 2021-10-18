@@ -8,7 +8,7 @@ const val DEFAULT_SPACING = 10
 abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
 
     enum class Alignment {
-        LEFT, CENTER, RIGHT
+        START, CENTER, END
     }
 
     val composerName: String = this::class.java.simpleName
@@ -34,11 +34,11 @@ abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
         return if (simplyPdfDocument.pageContentHeight == simplyPdfDocument.topMargin) 0 else intendedSpace
     }
 
-    protected fun alignmentCanvasTranslation(alignment: Alignment = Alignment.LEFT, width: Int): Int {
+    protected fun alignmentTranslationX(alignment: Alignment = Alignment.START, width: Int): Int {
         return when (alignment) {
             Alignment.CENTER -> (simplyPdfDocument.usablePageWidth - width) / 2
-            Alignment.RIGHT -> simplyPdfDocument.usablePageWidth - width
-            Alignment.LEFT -> 0
+            Alignment.END -> simplyPdfDocument.usablePageWidth - width
+            Alignment.START -> 0
         }
     }
 

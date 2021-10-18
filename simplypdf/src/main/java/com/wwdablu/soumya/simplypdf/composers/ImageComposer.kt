@@ -1,10 +1,16 @@
 package com.wwdablu.soumya.simplypdf.composers
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.Paint
+import com.bumptech.glide.Glide
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 
@@ -12,6 +18,21 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
     fun drawBitmap(bmp: Bitmap, properties: ImageProperties) {
         drawBitmap(bmp, properties, 0, 0, false, 0)
+    }
+
+    fun drawFromUrl(url: String, context: Context, properties: ImageProperties) {
+
+        val bitmap  = runBlocking {
+            withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                Glide.with(context)
+                    .asBitmap()
+                    .load(url)
+                    .submit()
+                    .get()
+            }
+        }
+
+        drawBitmap(bitmap, properties, 0, 0, false, 0)
     }
 
     internal fun drawBitmap(bmp: Bitmap, properties: ImageProperties, vMargin:Int, hMargin: Int,
@@ -32,7 +53,7 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
             bmp
         }
 
-        val xTranslate = alignmentCanvasTranslation(properties.alignment, bitmap.width)
+        val xTranslate = alignmentTranslationX(properties.alignment, bitmap.width)
         if (!canFitContentInPage(bitmap.height + DEFAULT_SPACING) &&
             simplyPdfDocument.pageContentHeight != simplyPdfDocument.topMargin) {
             simplyPdfDocument.newPage()
@@ -40,9 +61,9 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
         val canvas = pageCanvas
         canvas.save()
-        canvas.translate((if(isHorizontalDraw) 0 else simplyPdfDocument.leftMargin) +
+        canvas.translate((if(isHorizontalDraw) 0 else simplyPdfDocument.startMargin) +
                 (xTranslate + hPadding + hMargin).toFloat(),
-            (if(isHorizontalDraw) 0 else simplyPdfDocument.leftMargin) +
+            (if(isHorizontalDraw) 0 else simplyPdfDocument.startMargin) +
                     (simplyPdfDocument.pageContentHeight + vMargin).toFloat())
 
         canvas.drawBitmap(bitmap, Matrix(), bitmapPainter)

@@ -1,14 +1,10 @@
-package com.wwdablu.soumya.simplypdf
+package com.wwdablu.soumya.simplypdf.documentinfo
 
 import android.print.PrintAttributes
 
 class DocumentInfo internal constructor() {
     enum class ColorMode {
         MONO, COLOR
-    }
-
-    enum class Margins {
-        NONE, NARROW, DEFAULT
     }
 
     enum class Orientation {
@@ -21,7 +17,7 @@ class DocumentInfo internal constructor() {
         }
 
     var colorMode: ColorMode = ColorMode.COLOR
-    var margins: Margins = Margins.DEFAULT
+    var margins: Margin = Margin.default
     var orientation: Orientation = Orientation.PORTRAIT
 
     /*
@@ -35,31 +31,6 @@ class DocumentInfo internal constructor() {
         return when (colorMode) {
             ColorMode.COLOR -> PrintAttributes.COLOR_MODE_COLOR
             ColorMode.MONO -> PrintAttributes.COLOR_MODE_MONOCHROME
-            else -> PrintAttributes.COLOR_MODE_MONOCHROME
-        }
-    }
-
-    fun resolveMargin(): PrintAttributes.Margins {
-        return when (margins) {
-            Margins.NONE -> PrintAttributes.Margins(
-                0,
-                0,
-                0,
-                0
-            )
-            Margins.NARROW -> PrintAttributes.Margins(
-                10,
-                10,
-                10,
-                10
-            )
-            Margins.DEFAULT -> PrintAttributes.Margins(
-                20,
-                15,
-                20,
-                15
-            )
-            else -> PrintAttributes.Margins(20, 15, 20, 15)
         }
     }
 }

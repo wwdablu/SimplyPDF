@@ -6,7 +6,6 @@ import android.graphics.Paint
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell
-import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
 
 class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simplyPdfDocument) {
 
@@ -39,7 +38,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             if (!canFitContentInPage(largestHeight)) {
                 simplyPdfDocument.newPage()
             }
-            var bitmapXTranslate = simplyPdfDocument.leftMargin
+            var bitmapXTranslate = simplyPdfDocument.startMargin
             val arrayLength = rowCellList.size
             for (rowIndex in 0 until arrayLength) {
                 rowCellList[rowIndex].apply {
@@ -57,7 +56,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
         borderPainter.color = Color.parseColor(tableProperties.borderColor)
 
         canvas.save()
-        canvas.translate(simplyPdfDocument.leftMargin.toFloat(),
+        canvas.translate(simplyPdfDocument.startMargin.toFloat(),
             (simplyPdfDocument.pageContentHeight - maxHeight))
 
         for ((colIndex, cell) in rowCellList.withIndex()) {

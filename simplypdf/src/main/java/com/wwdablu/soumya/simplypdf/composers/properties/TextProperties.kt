@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf.composers.models
+package com.wwdablu.soumya.simplypdf.composers.properties
 
 import android.graphics.Typeface
 import android.text.Layout

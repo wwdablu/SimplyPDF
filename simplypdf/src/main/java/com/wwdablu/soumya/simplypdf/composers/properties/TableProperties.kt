@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf.composers.models
+package com.wwdablu.soumya.simplypdf.composers.properties
 
 import com.google.gson.annotations.SerializedName
 import com.wwdablu.soumya.simplypdf.composers.TableComposer

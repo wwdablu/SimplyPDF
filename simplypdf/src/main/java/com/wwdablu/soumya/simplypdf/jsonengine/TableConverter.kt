@@ -8,12 +8,11 @@ import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
-import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
-import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
-import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell
-import com.wwdablu.soumya.simplypdf.composers.models.cell.ImageCell
-import com.wwdablu.soumya.simplypdf.composers.models.cell.TextCell
+import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
 import org.json.JSONObject
 import java.util.*
 
@@ -25,9 +24,6 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
             return
         }
         val tableProperties = getProperties(compose)
-        composer.tableProperties =
-            if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
-                tableProperties, TableProperties::class.java)
 
         //Generate the cell information
         val rowList: MutableList<List<Cell>> = ArrayList()
@@ -46,7 +42,6 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
                         val colTextProperties = getProperties(colObject)
                         val textCell = TextCell(
                             colObject.getString(Node.COMPOSER_TEXT_CONTENT),
-                            simplyPdfDocument,
                             if (TextUtils.isEmpty(colTextProperties)) TextProperties() else Gson().fromJson(
                                 colTextProperties,
                                 TextProperties::class.java
@@ -71,6 +66,7 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
                 }
             }
         }
-        composer.draw(rowList)
+        composer.draw(rowList, if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
+            tableProperties, TableProperties::class.java))
     }
 }

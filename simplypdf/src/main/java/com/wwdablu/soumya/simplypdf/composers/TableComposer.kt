@@ -4,54 +4,55 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.models.TableProperties
-import com.wwdablu.soumya.simplypdf.composers.models.cell.Cell
+import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 
 class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simplyPdfDocument) {
 
-    var tableProperties: TableProperties = TableProperties().apply {
-        borderColor = "#000000"
-        borderWidth = 1
-    }
-
     private val borderPainter = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    fun draw(cellList: List<List<Cell>>) {
+    fun draw(cellList: List<List<Cell>>, properties: TableProperties) {
+
         if (cellList.isEmpty()) {
             return
         }
+
         var largestHeight: Int
-        for (rowCellList in cellList) {
+        cellList.forEach { rowCellList ->
 
-            largestHeight = 0
+            largestHeight = getLargestCellSize(rowCellList)
 
-            /* This will loop through all the cells on the row and then find the cell with the
-             * largest height. That will be used to draw all the other cells in the same row
-             */
-            for (cell in rowCellList) {
-                val cellHeight = cell.getCellHeight()
-
-                if (largestHeight < cellHeight) {
-                    largestHeight = cellHeight
-                }
-            }
             if (!canFitContentInPage(largestHeight)) {
                 simplyPdfDocument.newPage()
             }
+
             var bitmapXTranslate = simplyPdfDocument.startMargin
-            val arrayLength = rowCellList.size
-            for (rowIndex in 0 until arrayLength) {
-                rowCellList[rowIndex].apply {
+            rowCellList.forEach { cell ->
+                cell.apply {
                     render(bitmapXTranslate)
                     bitmapXTranslate += getCellWidth()
                 }
             }
+
             simplyPdfDocument.addContentHeight(largestHeight)
-            drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList)
+            drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList, properties)
         }
     }
 
-    private fun drawBorders(canvas: Canvas, maxHeight: Float, rowCellList: List<Cell>) {
+    private fun getLargestCellSize(rowCellList: List<Cell>) : Int {
+
+        var largestHeight = 0
+        rowCellList.forEach {
+            it.setDocument(simplyPdfDocument)
+            largestHeight = largestHeight.coerceAtLeast(it.getCellHeight())
+        }
+        return largestHeight
+    }
+
+    private fun drawBorders(canvas: Canvas,
+                            maxHeight: Float,
+                            rowCellList: List<Cell>,
+                            tableProperties: TableProperties) {
 
         borderPainter.color = Color.parseColor(tableProperties.borderColor)
 

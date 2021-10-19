@@ -6,7 +6,8 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 
 const val BULLET_SPACING = 10
 
@@ -14,25 +15,54 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
 
+    /**
+     * Draws text on the canvas with the provided params
+     *
+     * @param text Text to draw
+     * @param properties TextProperties to use
+     */
     fun write(text: String, properties: TextProperties) {
         write(text, properties, simplyPdfDocument.usablePageWidth, 0,
-            false, 0, 0, true)
+            0, 0, null, true)
     }
 
     /**
      * Draws text on the canvas with the provided params
+     *
      * @param text Text to draw
-     * @param properties TextProperties
-     * @param pageWidth Width of the page
-     * @param padding Vertical padding (added to the top only)
-     * @param isHorizontalDraw Is it being drawn in a cell side by side.
-     * @param hAxis The location in x-axis where text will be drawn
-     * @param hPadding Horizontal padding (added to the start only)
-     * @param performDraw Should it actually perform the draw on canvas.
-     * @return The height of the content that can be drawn.
+     * @param properties TextProperties to use
+     * @param pageWidth Width to consider when rendering the text
+     * @param xMargin Margin to be provided on the X-axis on both the sides
+     * @param yMargin Margin to be provided on the Y-axis on both the sides
      */
-    fun write(text: String, properties: TextProperties, pageWidth: Int, padding: Int,
-        isHorizontalDraw: Boolean, hAxis: Int, hPadding: Int, performDraw: Boolean) : Int {
+    fun write(text: String,
+                       properties: TextProperties,
+                       pageWidth: Int,
+                       xMargin: Int,
+                       yMargin: Int) {
+
+        write(text, properties, pageWidth, xMargin, yMargin, 0, null, true)
+    }
+
+    /**
+     * Draws text on the canvas with the provided params
+     *
+     * @param text Text to draw
+     * @param properties TextProperties to use
+     * @param pageWidth Width to consider when rendering the text
+     * @param xMargin Margin to be provided on the X-axis on both the sides
+     * @param yMargin Margin to be provided on the Y-axis on both the sides
+     * @param cell Cell object within which the text is rendered. Can be null.
+     * @param performDraw Whether actual draw will be called
+     */
+    internal fun write(text: String,
+              properties: TextProperties,
+              pageWidth: Int,
+              xMargin: Int,
+              yMargin: Int,
+              xShift: Int,
+              cell: Cell?,
+              performDraw: Boolean) : Int {
 
         textPaint.apply {
             color = Color.parseColor(properties.textColor)
@@ -42,6 +72,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         var widthAdjustForProperties = 0
         var bulletMarker: StaticLayout? = null
+        val isCellContent: Boolean = cell != null
 
         if (properties.isBullet) {
             bulletMarker = StaticLayout(
@@ -52,19 +83,19 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         }
 
         val staticLayout = StaticLayout(text, textPaint,
-            pageWidth - widthAdjustForProperties - hPadding * 2,
+            pageWidth - widthAdjustForProperties - xMargin * 2,
             properties.getAlignment(), 1f, 0f, false)
 
-        val textLineSpacing = getTopSpacing(if (isHorizontalDraw) 0 else DEFAULT_SPACING)
+        val textLineSpacing = getTopSpacing(if (isCellContent) 0 else DEFAULT_SPACING)
         if (performDraw && !canFitContentInPage(textLineSpacing + staticLayout.height)) {
             simplyPdfDocument.newPage()
         }
 
         pageCanvas.save()
         pageCanvas.translate(
-            (if (isHorizontalDraw) hAxis + hPadding else hAxis + hPadding + simplyPdfDocument.startMargin
+            (if (isCellContent) xShift + xMargin else xShift + xMargin + simplyPdfDocument.startMargin
                 .toFloat()).toFloat(), (
-                    padding + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
+                    yMargin + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
 
         if (performDraw && bulletMarker != null) {
             bulletMarker.draw(pageCanvas)
@@ -75,9 +106,9 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         pageCanvas.translate(widthAdjustForProperties.toFloat(), 0f)
 
-        val finalContentHeight = staticLayout.height + textLineSpacing + padding * 2
+        val finalContentHeight = staticLayout.height + textLineSpacing + yMargin * 2
         if (performDraw) {
-            if (!isHorizontalDraw) {
+            if (!isCellContent) {
                 simplyPdfDocument.addContentHeight(finalContentHeight)
             }
             staticLayout.draw(pageCanvas)

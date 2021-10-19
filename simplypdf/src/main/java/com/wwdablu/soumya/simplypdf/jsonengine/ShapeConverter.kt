@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
-import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
 import org.json.JSONObject
 
 internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {

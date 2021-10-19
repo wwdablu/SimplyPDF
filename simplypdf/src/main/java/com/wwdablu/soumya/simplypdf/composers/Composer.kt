@@ -34,7 +34,7 @@ abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
         return if (simplyPdfDocument.pageContentHeight == simplyPdfDocument.topMargin) 0 else intendedSpace
     }
 
-    protected fun alignmentTranslationX(alignment: Alignment = Alignment.START, width: Int): Int {
+    protected fun alignmentTranslationX(alignment: Alignment, width: Int): Int {
         return when (alignment) {
             Alignment.CENTER -> (simplyPdfDocument.usablePageWidth - width) / 2
             Alignment.END -> simplyPdfDocument.usablePageWidth - width

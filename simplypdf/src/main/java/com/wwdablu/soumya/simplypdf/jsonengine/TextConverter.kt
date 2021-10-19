@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.TextComposer
-import com.wwdablu.soumya.simplypdf.composers.models.TextProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -21,7 +21,7 @@ internal class TextConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConvert
         //Check if properties has been defined
         val textProperties = getProperties(compose)
         composer.write(
-            compose.getString(Node.Companion.COMPOSER_TEXT_CONTENT),
+            compose.getString(Node.COMPOSER_TEXT_CONTENT),
             if (TextUtils.isEmpty(textProperties)) TextProperties() else Gson().fromJson(
                 textProperties,
                 TextProperties::class.java

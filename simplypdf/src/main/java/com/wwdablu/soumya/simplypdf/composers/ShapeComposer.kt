@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.models.ShapeProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
 
 class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 

@@ -7,7 +7,7 @@ import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.ImageComposer
-import com.wwdablu.soumya.simplypdf.composers.models.ImageProperties
+import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
 import org.json.JSONObject
 
 internal class ImageConverter(private val context: Context, simplyPdfDocument: SimplyPdfDocument)

@@ -11,7 +11,8 @@ import com.wwdablu.soumya.simplypdf.composers.ImageComposer
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.TextComposer
-import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
+import com.wwdablu.soumya.simplypdf.document.DocumentInfo
+import com.wwdablu.soumya.simplypdf.document.PageHeader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -26,13 +27,16 @@ class SimplyPdfDocument internal constructor(
     private val document: File
 ) {
     val documentInfo: DocumentInfo = DocumentInfo()
-    private lateinit var pdfDocument: PrintedPdfDocument
-    private lateinit var printAttributes: PrintAttributes
 
     val text: TextComposer by lazy { TextComposer(this) }
     val shape: ShapeComposer by lazy { ShapeComposer(this) }
     val image: ImageComposer by lazy { ImageComposer(this) }
     val table: TableComposer by lazy { TableComposer(this) }
+
+    internal lateinit var pageHeader: PageHeader
+
+    private lateinit var pdfDocument: PrintedPdfDocument
+    private lateinit var printAttributes: PrintAttributes
 
     /**
      * Returns the current page being used
@@ -56,10 +60,6 @@ class SimplyPdfDocument internal constructor(
         private set
 
     private var finished = false
-
-    fun build() {
-        build(context)
-    }
 
     fun insertEmptySpace(height: Int) {
         addContentHeight(height)
@@ -110,7 +110,7 @@ class SimplyPdfDocument internal constructor(
         }
     }
 
-    fun build(context: Context) {
+    internal fun build(context: Context) {
         printAttributes = PrintAttributes.Builder()
             .setColorMode(documentInfo.resolveColorMode())
             .setMediaSize(documentInfo.paperSize)
@@ -118,7 +118,8 @@ class SimplyPdfDocument internal constructor(
             .build()
         pdfDocument = PrintedPdfDocument(context, printAttributes)
         currentPage = pdfDocument.startPage(currentPageNumber)
-        pageContentHeight = topMargin
+        pageContentHeight += topMargin
+        addPageHeaderIfProvided()
     }
 
     val startMargin: Int
@@ -137,9 +138,10 @@ class SimplyPdfDocument internal constructor(
     fun newPage() {
         ensureNotFinished()
         pdfDocument.finishPage(currentPage)
-        ++currentPageNumber
+        currentPageNumber++
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight = topMargin
+        addPageHeaderIfProvided()
         addContentHeight(
             if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.topMils ?: 0
         )
@@ -178,5 +180,11 @@ class SimplyPdfDocument internal constructor(
 
     private fun ensureNotFinished() {
         check(!finished) { "Cannot use as finish has been called." }
+    }
+
+    private fun addPageHeaderIfProvided() {
+        if(this::pageHeader.isInitialized) {
+            pageHeader.render(this)
+        }
     }
 }

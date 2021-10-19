@@ -9,20 +9,23 @@ class TextCell(private val text: String,
     override fun getCellHeight(): Int {
 
         return if(!isDocumentSet()) 0 else
-            simplyPdfDocument.text.write(text, properties, width, xMargin,
+            simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
                 yMargin, 0, this, false)
     }
 
-    override fun getCellWidth(): Int = if (!isDocumentSet()) 0 else width
+    override fun getCellWidth(): Int = if (!isDocumentSet()) 0
+        else if (width == MATCH_PARENT) simplyPdfDocument.usablePageWidth
+        else width
 
     override fun getContentWidth(): Int {
-        return simplyPdfDocument.text.write(text, properties, width, xMargin,
+        return simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
             yMargin, 0, this, false)
     }
 
     override fun render(xTranslate: Int): Boolean {
         if(!isDocumentSet()) return false
-        return simplyPdfDocument.text.write(text, properties, width, xMargin,
+
+        return simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
             yMargin, xTranslate, this, true) != 0
     }
 }

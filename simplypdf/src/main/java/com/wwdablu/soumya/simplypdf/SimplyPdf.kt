@@ -2,13 +2,14 @@ package com.wwdablu.soumya.simplypdf
 
 import android.content.Context
 import android.print.PrintAttributes
-import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
-import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo.ColorMode
-import com.wwdablu.soumya.simplypdf.documentinfo.Margin
+import com.wwdablu.soumya.simplypdf.document.DocumentInfo
+import com.wwdablu.soumya.simplypdf.document.DocumentInfo.ColorMode
+import com.wwdablu.soumya.simplypdf.document.Margin
+import com.wwdablu.soumya.simplypdf.document.PageHeader
 import com.wwdablu.soumya.simplypdf.jsonengine.SimplyJson
 import java.io.File
 
-class SimplyPdf private constructor(context: Context, outputPdf: File) {
+class SimplyPdf private constructor(private val context: Context, outputPdf: File) {
 
     private val document: SimplyPdfDocument = SimplyPdfDocument(context, outputPdf)
 
@@ -32,8 +33,13 @@ class SimplyPdf private constructor(context: Context, outputPdf: File) {
         return this
     }
 
+    fun pageHeader(pageHeader: PageHeader) : SimplyPdf {
+        document.pageHeader = pageHeader
+        return this
+    }
+
     fun build(): SimplyPdfDocument {
-        document.build()
+        document.build(context)
         return document
     }
 
@@ -41,17 +47,6 @@ class SimplyPdf private constructor(context: Context, outputPdf: File) {
         @kotlin.jvm.JvmStatic
         fun with(context: Context, outputPdf: File): SimplyPdf {
             return SimplyPdf(context, outputPdf)
-        }
-
-        @Deprecated("Will be removed in future", ReplaceWith(
-            "usingJson(context, simplyPdfDocument, payload)",
-            "com.wwdablu.soumya.simplypdf.SimplyPdf.Companion.usingJson"))
-        suspend fun use(
-            context: Context,
-            simplyPdfDocument: SimplyPdfDocument,
-            payload: String
-        ) {
-            usingJson(context, simplyPdfDocument, payload)
         }
 
         @kotlin.jvm.JvmStatic

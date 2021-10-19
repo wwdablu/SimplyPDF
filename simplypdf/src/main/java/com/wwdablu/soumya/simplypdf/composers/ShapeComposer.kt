@@ -30,7 +30,7 @@ class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
         val correctedX = when(properties.alignment) {
             Alignment.START -> simplyPdfDocument.startMargin.toFloat() + radius
-            Alignment.CENTER -> 0
+            Alignment.CENTER -> 0 + radius
             Alignment.END -> 0
         }
 

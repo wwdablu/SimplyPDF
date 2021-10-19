@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf.documentinfo
+package com.wwdablu.soumya.simplypdf.document
 
 import android.print.PrintAttributes
 

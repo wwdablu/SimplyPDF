@@ -21,4 +21,8 @@ abstract class Cell internal constructor(
     }
 
     internal fun isDocumentSet() : Boolean = this::simplyPdfDocument.isInitialized
+
+    companion object {
+        const val MATCH_PARENT: Int = Int.MAX_VALUE
+    }
 }

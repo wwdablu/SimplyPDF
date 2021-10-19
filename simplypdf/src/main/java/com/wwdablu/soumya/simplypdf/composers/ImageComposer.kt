@@ -17,11 +17,30 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
     private var bitmapPainter: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    fun drawBitmap(bmp: Bitmap, properties: ImageProperties) {
-        drawBitmap(bmp, properties, 0, 0, 0, null)
+    /**
+     * Draw the bitmap into the document
+     *
+     * @param bmp Bitmap to be drawn into the document
+     * @param properties ImageProperties to be used
+     * @param xMargin Margin to be provided on the X-axis
+     * @param yMargin Margin to be provided on the Y-axis
+     */
+    @JvmOverloads
+    fun drawBitmap(bmp: Bitmap, properties: ImageProperties, xMargin: Int = 0, yMargin: Int = 0) {
+        drawBitmap(bmp, properties, xMargin, yMargin, 0, null)
     }
 
-    fun drawFromUrl(url: String, context: Context, properties: ImageProperties) {
+    /**
+     * Load an image from an URL and then add it to the document
+     *
+     * @param url URL to the image
+     * @param context Context of either application or activity
+     * @param properties ImageProperties to be used
+     * @param xMargin Margin to be provided on the X-axis
+     * @param yMargin Margin to be provided on the Y-axis
+     */
+    @JvmOverloads
+    fun drawFromUrl(url: String, context: Context, properties: ImageProperties, xMargin: Int = 0, yMargin: Int = 0) {
 
         val bitmap  = runBlocking {
             withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
@@ -33,9 +52,19 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
             }
         }
 
-        drawBitmap(bitmap, properties, 0, 0, 0, null)
+        drawBitmap(bitmap, properties, xMargin, yMargin, 0, null)
     }
 
+    /**
+     * Draws the provided bitmap into the document
+     *
+     * @param bmp Bitmap to be drawn into the document
+     * @param properties ImageProperties to be used
+     * @param xMargin Margin to be provided on the X-axis
+     * @param yMargin Margin to be provided on the Y-axis
+     * @param xShift Shift the Image on the X-Axis from the start/left
+     * @param cell The table cell inside which the image is to be drawn. Can be null.
+     */
     internal fun drawBitmap(bmp: Bitmap,
                             properties: ImageProperties,
                             xMargin: Int,

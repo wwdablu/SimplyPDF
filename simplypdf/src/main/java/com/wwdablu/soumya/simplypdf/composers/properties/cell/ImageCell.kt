@@ -15,7 +15,9 @@ class ImageCell(private val bitmap: Bitmap,
         }
     }
 
-    override fun getCellWidth() = if(!isDocumentSet()) 0 else width
+    override fun getCellWidth() = if(!isDocumentSet()) 0
+        else if (width == MATCH_PARENT) simplyPdfDocument.usablePageWidth
+        else width
 
     override fun getContentWidth(): Int = bitmap.width
 

@@ -27,8 +27,9 @@ import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.ImageCell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
-import com.wwdablu.soumya.simplypdf.documentinfo.DocumentInfo
-import com.wwdablu.soumya.simplypdf.documentinfo.Margin
+import com.wwdablu.soumya.simplypdf.document.DocumentInfo
+import com.wwdablu.soumya.simplypdf.document.Margin
+import com.wwdablu.soumya.simplypdf.document.PageHeader
 import com.wwdablu.soumya.simplypdfsample.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.io.File
@@ -180,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         simplyPdfDocument.text.write("Loading image from URL", textProperties)
         simplyPdfDocument.image.drawFromUrl("https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4", this, properties)
 
+        //Draw a bitmap
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565)
         bitmap.eraseColor(Color.RED)
         simplyPdfDocument.text.write("Loading a red color bitmap", textProperties)
@@ -392,11 +394,6 @@ class MainActivity : AppCompatActivity() {
         redBmp.recycle()
         greenBmp.recycle()
 
-
-        // ---- New page --- Tests shapes inside cell
-
-
-        //
         finishDoc(simplyPdfDocument)
     }
 
@@ -435,6 +432,18 @@ class MainActivity : AppCompatActivity() {
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
             .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+            .pageHeader(PageHeader(LinkedList<Cell>().apply {
+                add(TextCell("PDF Generated Using SimplyPDF", TextProperties().apply {
+                    textSize = 24
+                    alignment = Layout.Alignment.ALIGN_CENTER
+                    textColor = "#000000"
+                }, Cell.MATCH_PARENT))
+                add(TextCell("Version 2.0.0", TextProperties().apply {
+                    textSize = 18
+                    alignment = Layout.Alignment.ALIGN_CENTER
+                    textColor = "#000000"
+                }, Cell.MATCH_PARENT))
+            }))
             .build()
     }
 
@@ -454,6 +463,13 @@ class MainActivity : AppCompatActivity() {
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
             .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+            .pageHeader(PageHeader(LinkedList<Cell>().apply {
+                TextCell("PDF Generated Using SimplyPDF", TextProperties().apply {
+                    textSize = 32
+                    alignment = Layout.Alignment.ALIGN_CENTER
+                    textColor = "#88000000"
+                }, Cell.MATCH_PARENT)
+            }))
             .build()
         
         val exceptionHandler = CoroutineExceptionHandler { _, throwable -> 
@@ -463,14 +479,5 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
             usingJson(this@MainActivity, simplyPdfDocument, JSONStruct.payload)
         }
-    }
-
-    private fun testNewPageWithBackground() {
-        simplyPdfDocument.newPage()
-        simplyPdfDocument.setPageBackgroundColor(Color.MAGENTA)
-        val properties = TextProperties()
-        properties.textSize = 32
-        properties.textColor = "#000000"
-        simplyPdfDocument.text.write("White text on magenta background page.", properties)
     }
 }

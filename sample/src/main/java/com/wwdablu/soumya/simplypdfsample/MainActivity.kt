@@ -71,6 +71,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnTestJson.setOnClickListener {
+            if(this::binding.isInitialized) {
+                testWithJson()
+            }
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED
         ) {
@@ -432,7 +438,7 @@ class MainActivity : AppCompatActivity() {
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
             .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-            .pageHeader(PageHeader(LinkedList<Cell>().apply {
+            .pageModifier(PageHeader(LinkedList<Cell>().apply {
                 add(TextCell("PDF Generated Using SimplyPDF", TextProperties().apply {
                     textSize = 24
                     alignment = Layout.Alignment.ALIGN_CENTER
@@ -456,14 +462,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateFromJson() {
+    private fun testWithJson() {
         val simplyPdfDocument = with(this,
-                File(Environment.getExternalStorageDirectory().absolutePath + "/test_json.pdf"))
+                File(Environment.getExternalStorageDirectory().absolutePath + "/json_to_pdf.pdf"))
             .colorMode(DocumentInfo.ColorMode.COLOR)
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
             .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-            .pageHeader(PageHeader(LinkedList<Cell>().apply {
+            .pageModifier(PageHeader(LinkedList<Cell>().apply {
                 TextCell("PDF Generated Using SimplyPDF", TextProperties().apply {
                     textSize = 32
                     alignment = Layout.Alignment.ALIGN_CENTER
@@ -474,10 +480,16 @@ class MainActivity : AppCompatActivity() {
         
         val exceptionHandler = CoroutineExceptionHandler { _, throwable -> 
             Log.e(MainActivity::class.java.simpleName, "JSON to PDF exception.", throwable)
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(this@MainActivity, "JSON to PDF Failed because, ${throwable.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
             usingJson(this@MainActivity, simplyPdfDocument, JSONStruct.payload)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, "JSON to PDF Completed", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

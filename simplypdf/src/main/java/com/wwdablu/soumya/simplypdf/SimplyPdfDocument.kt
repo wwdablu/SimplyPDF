@@ -12,11 +12,12 @@ import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.TextComposer
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo
-import com.wwdablu.soumya.simplypdf.document.PageHeader
+import com.wwdablu.soumya.simplypdf.document.PageModifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.*
 
 /**
  * Allows the developer to modify the PDF document. An instance of this can be obtained by using
@@ -33,7 +34,7 @@ class SimplyPdfDocument internal constructor(
     val image: ImageComposer by lazy { ImageComposer(this) }
     val table: TableComposer by lazy { TableComposer(this) }
 
-    internal lateinit var pageHeader: PageHeader
+    internal val pageModifiers: LinkedList<PageModifier> = LinkedList()
 
     private lateinit var pdfDocument: PrintedPdfDocument
     private lateinit var printAttributes: PrintAttributes
@@ -119,7 +120,7 @@ class SimplyPdfDocument internal constructor(
         pdfDocument = PrintedPdfDocument(context, printAttributes)
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight += topMargin
-        addPageHeaderIfProvided()
+        addPageModifiers()
     }
 
     val startMargin: Int
@@ -141,7 +142,7 @@ class SimplyPdfDocument internal constructor(
         currentPageNumber++
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight = topMargin
-        addPageHeaderIfProvided()
+        addPageModifiers()
         addContentHeight(
             if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.topMils ?: 0
         )
@@ -182,9 +183,9 @@ class SimplyPdfDocument internal constructor(
         check(!finished) { "Cannot use as finish has been called." }
     }
 
-    private fun addPageHeaderIfProvided() {
-        if(this::pageHeader.isInitialized) {
-            pageHeader.render(this)
+    private fun addPageModifiers() {
+        pageModifiers.forEach {
+            it.render(this)
         }
     }
 }

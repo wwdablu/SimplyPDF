@@ -6,28 +6,26 @@ import android.text.TextUtils
 import android.util.Base64
 import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.Composer
-import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 import java.util.*
 
-internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {
+internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerConverter(simplyPdfDocument) {
 
     @Throws(Exception::class)
-    public override fun generate(composer: Composer, compose: JSONObject) {
-        if (composer !is TableComposer) {
-            return
-        }
-        val tableProperties = getProperties(compose)
+    override fun generate(composeJsonObject: JSONObject) {
+
+        val tableProperties = getProperties(composeJsonObject)
+        val composer = simplyPdfDocument.table
 
         //Generate the cell information
         val rowList: MutableList<List<Cell>> = ArrayList()
-        val rowArray = compose.getJSONArray(Node.COMPOSER_TABLE_CONTENTS)
+        val rowArray = composeJsonObject.getJSONArray(Node.COMPOSER_TABLE_CONTENTS)
         val rowCount = rowArray.length()
         for (rowIndex in 0 until rowCount) {
             val rowObject = rowArray.getJSONObject(rowIndex)
@@ -69,4 +67,6 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
         composer.draw(rowList, if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
             tableProperties, TableProperties::class.java))
     }
+
+    override fun getTypeHandler(): String = "table"
 }

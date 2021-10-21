@@ -3,24 +3,17 @@ package com.wwdablu.soumya.simplypdf.jsonengine
 import android.text.TextUtils
 import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.Composer
-import com.wwdablu.soumya.simplypdf.composers.TextComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
-import org.json.JSONException
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 
-internal class TextConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {
+internal class TextConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerConverter(simplyPdfDocument) {
 
-    @Throws(JSONException::class)
-    public override fun generate(composer: Composer, compose: JSONObject) {
-
-        if (composer !is TextComposer) {
-            return
-        }
+    override fun generate(compose: JSONObject) {
 
         //Check if properties has been defined
         val textProperties = getProperties(compose)
-        composer.write(
+        simplyPdfDocument.text.write(
             compose.getString(Node.COMPOSER_TEXT_CONTENT),
             if (TextUtils.isEmpty(textProperties)) TextProperties() else Gson().fromJson(
                 textProperties,
@@ -28,4 +21,6 @@ internal class TextConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConvert
             )
         )
     }
+
+    override fun getTypeHandler(): String = "shape"
 }

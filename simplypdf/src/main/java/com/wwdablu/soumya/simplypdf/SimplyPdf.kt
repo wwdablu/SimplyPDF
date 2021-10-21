@@ -6,6 +6,7 @@ import com.wwdablu.soumya.simplypdf.document.DocumentInfo
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo.ColorMode
 import com.wwdablu.soumya.simplypdf.document.Margin
 import com.wwdablu.soumya.simplypdf.document.PageHeader
+import com.wwdablu.soumya.simplypdf.document.PageModifier
 import com.wwdablu.soumya.simplypdf.jsonengine.SimplyJson
 import java.io.File
 
@@ -33,8 +34,8 @@ class SimplyPdf private constructor(private val context: Context, outputPdf: Fil
         return this
     }
 
-    fun pageHeader(pageHeader: PageHeader) : SimplyPdf {
-        document.pageHeader = pageHeader
+    fun pageModifier(pageModifier: PageModifier) : SimplyPdf {
+        document.pageModifiers.add(pageModifier)
         return this
     }
 

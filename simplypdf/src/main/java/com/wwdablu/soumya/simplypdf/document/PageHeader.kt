@@ -3,9 +3,9 @@ package com.wwdablu.soumya.simplypdf.document
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 
-class PageHeader(private val entries: List<Cell>) {
+class PageHeader(private val entries: List<Cell>) : PageModifier() {
 
-    internal fun render(simplyPdfDocument: SimplyPdfDocument) {
+    override fun render(simplyPdfDocument: SimplyPdfDocument) {
 
         entries.forEach {
             it.apply {

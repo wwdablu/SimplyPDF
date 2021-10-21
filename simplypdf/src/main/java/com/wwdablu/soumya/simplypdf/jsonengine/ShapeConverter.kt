@@ -4,31 +4,28 @@ import android.graphics.Path
 import android.text.TextUtils
 import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.Composer
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 
-internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConverter(simplyPdfDocument) {
+internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerConverter(simplyPdfDocument) {
 
-    @Throws(Exception::class)
-    public override fun generate(composer: Composer, compose: JSONObject) {
-        if (composer !is ShapeComposer) {
-            return
-        }
+    override fun generate(composeJsonObject: JSONObject) {
 
-        val shapePropertiesString = getProperties(compose)
+        val shapePropertiesString = getProperties(composeJsonObject)
         val shapeProperties = if (TextUtils.isEmpty(shapePropertiesString)) ShapeProperties()
             else Gson().fromJson(shapePropertiesString, ShapeProperties::class.java)
 
-        when (compose.getString(Node.COMPOSER_SHAPE_SHAPE).lowercase()) {
-            "circle" -> drawCircle(composer, compose, shapeProperties)
-            "box" -> drawBox(composer, compose, shapeProperties)
-            "freeform" -> drawFreeform(composer, compose, shapeProperties)
+        val composer = simplyPdfDocument.shape
+
+        when (composeJsonObject.getString(Node.COMPOSER_SHAPE_SHAPE).lowercase()) {
+            "circle" -> drawCircle(composer, composeJsonObject, shapeProperties)
+            "box" -> drawBox(composer, composeJsonObject, shapeProperties)
+            "freeform" -> drawFreeform(composer, composeJsonObject, shapeProperties)
         }
     }
 
-    @Throws(Exception::class)
     private fun drawCircle(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
@@ -39,7 +36,6 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
         shapeComposer.drawCircle(radius, radius, radius, shapeProperties)
     }
 
-    @Throws(Exception::class)
     private fun drawBox(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
@@ -50,7 +46,6 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
         shapeComposer.drawBox(0f, 0f, width.toFloat(), height.toFloat(), shapeProperties)
     }
 
-    @Throws(Exception::class)
     private fun drawFreeform(
         shapeComposer: ShapeComposer,
         compose: JSONObject,
@@ -70,4 +65,6 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : BaseConver
         }
         shapeComposer.freeform(path, shapeProperties)
     }
+
+    override fun getTypeHandler(): String = "shape"
 }

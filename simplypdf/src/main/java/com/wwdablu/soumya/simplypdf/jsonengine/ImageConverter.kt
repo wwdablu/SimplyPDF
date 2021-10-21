@@ -5,27 +5,22 @@ import android.text.TextUtils
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.Composer
-import com.wwdablu.soumya.simplypdf.composers.ImageComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 
 internal class ImageConverter(private val context: Context, simplyPdfDocument: SimplyPdfDocument)
-    : BaseConverter(simplyPdfDocument) {
+    : ComposerConverter(simplyPdfDocument) {
 
-    @Throws(Exception::class)
-    public override fun generate(composer: Composer, compose: JSONObject) {
-        if (composer !is ImageComposer) {
-            return
-        }
+    override fun generate(composeJsonObject: JSONObject) {
 
-        val imageProperties = getProperties(compose)
+        val imageProperties = getProperties(composeJsonObject)
         val bitmap = Glide.with(context)
             .asBitmap()
-            .load(compose.getString(Node.COMPOSER_IMAGE_URL))
+            .load(composeJsonObject.getString(Node.COMPOSER_IMAGE_SOURCE))
             .submit()
             .get()
-        composer.drawBitmap(
+        simplyPdfDocument.image.drawBitmap(
             bitmap,
             if (TextUtils.isEmpty(imageProperties)) ImageProperties() else Gson().fromJson(
                 imageProperties,
@@ -34,4 +29,6 @@ internal class ImageConverter(private val context: Context, simplyPdfDocument: S
         )
         bitmap.recycle()
     }
+
+    override fun getTypeHandler(): String = "image"
 }

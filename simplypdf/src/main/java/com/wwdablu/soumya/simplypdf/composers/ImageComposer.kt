@@ -17,6 +17,8 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
     private var bitmapPainter: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    override fun getTypeHandler(): String = "image"
+
     /**
      * Draw the bitmap into the document
      *

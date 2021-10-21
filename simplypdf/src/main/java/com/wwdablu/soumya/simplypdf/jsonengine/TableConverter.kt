@@ -1,13 +1,10 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
-import android.text.TextUtils
-import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
-import com.wwdablu.soumya.simplypdf.composers.properties.cell.ImageCell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
@@ -18,7 +15,7 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
     @Throws(Exception::class)
     override fun generate(composeJsonObject: JSONObject) {
 
-        val tableProperties = getProperties(composeJsonObject)
+        val tableProperties: TableProperties = getProperties(composeJsonObject, Node.TYPE_PROPERTIES)
         val composer = simplyPdfDocument.table
 
         //Generate the cell information
@@ -36,8 +33,7 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
                 columnList.add(cellConverter(colObject, composer))
             }
         }
-        composer.draw(rowList, if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
-            tableProperties, TableProperties::class.java))
+        composer.draw(rowList, tableProperties)
     }
 
     internal fun cellConverter(jsonObject: JSONObject, composer: TableComposer) : Cell {
@@ -50,14 +46,10 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
 
         return when (jsonObject.getString(Node.TYPE).lowercase()) {
             Node.TYPE_TEXT -> {
-                val colTextProperties = getProperties(jsonObject)
+                val colTextProperties: TextProperties = getProperties(jsonObject, Node.TYPE_PROPERTIES)
                 TextCell(
-                    jsonObject.getString(Node.COMPOSER_TEXT_CONTENT),
-                    if (TextUtils.isEmpty(colTextProperties)) TextProperties() else Gson().fromJson(
-                        colTextProperties,
-                        TextProperties::class.java
-                    ),
-                    composer.resolveCellWidth(widthPercent)
+                    jsonObject.getString(Node.COMPOSER_TEXT_CONTENT), colTextProperties,
+                        composer.resolveCellWidth(widthPercent)
                 )
             }
             else -> {

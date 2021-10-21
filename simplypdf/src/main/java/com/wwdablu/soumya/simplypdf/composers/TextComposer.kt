@@ -15,6 +15,8 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
 
+    override fun getTypeHandler(): String = "text"
+
     /**
      * Draws text on the canvas with the provided params
      *

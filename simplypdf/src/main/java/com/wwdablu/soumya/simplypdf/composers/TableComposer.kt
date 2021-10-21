@@ -11,6 +11,8 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
     private val borderPainter = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    override fun getTypeHandler(): String = "table"
+
     fun draw(cellList: List<List<Cell>>, properties: TableProperties) {
 
         if (cellList.isEmpty()) {

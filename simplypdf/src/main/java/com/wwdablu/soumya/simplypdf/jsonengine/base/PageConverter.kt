@@ -1,15 +1,15 @@
 package com.wwdablu.soumya.simplypdf.jsonengine.base
 
+import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.jsonengine.Node
 import org.json.JSONObject
 
-internal abstract class PageConverter {
+abstract class PageConverter {
 
     abstract fun generate(compose: JSONObject)
     abstract fun getTypeHandler() : String
 
-    fun getProperties(compose: JSONObject): String? {
-        return if (compose.has(Node.TYPE_PROPERTIES)) compose.getJSONObject(Node.TYPE_PROPERTIES)
-            .toString() else null
+    inline fun <reified T> getProperties(compose: JSONObject, propertyNodeName: String) : T {
+        return Gson().fromJson(compose.getString(propertyNodeName), T::class.java)
     }
 }

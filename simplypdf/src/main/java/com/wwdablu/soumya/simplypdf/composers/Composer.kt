@@ -18,6 +18,8 @@ abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
             if (spacing <= -1) field = DEFAULT_SPACING
         }
 
+    abstract fun getTypeHandler() : String
+
     protected fun insertEmptyLine() {
         simplyPdfDocument.addContentHeight(spacing)
     }

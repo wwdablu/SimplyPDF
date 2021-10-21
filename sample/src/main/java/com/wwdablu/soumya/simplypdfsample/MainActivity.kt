@@ -30,8 +30,12 @@ import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo
 import com.wwdablu.soumya.simplypdf.document.Margin
 import com.wwdablu.soumya.simplypdf.document.PageHeader
+import com.wwdablu.soumya.simplypdf.document.PageModifier
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
+import com.wwdablu.soumya.simplypdf.jsonengine.base.PageConverter
 import com.wwdablu.soumya.simplypdfsample.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
+import org.json.JSONObject
 import java.io.File
 import java.util.*
 
@@ -453,6 +457,7 @@ class MainActivity : AppCompatActivity() {
                     textColor = "#000000"
                 }, Cell.MATCH_PARENT))
             }))
+            .pageModifier(HeaderLinePageModifier())
             .build()
     }
 
@@ -487,5 +492,31 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "JSON to PDF Completed", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    inner class HeaderLinePageModifier : PageModifier() {
+        override fun render(simplyPdfDocument: SimplyPdfDocument) {
+            simplyPdfDocument.shape.drawBox(simplyPdfDocument.usablePageWidth.toFloat() - simplyPdfDocument.endMargin, 2F, ShapeProperties().apply {
+                lineColor = "#000000"
+                alignment = Composer.Alignment.CENTER
+            })
+            simplyPdfDocument.insertEmptySpace(25)
+        }
+    }
+
+    inner class WatermarkPageModifier : PageModifier() {
+        override fun render(simplyPdfDocument: SimplyPdfDocument) {
+            TODO("Not yet implemented")
+        }
+    }
+
+    inner class WatermarkJsonConverter : PageConverter() {
+
+        override fun generate(compose: JSONObject) {
+            WatermarkPageModifier().render(simplyPdfDocument)
+            val t: Int = getProperties(compose, "properties")
+        }
+
+        override fun getTypeHandler(): String = "watermark"
     }
 }

@@ -1,8 +1,6 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
 import android.graphics.Path
-import android.text.TextUtils
-import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
@@ -13,9 +11,7 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
 
     override fun generate(composeJsonObject: JSONObject) {
 
-        val shapePropertiesString = getProperties(composeJsonObject)
-        val shapeProperties = if (TextUtils.isEmpty(shapePropertiesString)) ShapeProperties()
-            else Gson().fromJson(shapePropertiesString, ShapeProperties::class.java)
+        val shapeProperties: ShapeProperties = getProperties(composeJsonObject, Node.TYPE_PROPERTIES)
 
         val composer = simplyPdfDocument.shape
 

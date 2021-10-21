@@ -7,15 +7,16 @@ object JSONStruct {
             "page" : [
                 {
                     "type" : "header",
-                    "content" : [
+                    "contents" : [
                         {
                             "type" : "text",
                             "content" : "Simplypdf",
                             "properties" : {
                                 "size" : 24,
                                 "color" : "#000000",
-                                "underline" : true,
-                                "strikethrough" : false
+                                "underline" : false,
+                                "strikethrough" : false,
+                                "alignment" : "ALIGN_CENTER"
                             }
                         },
                         {
@@ -25,7 +26,8 @@ object JSONStruct {
                                 "size" : 20,
                                 "color" : "#000000",
                                 "underline" : true,
-                                "strikethrough" : false
+                                "strikethrough" : false,
+                                "alignment" : "ALIGN_CENTER"
                             }
                         }
                     ]
@@ -147,7 +149,7 @@ object JSONStruct {
                                 {
                                     "type" : "text",
                                     "content" : "Source Code Available in GitHub",
-                                    "width" : 50,
+                                    "width" : 100,
                                     "properties" : {
                                         "size" : 24,
                                         "color" : "#000000",

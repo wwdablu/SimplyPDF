@@ -120,7 +120,7 @@ class SimplyPdfDocument internal constructor(
         pdfDocument = PrintedPdfDocument(context, printAttributes)
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight += topMargin
-        addPageModifiers()
+        applyPageModifiers()
     }
 
     val startMargin: Int
@@ -142,7 +142,7 @@ class SimplyPdfDocument internal constructor(
         currentPageNumber++
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight = topMargin
-        addPageModifiers()
+        applyPageModifiers()
         addContentHeight(
             if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.topMils ?: 0
         )
@@ -183,7 +183,7 @@ class SimplyPdfDocument internal constructor(
         check(!finished) { "Cannot use as finish has been called." }
     }
 
-    private fun addPageModifiers() {
+    private fun applyPageModifiers() {
         pageModifiers.forEach {
             it.render(this)
         }

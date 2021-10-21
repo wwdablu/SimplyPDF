@@ -6,7 +6,7 @@ abstract class Cell internal constructor(
     internal val width: Int
 ) {
 
-    internal lateinit var simplyPdfDocument: SimplyPdfDocument
+    protected lateinit var simplyPdfDocument: SimplyPdfDocument
 
     var xMargin = 10
     var yMargin = 10

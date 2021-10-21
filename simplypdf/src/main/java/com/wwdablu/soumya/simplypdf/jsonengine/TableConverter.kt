@@ -1,15 +1,13 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.text.TextUtils
-import android.util.Base64
 import com.google.gson.Gson
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
-import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
+import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.ImageCell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
@@ -35,37 +33,39 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
             rowList.add(columnList)
             for (colIndex in 0 until colCount) {
                 val colObject = columnArray.getJSONObject(colIndex)
-                when (colObject.getString(Node.TYPE).lowercase()) {
-                    Node.TYPE_TEXT -> {
-                        val colTextProperties = getProperties(colObject)
-                        val textCell = TextCell(
-                            colObject.getString(Node.COMPOSER_TEXT_CONTENT),
-                            if (TextUtils.isEmpty(colTextProperties)) TextProperties() else Gson().fromJson(
-                                colTextProperties,
-                                TextProperties::class.java
-                            ),
-                            composer.resolveCellWidth(colObject.getInt(Node.COMPOSER_TABLE_WIDTH))
-                        )
-                        columnList.add(textCell)
-                    }
-                    Node.TYPE_IMAGE -> {
-                        val colImageProperties = getProperties(colObject)
-                        val imageProperties = if (TextUtils.isEmpty(colImageProperties)) ImageProperties()
-                                else Gson().fromJson(colImageProperties, ImageProperties::class.java)
-
-                        val bitmap: Bitmap? = when(imageProperties.format?.lowercase()) {
-                            Node.IMAGE_FORMAT_BASE64 -> {
-                                val decodedString = Base64.decode(imageProperties.source, Base64.URL_SAFE)
-                                BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                            }
-                            else -> null
-                        }
-                    }
-                }
+                columnList.add(cellConverter(colObject, composer))
             }
         }
         composer.draw(rowList, if (TextUtils.isEmpty(tableProperties)) TableProperties() else Gson().fromJson(
             tableProperties, TableProperties::class.java))
+    }
+
+    internal fun cellConverter(jsonObject: JSONObject, composer: TableComposer) : Cell {
+
+        val widthPercent = if(jsonObject.has(Node.COMPOSER_TABLE_WIDTH)) {
+            jsonObject.getInt(Node.COMPOSER_TABLE_WIDTH)
+        } else {
+            100
+        }
+
+        return when (jsonObject.getString(Node.TYPE).lowercase()) {
+            Node.TYPE_TEXT -> {
+                val colTextProperties = getProperties(jsonObject)
+                TextCell(
+                    jsonObject.getString(Node.COMPOSER_TEXT_CONTENT),
+                    if (TextUtils.isEmpty(colTextProperties)) TextProperties() else Gson().fromJson(
+                        colTextProperties,
+                        TextProperties::class.java
+                    ),
+                    composer.resolveCellWidth(widthPercent)
+                )
+            }
+            else -> {
+                TextCell("", TextProperties().apply { textSize = 0 },
+                    composer.resolveCellWidth(widthPercent)
+                )
+            }
+        }
     }
 
     override fun getTypeHandler(): String = "table"

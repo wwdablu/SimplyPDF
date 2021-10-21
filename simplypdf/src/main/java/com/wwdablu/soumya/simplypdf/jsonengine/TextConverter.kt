@@ -9,12 +9,12 @@ import org.json.JSONObject
 
 internal class TextConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerConverter(simplyPdfDocument) {
 
-    override fun generate(compose: JSONObject) {
+    override fun generate(composeJsonObject: JSONObject) {
 
         //Check if properties has been defined
-        val textProperties = getProperties(compose)
+        val textProperties = getProperties(composeJsonObject)
         simplyPdfDocument.text.write(
-            compose.getString(Node.COMPOSER_TEXT_CONTENT),
+            composeJsonObject.getString(Node.COMPOSER_TEXT_CONTENT),
             if (TextUtils.isEmpty(textProperties)) TextProperties() else Gson().fromJson(
                 textProperties,
                 TextProperties::class.java

@@ -33,7 +33,7 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
     ) {
 
         val radius = compose.getInt(Node.COMPOSER_SHAPE_RADIUS).toFloat()
-        shapeComposer.drawCircle(radius, radius, radius, shapeProperties)
+        shapeComposer.drawCircle(radius, shapeProperties)
     }
 
     private fun drawBox(
@@ -43,7 +43,7 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
     ) {
         val width = compose.getInt(Node.COMPOSER_SHAPE_WIDTH)
         val height = compose.getInt(Node.COMPOSER_SHAPE_HEIGHT)
-        shapeComposer.drawBox(0f, 0f, width.toFloat(), height.toFloat(), shapeProperties)
+        shapeComposer.drawBox(width.toFloat(), height.toFloat(), shapeProperties)
     }
 
     private fun drawFreeform(

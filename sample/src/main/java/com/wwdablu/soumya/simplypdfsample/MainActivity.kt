@@ -49,30 +49,35 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnTextTest.setOnClickListener {
             if(this::binding.isInitialized) {
+                createSimplyPdfDocument()
                 testTextComposer()
             }
         }
 
         binding.btnImageTest.setOnClickListener {
             if(this::binding.isInitialized) {
+                createSimplyPdfDocument()
                 testImageComposer()
             }
         }
 
         binding.btnShapeTest.setOnClickListener {
             if(this::binding.isInitialized) {
+                createSimplyPdfDocument()
                 testShapeComposer()
             }
         }
 
         binding.btnTableTest.setOnClickListener {
             if(this::binding.isInitialized) {
+                createSimplyPdfDocument()
                 testTableComposer()
             }
         }
 
         binding.btnTestJson.setOnClickListener {
             if(this::binding.isInitialized) {
+                createSimplyPdfDocument()
                 testWithJson()
             }
         }
@@ -102,7 +107,6 @@ class MainActivity : AppCompatActivity() {
             }
             return
         }
-        createSimplyPdfDocument()
     }
 
     private fun testTextComposer() {
@@ -279,7 +283,6 @@ class MainActivity : AppCompatActivity() {
             textSize = 16
             alignment = Layout.Alignment.ALIGN_NORMAL
         }
-        val imageProperties = ImageProperties()
 
         val rows = LinkedList<LinkedList<Cell>>()
         simplyPdfDocument.text.write("Table with text data", textProperties)
@@ -408,7 +411,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 2296) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
-                    createSimplyPdfDocument()
+                    //Everything good
                 } else {
                     Toast.makeText(this, "Allow permission for storage access!",
                         Toast.LENGTH_SHORT).show()
@@ -424,7 +427,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == 1000) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                createSimplyPdfDocument()
+                //Everything good
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -469,13 +472,6 @@ class MainActivity : AppCompatActivity() {
             .paperSize(PrintAttributes.MediaSize.ISO_A4)
             .margin(Margin(15U, 15U, 15U, 15U))
             .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-            .pageModifier(PageHeader(LinkedList<Cell>().apply {
-                TextCell("PDF Generated Using SimplyPDF", TextProperties().apply {
-                    textSize = 32
-                    alignment = Layout.Alignment.ALIGN_CENTER
-                    textColor = "#88000000"
-                }, Cell.MATCH_PARENT)
-            }))
             .build()
         
         val exceptionHandler = CoroutineExceptionHandler { _, throwable -> 

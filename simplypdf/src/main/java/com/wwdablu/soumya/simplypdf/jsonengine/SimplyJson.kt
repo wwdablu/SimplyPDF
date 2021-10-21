@@ -5,7 +5,6 @@ import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import com.wwdablu.soumya.simplypdf.jsonengine.base.PageConverter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -32,6 +31,12 @@ internal class SimplyJson(private val context: Context, private val payload: Str
                 map[getTypeHandler()] = this
             }
             TableConverter(simplyPdfDocument).apply {
+                map[getTypeHandler()] = this
+            }
+            NewPageConverter(simplyPdfDocument).apply {
+                map[getTypeHandler()] = this
+            }
+            SpaceConverter(simplyPdfDocument).apply {
                 map[getTypeHandler()] = this
             }
         }
@@ -74,7 +79,7 @@ internal class SimplyJson(private val context: Context, private val payload: Str
 
     private fun parseContentPayload() {
 
-        val contentArray: JSONArray? = JSONObject(payload).getJSONArray(Node.CONTENT)
+        val contentArray: JSONArray? = JSONObject(payload).getJSONArray(Node.CONTENTS)
         if (contentArray == null || contentArray.length() == 0) {
             return
         }

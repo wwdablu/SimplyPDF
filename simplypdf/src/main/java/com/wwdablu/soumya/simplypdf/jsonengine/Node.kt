@@ -2,7 +2,7 @@ package com.wwdablu.soumya.simplypdf.jsonengine
 
 internal interface Node {
     companion object {
-        const val CONTENT = "contents"
+        const val CONTENTS = "contents"
         const val PAGE = "page"
 
         const val TYPE = "type"
@@ -25,6 +25,8 @@ internal interface Node {
         const val COMPOSER_TABLE_CONTENTS = "contents"
         const val COMPOSER_TABLE_ROW = "row"
         const val COMPOSER_TABLE_WIDTH = "width"
+
+        const val SPACE_HEIGHT = "height"
 
         const val COMPOSER_SHAPE_SHAPE = "shape"
         const val COMPOSER_SHAPE_RADIUS = "radius"

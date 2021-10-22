@@ -10,6 +10,7 @@ abstract class ComposerConverter(protected val simplyPdfDocument: SimplyPdfDocum
     abstract fun getTypeHandler() : String
 
     inline fun <reified T> getProperties(compose: JSONObject, propertyNodeName: String) : T {
+        if(!compose.has(propertyNodeName)) return T::class.java.newInstance()
         return Gson().fromJson(compose.getString(propertyNodeName), T::class.java)
     }
 }

@@ -86,12 +86,8 @@ class SimplyPdfDocument internal constructor(
         canvas.save()
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = color
-        canvas.drawRect(
-            RectF(
-                0F, 0F, pdfDocument.pageWidth.toFloat(),
-                pdfDocument.pageHeight.toFloat()
-            ), paint
-        )
+        canvas.drawRect(RectF(0F, 0F, pdfDocument.pageWidth.toFloat(),
+                pdfDocument.pageHeight.toFloat()), paint)
         canvas.restore()
     }
 

@@ -1,9 +1,10 @@
-package com.wwdablu.soumya.simplypdf.jsonengine
+package com.wwdablu.soumya.simplypdf.jsonengine.composerconverters
 
 import android.graphics.Path
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
+import com.wwdablu.soumya.simplypdf.jsonengine.Node
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 
@@ -11,7 +12,9 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
 
     override fun generate(composeJsonObject: JSONObject) {
 
-        val shapeProperties: ShapeProperties = getProperties(composeJsonObject, Node.TYPE_PROPERTIES)
+        val shapeProperties: ShapeProperties = getProperties(composeJsonObject,
+            Node.TYPE_PROPERTIES
+        )
 
         val composer = simplyPdfDocument.shape
 
@@ -49,7 +52,7 @@ internal class ShapeConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
     ) {
         val pointsArray = compose.getJSONArray(Node.COMPOSER_SHAPE_POINTS)
         val pointsArrayLength = pointsArray.length()
-        val path = Path()
+        val path = ShapeComposer.FreeformPath(simplyPdfDocument)
         for (pointIndex in 0 until pointsArrayLength) {
             val lineObject = pointsArray.getJSONObject(pointIndex)
             val lineArray = lineObject.getJSONArray(Node.COMPOSER_SHAPE_LINE)

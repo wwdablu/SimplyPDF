@@ -1,19 +1,12 @@
 package com.wwdablu.soumya.simplypdf.document
 
 import android.print.PrintAttributes
-import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 
 class Margin(
-    val start: UInt,
-    val top: UInt,
-    val end: UInt,
-    val bottom: UInt) {
-
-    internal lateinit var simplyPdfDocument: SimplyPdfDocument
-
-    internal fun setDocument(simplyPdfDocument: SimplyPdfDocument) {
-        this.simplyPdfDocument = simplyPdfDocument
-    }
+    private val start: UInt,
+    private val top: UInt,
+    private val end: UInt,
+    private val bottom: UInt) {
 
     internal fun getMargin() : PrintAttributes.Margins {
         return PrintAttributes.Margins(start.toInt(), top.toInt(), end.toInt(), bottom.toInt())

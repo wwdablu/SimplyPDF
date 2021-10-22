@@ -6,6 +6,16 @@ object JSONStruct {
         {
             "page" : [
                 {
+                    "type" : "setup",
+                    "margin" : {
+                        "start" : 125,
+                        "top" : 125,
+                        "end" : 125,
+                        "bottom" : 125
+                    },
+                    "backgroundcolor" : "#C8C8C8"
+                },
+                {
                     "type" : "header",
                     "contents" : [
                         {

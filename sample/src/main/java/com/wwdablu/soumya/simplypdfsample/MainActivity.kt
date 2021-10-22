@@ -471,13 +471,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testWithJson() {
-        val simplyPdfDocument = with(this,
-                File(Environment.getExternalStorageDirectory().absolutePath + "/json_to_pdf.pdf"))
-            .colorMode(DocumentInfo.ColorMode.COLOR)
-            .paperSize(PrintAttributes.MediaSize.ISO_A4)
-            .margin(Margin(15U, 15U, 15U, 15U))
-            .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-            .build()
+//        val simplyPdfDocument = with(this,
+//                File(Environment.getExternalStorageDirectory().absolutePath + "/json_to_pdf.pdf"))
+//            .colorMode(DocumentInfo.ColorMode.COLOR)
+//            .paperSize(PrintAttributes.MediaSize.ISO_A4)
+//            .margin(Margin(15U, 15U, 15U, 15U))
+//            .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
+//            .build()
         
         val exceptionHandler = CoroutineExceptionHandler { _, throwable -> 
             Log.e(MainActivity::class.java.simpleName, "JSON to PDF exception.", throwable)
@@ -487,7 +487,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
-            usingJson(this@MainActivity, simplyPdfDocument, JSONStruct.payload)
+            //usingJson(this@MainActivity, simplyPdfDocument, JSONStruct.payload)
+            usingJson(this@MainActivity,
+                File(Environment.getExternalStorageDirectory().absolutePath + "/json_to_pdf.pdf"),
+                JSONStruct.payload)
+
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@MainActivity, "JSON to PDF Completed", Toast.LENGTH_SHORT).show()
             }

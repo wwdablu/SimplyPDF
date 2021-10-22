@@ -1,8 +1,10 @@
-package com.wwdablu.soumya.simplypdf.jsonengine
+package com.wwdablu.soumya.simplypdf.jsonengine.pagemodifiers
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 import com.wwdablu.soumya.simplypdf.document.PageHeader
+import com.wwdablu.soumya.simplypdf.jsonengine.Node
+import com.wwdablu.soumya.simplypdf.jsonengine.composerconverters.TableConverter
 import com.wwdablu.soumya.simplypdf.jsonengine.base.PageConverter
 import org.json.JSONObject
 import java.util.*

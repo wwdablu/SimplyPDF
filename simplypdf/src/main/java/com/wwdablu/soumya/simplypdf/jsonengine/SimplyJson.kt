@@ -1,9 +1,13 @@
 package com.wwdablu.soumya.simplypdf.jsonengine
 
 import android.content.Context
+import com.wwdablu.soumya.simplypdf.SimplyPdf
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import com.wwdablu.soumya.simplypdf.jsonengine.base.PageConverter
+import com.wwdablu.soumya.simplypdf.jsonengine.composerconverters.*
+import com.wwdablu.soumya.simplypdf.jsonengine.pagemodifiers.HeaderConverter
+import com.wwdablu.soumya.simplypdf.jsonengine.setup.SetupHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -40,6 +44,28 @@ internal class SimplyJson(private val context: Context, private val payload: Str
                 map[getTypeHandler()] = this
             }
         }
+    }
+
+    suspend fun generateWith(pdfBuilder: SimplyPdf,
+                             pageConverters: List<PageConverter>? = null,
+                             composerConverters: List<ComposerConverter>? = null) {
+
+        val contentArray: JSONArray? = JSONObject(payload).getJSONArray(Node.PAGE)
+        if (contentArray == null || contentArray.length() == 0) {
+            return
+        }
+
+        for(index in 0 until contentArray.length()) {
+            if((contentArray.getJSONObject(index).has(Node.TYPE)) &&
+                (contentArray.getJSONObject(index).getString(Node.TYPE).lowercase() == Node.TYPE_PAGE_SETUP)) {
+
+                generateWith(SetupHandler(pdfBuilder, contentArray.getJSONObject(index).toString())
+                    .apply(), pageConverters, composerConverters)
+                return
+            }
+        }
+
+        generateWith(pdfBuilder.build(), pageConverters, composerConverters)
     }
 
     @JvmOverloads

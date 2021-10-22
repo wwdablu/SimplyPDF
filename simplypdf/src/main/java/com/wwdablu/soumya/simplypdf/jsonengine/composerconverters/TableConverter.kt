@@ -1,4 +1,4 @@
-package com.wwdablu.soumya.simplypdf.jsonengine
+package com.wwdablu.soumya.simplypdf.jsonengine.composerconverters
 
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
@@ -6,6 +6,7 @@ import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
+import com.wwdablu.soumya.simplypdf.jsonengine.Node
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
 import org.json.JSONObject
 import java.util.*
@@ -15,7 +16,9 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
     @Throws(Exception::class)
     override fun generate(composeJsonObject: JSONObject) {
 
-        val tableProperties: TableProperties = getProperties(composeJsonObject, Node.TYPE_PROPERTIES)
+        val tableProperties: TableProperties = getProperties(composeJsonObject,
+            Node.TYPE_PROPERTIES
+        )
         val composer = simplyPdfDocument.table
 
         //Generate the cell information
@@ -46,7 +49,9 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
 
         return when (jsonObject.getString(Node.TYPE).lowercase()) {
             Node.TYPE_TEXT -> {
-                val colTextProperties: TextProperties = getProperties(jsonObject, Node.TYPE_PROPERTIES)
+                val colTextProperties: TextProperties = getProperties(jsonObject,
+                    Node.TYPE_PROPERTIES
+                )
                 TextCell(
                     jsonObject.getString(Node.COMPOSER_TEXT_CONTENT), colTextProperties,
                         composer.resolveCellWidth(widthPercent)

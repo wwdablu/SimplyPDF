@@ -5,9 +5,10 @@ import android.print.PrintAttributes
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo.ColorMode
 import com.wwdablu.soumya.simplypdf.document.Margin
-import com.wwdablu.soumya.simplypdf.document.PageHeader
 import com.wwdablu.soumya.simplypdf.document.PageModifier
 import com.wwdablu.soumya.simplypdf.jsonengine.SimplyJson
+import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
+import com.wwdablu.soumya.simplypdf.jsonengine.base.PageConverter
 import java.io.File
 
 class SimplyPdf private constructor(private val context: Context, outputPdf: File) {
@@ -54,9 +55,23 @@ class SimplyPdf private constructor(private val context: Context, outputPdf: Fil
         suspend fun usingJson(
             context: Context,
             simplyPdfDocument: SimplyPdfDocument,
-            payload: String
+            payload: String,
+            pageConverters: List<PageConverter>? = null,
+            composerConverters: List<ComposerConverter>? = null
         ) {
-            SimplyJson(context, payload).generateWith(simplyPdfDocument)
+            SimplyJson(context, payload).generateWith(simplyPdfDocument,
+                pageConverters, composerConverters)
+        }
+
+        suspend fun usingJson(
+            context: Context,
+            outputPdf: File,
+            payload: String,
+            pageConverters: List<PageConverter>? = null,
+            composerConverters: List<ComposerConverter>? = null
+        ) {
+            SimplyJson(context, payload).generateWith(SimplyPdf(context, outputPdf),
+                pageConverters, composerConverters)
         }
     }
 }

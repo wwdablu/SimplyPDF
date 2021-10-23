@@ -1,6 +1,7 @@
 package com.wwdablu.soumya.simplypdf
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
@@ -66,21 +67,11 @@ class SimplyPdfDocument internal constructor(
         addContentHeight(height)
     }
 
-    fun pageHeight(): Int {
-        ensureNotFinished()
-        return usablePageHeight
-    }
-
-    fun pageWidth(): Int {
-        ensureNotFinished()
-        return usablePageWidth
-    }
-
     /**
      * Set the background color of the current page. It will apply it to the entire page.
      * @param color Color to be applied
      */
-    fun setPageBackgroundColor(@ColorInt color: Int) {
+    private fun setPageBackgroundColor(@ColorInt color: Int) {
         ensureNotFinished()
         val canvas = currentPage.canvas
         canvas.save()
@@ -107,7 +98,7 @@ class SimplyPdfDocument internal constructor(
         }
     }
 
-    internal fun build(context: Context) {
+    internal fun build(context: Context, pageBgColor: Int = Color.WHITE) {
         printAttributes = PrintAttributes.Builder()
             .setColorMode(documentInfo.resolveColorMode())
             .setMediaSize(documentInfo.paperSize)
@@ -116,6 +107,7 @@ class SimplyPdfDocument internal constructor(
         pdfDocument = PrintedPdfDocument(context, printAttributes)
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight += topMargin
+        setPageBackgroundColor(pageBgColor)
         applyPageModifiers()
     }
 
@@ -130,18 +122,18 @@ class SimplyPdfDocument internal constructor(
 
     /**
      * Creates a new page in the PDF document and resets the internal markers on the document.
+     *
+     * @param color Specify the color you want to set. Default is white.
      * @return The new page on which content will be drawn
      */
-    fun newPage() {
+    fun newPage(@ColorInt color: Int = Color.WHITE) {
         ensureNotFinished()
         pdfDocument.finishPage(currentPage)
         currentPageNumber++
         currentPage = pdfDocument.startPage(currentPageNumber)
         pageContentHeight = topMargin
+        setPageBackgroundColor(color)
         applyPageModifiers()
-        addContentHeight(
-            if (printAttributes.minMargins == null) 0 else printAttributes.minMargins?.topMils ?: 0
-        )
     }
 
     /**
@@ -165,7 +157,7 @@ class SimplyPdfDocument internal constructor(
      * @return Usable height of the page
      */
     val usablePageHeight: Int
-        get() = pdfDocument.pageContentRect.height() - (topMargin + bottomMargin)
+        get() = currentPage.info.pageHeight - (topMargin + bottomMargin)
 
     /**
      * Returns the width of the page on which content can be displayed. It taken into account the
@@ -173,7 +165,7 @@ class SimplyPdfDocument internal constructor(
      * @return Usable width of the page
      */
     val usablePageWidth: Int
-        get() = pdfDocument.pageWidth - (startMargin + endMargin)
+        get() = currentPage.info.pageWidth - (startMargin + endMargin)
 
     private fun ensureNotFinished() {
         check(!finished) { "Cannot use as finish has been called." }

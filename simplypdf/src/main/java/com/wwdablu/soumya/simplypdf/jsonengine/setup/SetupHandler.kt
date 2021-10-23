@@ -24,9 +24,8 @@ internal class SetupHandler(private val simplyPdf: SimplyPdf,
 
         simplyPdf.paperSize(PrintAttributes.MediaSize.ISO_A4)
         simplyPdf.colorMode(DocumentInfo.ColorMode.COLOR)
+        simplyPdf.firstPageBackgroundColor(Color.parseColor(setupInfo.backgroundColor ?: "#FFFFFF"))
 
-        return simplyPdf.build().apply {
-            setPageBackgroundColor(Color.parseColor(setupInfo.backgroundColor ?: "#FFFFFF"))
-        }
+        return simplyPdf.build()
     }
 }

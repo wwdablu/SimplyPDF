@@ -5,6 +5,6 @@ import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 abstract class GroupComposer(simplyPdfDocument: SimplyPdfDocument) : Composer(simplyPdfDocument) {
 
     fun resolveCellWidth(widthPercent: Int): Int {
-        return simplyPdfDocument.pageWidth() / (100 / widthPercent)
+        return simplyPdfDocument.usablePageWidth / (100 / widthPercent)
     }
 }

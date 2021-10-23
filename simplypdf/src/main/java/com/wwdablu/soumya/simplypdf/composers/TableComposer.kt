@@ -37,7 +37,10 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             }
 
             simplyPdfDocument.addContentHeight(largestHeight)
-            drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList, properties)
+
+            if(properties.drawBorder) {
+                drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList, properties)
+            }
         }
     }
 

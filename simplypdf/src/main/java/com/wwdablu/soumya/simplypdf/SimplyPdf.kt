@@ -2,6 +2,7 @@ package com.wwdablu.soumya.simplypdf
 
 import android.content.Context
 import android.print.PrintAttributes
+import androidx.annotation.ColorInt
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo.ColorMode
 import com.wwdablu.soumya.simplypdf.document.Margin
@@ -14,6 +15,8 @@ import java.io.File
 class SimplyPdf private constructor(private val context: Context, outputPdf: File) {
 
     private val document: SimplyPdfDocument = SimplyPdfDocument(context, outputPdf)
+
+    private var pageBgColor: Int = 0
 
     fun colorMode(colorMode: ColorMode): SimplyPdf {
         document.documentInfo.colorMode = colorMode
@@ -35,13 +38,18 @@ class SimplyPdf private constructor(private val context: Context, outputPdf: Fil
         return this
     }
 
+    fun firstPageBackgroundColor(@ColorInt bgColor: Int) : SimplyPdf {
+        pageBgColor = bgColor
+        return this
+    }
+
     fun pageModifier(pageModifier: PageModifier) : SimplyPdf {
         document.pageModifiers.add(pageModifier)
         return this
     }
 
     fun build(): SimplyPdfDocument {
-        document.build(context)
+        document.build(context, pageBgColor)
         return document
     }
 
@@ -63,6 +71,7 @@ class SimplyPdf private constructor(private val context: Context, outputPdf: Fil
                 pageConverters, composerConverters)
         }
 
+        @JvmStatic
         suspend fun usingJson(
             context: Context,
             outputPdf: File,

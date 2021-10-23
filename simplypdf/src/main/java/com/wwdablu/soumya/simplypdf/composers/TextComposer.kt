@@ -77,16 +77,22 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         val isCellContent: Boolean = cell != null
 
         if (properties.isBullet) {
-            bulletMarker = StaticLayout(
-                properties.getBulletSymbol(), textPaint, simplyPdfDocument.usablePageWidth,
-                Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false
-            )
+            bulletMarker = StaticLayout.Builder.obtain(properties.getBulletSymbol(), 0, 0, textPaint,
+                simplyPdfDocument.usablePageWidth)
+                .setText(properties.getBulletSymbol())
+                .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                .setIncludePad(false)
+                .build()
+
             widthAdjustForProperties += (textPaint.measureText(properties.bulletSymbol) + BULLET_SPACING).toInt()
         }
 
-        val staticLayout = StaticLayout(text, textPaint,
-            pageWidth - widthAdjustForProperties - xMargin * 2,
-            properties.getAlignment(), 1f, 0f, false)
+        val staticLayout = StaticLayout.Builder.obtain(text, 0, 0, textPaint,
+            pageWidth - widthAdjustForProperties - (xMargin * 2))
+            .setText(text)
+            .setAlignment(properties.alignment ?: Layout.Alignment.ALIGN_NORMAL)
+            .setIncludePad(false)
+            .build()
 
         val textLineSpacing = getTopSpacing(if (isCellContent) 0 else DEFAULT_SPACING)
         if (performDraw && !canFitContentInPage(textLineSpacing + staticLayout.height)) {
@@ -94,10 +100,9 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         }
 
         pageCanvas.save()
-        pageCanvas.translate(
-            (if (isCellContent) xShift + xMargin else xShift + xMargin + simplyPdfDocument.startMargin
-                .toFloat()).toFloat(), (
-                    yMargin + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
+        pageCanvas.translate(if(isCellContent) (xShift + xMargin).toFloat() else
+            (xShift + xMargin).toFloat() + simplyPdfDocument.startMargin,
+            (yMargin + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
 
         if (performDraw && bulletMarker != null) {
             bulletMarker.draw(pageCanvas)

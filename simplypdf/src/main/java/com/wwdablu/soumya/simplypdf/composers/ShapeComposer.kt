@@ -14,7 +14,7 @@ class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
     override fun getTypeHandler(): String = "shape"
 
     fun drawBox(width: Float, height: Float, properties: ShapeProperties) {
-        drawBox(simplyPdfDocument.startMargin.toFloat(), simplyPdfDocument.pageContentHeight.toFloat(),
+        drawBox(0f, simplyPdfDocument.pageContentHeight.toFloat(),
             width, height, properties)
     }
 

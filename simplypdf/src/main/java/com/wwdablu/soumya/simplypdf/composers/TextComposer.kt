@@ -113,7 +113,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         pageCanvas.translate(widthAdjustForProperties.toFloat(), 0f)
 
-        val finalContentHeight = staticLayout.height + textLineSpacing + yMargin * 2
+        val finalContentHeight = staticLayout.height + textLineSpacing + yMargin
         if (performDraw) {
             if (!isCellContent) {
                 simplyPdfDocument.addContentHeight(finalContentHeight)

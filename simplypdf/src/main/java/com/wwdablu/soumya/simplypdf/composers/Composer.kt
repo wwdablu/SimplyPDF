@@ -3,7 +3,7 @@ package com.wwdablu.soumya.simplypdf.composers
 import android.graphics.Canvas
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 
-const val DEFAULT_SPACING = 10
+const val DEFAULT_SPACING = 5
 
 abstract class Composer(protected val simplyPdfDocument: SimplyPdfDocument) {
 

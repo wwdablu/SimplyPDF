@@ -1,2 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wwdablu.soumya.simplypdf" />
+    package="com.wwdablu.soumya.simplypdf">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+</manifest>

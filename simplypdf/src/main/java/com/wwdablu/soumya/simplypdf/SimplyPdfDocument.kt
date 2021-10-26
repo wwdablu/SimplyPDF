@@ -30,6 +30,11 @@ class SimplyPdfDocument internal constructor(
 ) {
     val documentInfo: DocumentInfo = DocumentInfo()
 
+    var lineHeight = 10
+        set(value) {
+            field = if(value <= 0) 10 else value
+        }
+
     val text: TextComposer by lazy { TextComposer(this) }
     val shape: ShapeComposer by lazy { ShapeComposer(this) }
     val image: ImageComposer by lazy { ImageComposer(this) }
@@ -65,6 +70,10 @@ class SimplyPdfDocument internal constructor(
 
     fun insertEmptySpace(height: Int) {
         addContentHeight(height)
+    }
+
+    fun insertEmptyLines(count: Int) {
+        insertEmptySpace(lineHeight * if(count < 0) 0 else count)
     }
 
     /**

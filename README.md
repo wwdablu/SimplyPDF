@@ -10,7 +10,7 @@ You can use it in gradle as following:
 maven { url 'https://jitpack.io' }
 
 dependencies {
-    implementation 'com.github.wwdablu:SimplyPDF:x.y.z'
+    implementation 'com.github.wwdablu:SimplyPDF:2.0.0'
 }
 ~~~  
   
@@ -21,22 +21,56 @@ To obtain the PDF document, the developer needs to use the SimplyPdf class to ob
 simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.pdf"))
     .colorMode(DocumentInfo.ColorMode.COLOR)
     .paperSize(PrintAttributes.MediaSize.ISO_A4)
-    .margin(DocumentInfo.Margins.DEFAULT)
+    .margin(Margin(startMargin, topMargin, endMargin, bottomMargin)
+    .pageModifier(PageHeader())
+    .firstPageBackgroundColor(Color.WHITE)
     .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
     .build();
 ~~~  
 
-The above setup means that a PDF document named test will be created in the external directory. The PDF document will be in color mode with the paper size as A4. The margins will be default and the print orientation will be portrait.  
+The above setup means that a PDF document named test will be created in the external directory. The PDF document will be in color mode with the paper size as A4. The specified margins will be used and the print orientation will be portrait.
+Also the background color of the first page will be white in color. Along with it page modifiers are also supported.
+They are applied to each of the pages when created. One example (provided support by the library) is a page header. This
+will get added everytime a new page is added to the document.
 
-*Note:* The document will be created once finish() method is called. Till then everything is occuring in-memory.  
+Following are the methods provided by the SimplyPdfDocument for use.
+| Method/Properties                                       | Usage         |
+| ------------------------------------------------------- |:-------------:|
+| insertEmptyLines(LineCount)                             | Inserts number of empty lines in the document |
+| insertEmptySpace(Height)                                | Inserts an empty content of the specified height |
+| newPage(Color)                                          | Inserts a new page with the specific background color. Default: White |
+| addContentHeight(Height)                                | Used by composers. Used to specify how much content drawn in the page |
+| finish()                                                | Completes all the rendering and saves the PDF file. |
+| text                                                    | Access the default text composer |
+| image                                                   | Access the default image composer |
+| shape                                                   | Access the default shape composer |
+| table                                                   | Access the default table composer |
+| usablePageWidth                                         | Usable width of the page considering margins |
+| usablePageHeight                                        | Usable height of the page considering margins |
+| currentPage                                             | Page object of the PDF Document. Can be used to access the page canvas |
+| currentPageNumber                                       | Page number being currently worked on |
+| pageContentHeight                                       | Height of the contents rendered in the current page |
+| documentInfo                                            | DocumentInfo for the current PDF Document |
+| lineHeight                                              | Height of a line considered by insertEmptyLines() |
 
-## Composers  
-The classes which are responsible for drawing content onto the PDF are called Composers in this library. Currently there are the supported composers:  
-* TextComposer  
-* ShapeComposer  
-* ImageComposer 
-* TableComposer  
-These composers allow the developer to write text, draw shapes and bitmaps on the PDF document. Currently TableComposer only supports displaying text. In future it will support both Image and Shape.  
+*Note:* The document will be created once finish() method is called. Till then everything is occurring in-memory.
+
+## Composers
+The classes which are responsible for drawing content onto the PDF are called Composers in this library. Currently these are the supported composers:
+* TextComposer
+* ShapeComposer
+* ImageComposer
+* TableComposer
+These composers allow the developer to write text, draw shapes and bitmaps on the PDF document.
+TableComposer supports displaying of texts and images. Shapes are currently not supported.
+To create a custom composer, one needs to extend the UnitComposer class.
+
+## TextComposer
+TextComposer is used to perform Text operations on the document.
+| Method/Properties                                               | Usage         |
+| --------------------------------------------------------------- |:-------------:|
+| write(String, TextProperties)                                   | Writes the text in the document using the specified properties |
+| write(String, TextProperties, PageWidth, xMargin, yMargin)      | Writes the text with the specified width by applying the margins. |
 
 ## Composer Properties  
 Each composer class has it properties. They can be used to set the behavior of the composer. For example:  

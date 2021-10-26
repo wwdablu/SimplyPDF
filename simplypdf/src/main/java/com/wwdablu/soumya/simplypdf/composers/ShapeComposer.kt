@@ -66,6 +66,7 @@ class ShapeComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
         path.computeBounds(bounds, true)
         if (!canFitContentInPage(bounds.height().toInt() + spacing)) {
             simplyPdfDocument.newPage()
+            simplyPdfDocument.insertEmptyLines(1)
         }
 
         pageCanvas.save()

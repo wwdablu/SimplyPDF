@@ -98,6 +98,7 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
         if (!canFitContentInPage(bitmap.height + DEFAULT_SPACING) &&
             simplyPdfDocument.pageContentHeight != simplyPdfDocument.topMargin) {
             simplyPdfDocument.newPage()
+            simplyPdfDocument.insertEmptyLines(1)
         }
 
         val canvas = pageCanvas
@@ -128,8 +129,7 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
 
         val useFactor = widthFactor.coerceAtLeast(heightFactor)
 
-        return Pair((bitmap.width / useFactor).toInt(),
-            (bitmap.height / useFactor).toInt())
+        return Pair((bitmap.width / useFactor).toInt(), (bitmap.height / useFactor).toInt())
     }
 
     private fun scaleIfNeeded(bitmap: Bitmap, width: Int, height: Int) : Bitmap {

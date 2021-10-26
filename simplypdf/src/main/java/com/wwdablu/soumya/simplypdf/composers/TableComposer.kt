@@ -26,6 +26,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
             if (!canFitContentInPage(largestHeight)) {
                 simplyPdfDocument.newPage()
+                simplyPdfDocument.insertEmptyLines(1)
             }
 
             var bitmapXTranslate = simplyPdfDocument.startMargin

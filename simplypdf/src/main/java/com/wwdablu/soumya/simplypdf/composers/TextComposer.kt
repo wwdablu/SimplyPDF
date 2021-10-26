@@ -97,12 +97,14 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         val textLineSpacing = getTopSpacing(if (isCellContent) 0 else DEFAULT_SPACING)
         if (performDraw && !canFitContentInPage(textLineSpacing + staticLayout.height)) {
             simplyPdfDocument.newPage()
+            simplyPdfDocument.insertEmptyLines(1)
         }
 
         pageCanvas.save()
         pageCanvas.translate(if(isCellContent) (xShift + xMargin).toFloat() else
             (xShift + xMargin).toFloat() + simplyPdfDocument.startMargin,
-            (yMargin + simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
+            (if(isCellContent) yMargin.toFloat()/2f else yMargin.toFloat()) +
+                    (simplyPdfDocument.pageContentHeight + textLineSpacing).toFloat())
 
         if (performDraw && bulletMarker != null) {
             bulletMarker.draw(pageCanvas)

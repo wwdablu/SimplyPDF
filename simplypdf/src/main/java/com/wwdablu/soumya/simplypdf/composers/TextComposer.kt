@@ -22,26 +22,15 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
      *
      * @param text Text to draw
      * @param properties TextProperties to use
-     */
-    fun write(text: String, properties: TextProperties) {
-        write(text, properties, simplyPdfDocument.usablePageWidth, 0,
-            0, 0, null, true)
-    }
-
-    /**
-     * Draws text on the canvas with the provided params
-     *
-     * @param text Text to draw
-     * @param properties TextProperties to use
      * @param pageWidth Width to consider when rendering the text
      * @param xMargin Margin to be provided on the X-axis on both the sides
      * @param yMargin Margin to be provided on the Y-axis on both the sides
      */
     fun write(text: String,
-                       properties: TextProperties,
-                       pageWidth: Int,
-                       xMargin: Int,
-                       yMargin: Int) {
+              properties: TextProperties,
+              pageWidth: Int = simplyPdfDocument.usablePageWidth,
+              xMargin: Int = 0,
+              yMargin: Int = 0) {
 
         write(text, properties, pageWidth, xMargin, yMargin, 0, null, true)
     }
@@ -76,7 +65,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         var bulletMarker: StaticLayout? = null
         val isCellContent: Boolean = cell != null
 
-        if (properties.isBullet) {
+        if (properties.bulletSymbol?.let { it.isNotBlank() && it.isNotEmpty() } == true) {
             bulletMarker = StaticLayout.Builder.obtain(properties.getBulletSymbol(), 0, 0, textPaint,
                 simplyPdfDocument.usablePageWidth)
                 .setText(properties.getBulletSymbol())

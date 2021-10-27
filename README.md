@@ -69,181 +69,303 @@ To create a custom composer, one needs to extend the UnitComposer class.
 TextComposer is used to perform Text operations on the document.
 | Method/Properties                                               | Usage         |
 | --------------------------------------------------------------- |:-------------:|
-| write(String, TextProperties)                                   | Writes the text in the document using the specified properties |
 | write(String, TextProperties, PageWidth, xMargin, yMargin)      | Writes the text with the specified width by applying the margins. |
 
-## Composer Properties  
-Each composer class has it properties. They can be used to set the behavior of the composer. For example:  
+PageWidth has a default value set to usablePageWidth.
+xMargin by default is set to 0.
+yMargin by default is set to 0.
+
+
+## TextProperties
+TextProperties are used to assign various properties that are associated with the TextComposer.
+| Method/Properties              | Usage         |
+| ------------------------------ |:-------------:|
+| textSize                       | Set the size of the text to be displayed |
+| textColor                      | Set the color of the text to be displayed with |
+| typeface                       | Typeface to be used to display the text content |
+| alignment                      | Alignment of the center like Normal, Center, Opposite |
+| underline                      | Should the text be underlined |
+| strikethrough                  | Should the text be strikethrough |
+| bulletSymbol                   | The character to be displayed for bullet content |
+
+
+*__Sample__*:
 ~~~
-TextProperties textProperties = new TextProperties();
-textProperties.textSize = 24;
-textProperties.alignment = Layout.Alignment.ALIGN_CENTER;
-textProperties.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
+simplyPdfDocument.text.write("Hello World", TextProperties().apply {
+    textSize = 12
+    textColor = "#000000"
+    typeface = Typeface.DEFAULT
+})
+~~~
 
-TextComposer textComposer = new TextComposer(simplyPdfDocument);
-textComposer.write("Demonstrate the usage of TextComposer.", textProperties);
-~~~  
-This will write the text in text size 16 in bold font. But, if we change the `textSize` property to 24 and call `textComposer.write` once again, then the text will now be drawn with font size as 24.  
 
-## Generating the PDF  
-Once all the content are written, the developer needs to be call finish().  
+## ImageComposer
+ImageComposer is used to perform bitmap rendering or draw operations on the document.
+| Method/Properties                                               | Usage         |
+| --------------------------------------------------------------- |:-------------:|
+| drawBitmap(Bitmap, ImageProperties, xMargin, yMargin)           | Draws the bitmap with the given properties and margins. |
+| drawFromUrl(String, Context, ImageProperties, xMargin, yMargin) | Downloads the image from the URL and draws the bitmap. |
+
+xMargin by default is set to 0.
+yMargin by default is set to 0.
+
+*Note*: The bitmap resource handling should be done by the caller. Any bitmaps received from outside the
+library recycle() will not be called on them.
+
+## ImageProperties
+ImageProperties are used to assign various properties that are associated with the ImageComposer.
+| Method/Properties              | Usage         |
+| ------------------------------ |:-------------:|
+| alignment                      | Alignment of the center like Start, Center, End |
+
+
+*__Sample__*:
+~~~
+simplyPdfDocument.image.drawBitmap(bitmap, ImageProperties().apply {
+    alignment = Composer.Alignment.START
+})
+~~~
+
+
+## TableComposer
+TableComposer is used to draw tables and show text and image contents inside it. It uses Cell objects
+to render the contents. The library provides support for TextCell to draw texts and ImageCell to draw
+bitmaps inside the table cell.
+| Method/Properties                                               | Usage         |
+| --------------------------------------------------------------- |:-------------:|
+| draw(LinkedList<LinkedList<Cell>>)                              | Draws the cells in row and columns |
+
+*__TextCell__*:
+The TextCell encapsulates the TextComposer. It takes in the text content, the TextProperties and also the
+width of the cell compared to the width of the table.
+
+*__ImageCell__*:
+The TextCell encapsulates the ImageComposer. It takes in the bitmap, the ImageProperties and also the
+width of the cell compared to the width of the table.
+
+## TableProperties
+TableProperties are used to assign various properties that are associated with the TableComposer.
+| Method/Properties              | Usage         |
+| ------------------------------ |:-------------:|
+| borderColor                    | The color of the border lines used to draw the table |
+| borderWidth                    | The width of the border lines used to draw the table |
+| drawBorder                     | Whether to draw the border or not |
+
+
+*__Sample__*:
+~~~
+val rows = LinkedList<LinkedList<Cell>>().apply {
+
+    //Row - 1
+    add(LinkedList<Cell>().apply {
+
+        //Column - 1
+        add(TextCell("Hello World", TextProperties().apply {
+            textSize = 12
+            textColor = "#000000"
+        }, Cell.MATCH_PARENT))
+    })
+
+    //Row - 2
+    add(LinkedList<Cell>().apply {
+
+        //Column - 1
+        add(TextCell("Text Cell", TextProperties().apply {
+            textSize = 12
+            textColor = "#000000"
+        }, simplyPdfDocument.usablePageWidth/2))
+
+        //Column - 2
+        add(ImageCell(bitmap, ImageProperties(), simplyPdfDocument.usablePageWidth/2))
+    })
+}
+
+simplyPdfDocument.table.draw(rows, TableProperties().apply {
+    borderColor = "#000000"
+    borderWidth = 1
+    drawBorder = true
+})
+~~~
+
+
+## Generating the PDF
+Once all the content are written, the developer needs to be call finish() on SimplyPdfDocument.
 ~~~
 simplyPdfDocument.finish();
-~~~  
-This would generate the document in the given path.  
+~~~
+This would generate the document in the given path.
 
-## Generating from JSON  
-There is a defined structure which can be used to generate the PDF document. In here no Composers are required. The library does everything internally based on the JSON provided. Consider the below example:  
-~~~  
+## Generating from JSON
+There is a defined structure which can be used to generate the PDF document. In here no Composers are required. The library does everything internally based on the JSON provided. Consider the below example:
+~~~
 {
-  "contents" : [
-    {
-      "type" : "text",
-      "content" : "SimplyPdf developer, Soumya Kanti Kar",
-      "properties" : {
-        "size" : 24,
-        "color" : "#000000",
-        "underline" : true,
-        "strikethrough" : false
-      }
-    },
-    {
-      "type" : "image",
-      "imageurl" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4"
-    },
-    {
-      "type" : "shape",
-      "shape" : "circle",
-      "radius" : 50,
-      "properties" : {
-        "linecolor" : "#000000",
-        "linewidth" : 1,
-        "shouldfill" : true
-      }
-    },
-    {
-      "type" : "shape",
-      "shape" : "box",
-      "width" : 100,
-      "height" : 50,
-      "properties" : {
-        "linecolor" : "#000000",
-        "linewidth" : 1,
-        "shouldfill" : true
-      }
-    },
-    {
-      "type" : "newpage"
-    },
-    {
-      "type" : "shape",
-      "shape" : "freeform",
-      "points" : [
+    "page" : [
         {
-          "line" : [0,0]
-        },
-        {
-          "line" : [100, 0]
-        },
-        {
-          "line" : [100,100]
-        },
-        {
-          "line" : [0,0]
-        }
-      ],
-      "properties" : {
-        "linecolor" : "#FF0000",
-        "linewidth" : 4,
-        "shouldfill" : true
-      }
-    },
-    {
-      "type" : "space",
-      "height" : 25
-    },
-    {
-      "type" : "table",
-      "contents" : [
-        {
-          "row" : [
-            {
-              "type" : "text",
-              "content" : "Version",
-              "width" : 50,
-              "properties" : {
-                "size" : 12,
-                "color" : "#000000",
-                "underline" : false,
-                "strikethrough" : false
-              }
+            "type" : "setup",
+            "margin" : {
+                "start" : 125,
+                "top" : 125,
+                "end" : 125,
+                "bottom" : 125
             },
-            {
-              "type" : "text",
-              "content" : "1.1.0",
-              "width" : 50,
-              "properties" : {
-                "size" : 12,
-                "color" : "#000000",
-                "underline" : false,
-                "strikethrough" : false
-              }
-            }
-          ]
+            "backgroundcolor" : "#C8C8C8"
         },
         {
-          "row" : [
-            {
-              "type" : "text",
-              "content" : "Source code is available in GitHub",
-              "width" : 100,
-              "properties" : {
-                "size" : 18,
-                "color" : "#0000FF",
-                "underline" : false,
-                "strikethrough" : false
-              }
-            }
-          ]
+            "type" : "header",
+            "contents" : [
+                {
+                    "type" : "text",
+                    "content" : "Simplypdf",
+                    "properties" : {
+                        "size" : 24,
+                        "color" : "#000000",
+                        "underline" : false,
+                        "strikethrough" : false,
+                        "alignment" : "ALIGN_CENTER"
+                    }
+                },
+                {
+                    "type" : "text",
+                    "content" : "Version 2.0",
+                    "properties" : {
+                        "size" : 20,
+                        "color" : "#000000",
+                        "underline" : true,
+                        "strikethrough" : false,
+                        "alignment" : "ALIGN_CENTER"
+                    }
+                }
+            ]
         }
-      ],
-      "properties" : {
-        "width" : 1,
-        "color" : "#000000"
-      }
-    }
-  ]
+    ],
+    "contents" : [
+        {
+            "type" : "text",
+            "content" : "Simplypdf developed by Soumya Kanti Kar",
+            "properties" : {
+                "size" : 24,
+                "color" : "#000000",
+                "underline" : true,
+                "strikethrough" : false
+            }
+        },
+        {
+            "type" : "image",
+            "source" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4",
+            "format" : "url"
+        },
+        {
+            "type" : "text",
+            "content" : "Source code published in GitHub",
+            "properties" : {
+                "size" : 20,
+                "color" : "#000000",
+                "underline" : true,
+                "strikethrough" : false
+            }
+        },
+        {
+            "type" : "shape",
+            "shape" : "circle",
+            "radius" : 50,
+            "properties" : {
+                "linecolor" : "#000000",
+                "linewidth" : 1,
+                "shouldfill" : true
+            }
+        },
+        {
+            "type" : "shape",
+            "shape" : "box",
+            "width" : 50,
+            "height" : 50,
+            "properties" : {
+                "linecolor" : "#000000",
+                "linewidth" : 1,
+                "shouldfill" : true
+            }
+        },
+        {
+            "type" : "newpage"
+        },
+        {
+            "type" : "space",
+            "height" : 25
+        },
+        {
+            "type" : "table",
+            "contents" : [
+                {
+                    "row" : [
+                        {
+                            "type" : "text",
+                            "content" : "Version",
+                            "width" : 50,
+                            "properties" : {
+                                "size" : 24,
+                                "color" : "#000000",
+                                "underline" : true,
+                                "strikethrough" : false
+                            }
+                        },
+                        {
+                            "type" : "text",
+                            "content" : "2.0.0",
+                            "width" : 50,
+                            "properties" : {
+                                "size" : 24,
+                                "color" : "#000000",
+                                "underline" : true,
+                                "strikethrough" : false
+                            }
+                        }
+                    ]
+                },
+                {
+                    "row" : [
+                        {
+                            "type" : "text",
+                            "content" : "Source Code Available in GitHub",
+                            "width" : 100,
+                            "properties" : {
+                                "size" : 24,
+                                "color" : "#000000",
+                                "underline" : true,
+                                "strikethrough" : false
+                            }
+                        }
+                    ]
+                }
+            ],
+            "properties" : {
+                "width" : 1,
+                "color" : "#000000"
+            }
+        }
+    ]
 }
-~~~  
+~~~
 
-To use the above JSON to generate the PDF we need to just call:  
-~~~  
-SimplyPdfDocument simplyPdfDocument = SimplyPdf.with(this, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test_json.pdf"))
+To use the above JSON to generate the PDF we need to just call:
+~~~
+val simplyPdfDocument = SimplyPdf.with(context,
+        File(Environment.getExternalStorageDirectory().absolutePath + "/json_to_pdf.pdf"))
     .colorMode(DocumentInfo.ColorMode.COLOR)
     .paperSize(PrintAttributes.MediaSize.ISO_A4)
-    .margin(DocumentInfo.Margins.DEFAULT)
+    .margin(Margin(start, top, end, bottom))
     .paperOrientation(DocumentInfo.Orientation.PORTRAIT)
-    .build();
+    .build()
 
-final DisposableObserver<Boolean> disposableObserver = SimplyPdf.use(this, simplyPdfDocument, jsonPayload)
-    .observeOn(AndroidSchedulers.mainThread())
-    .subscribeOn(Schedulers.io())
-    .subscribeWith(new DisposableObserver<Boolean>() {
-        @Override
-        public void onNext(Boolean aBoolean) {
-            Toast.makeText(MainActivity.this, "Success: " + aBoolean, Toast.LENGTH_SHORT).show();
-        }
+val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    Log.e(MainActivity::class.java.simpleName, "JSON to PDF exception.", throwable)
+}
 
-        @Override
-        public void onError(Throwable e) {
-            Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onComplete() {
-            //
-        }
-    });
+CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
+    SimplyPdf.usingJson(context, simplyPdfDocument, JSONStruct.payload)
+    withContext(Dispatchers.Main) {
+        Toast.makeText(context, "JSON to PDF Completed", Toast.LENGTH_SHORT).show()
+    }
+}
 ~~~  
 
 This will generate the PDF. This JSON contains all the supported properties for each for the properties for the supported composers. 

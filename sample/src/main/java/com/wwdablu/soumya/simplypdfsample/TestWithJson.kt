@@ -30,7 +30,7 @@ class TestWithJson {
         }
 
         CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
-            SimplyPdf.Companion.usingJson(context, simplyPdfDocument, JSONStruct.payload)
+            SimplyPdf.usingJson(context, simplyPdfDocument, JSONStruct.payload)
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "JSON to PDF Completed", Toast.LENGTH_SHORT).show()
             }

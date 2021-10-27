@@ -10,10 +10,9 @@ import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 
 const val BULLET_SPACING = 10
+const val BOTTOM_SPACING = 5
 
 class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
-
-    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
 
     override fun getTypeHandler(): String = "text"
 
@@ -55,7 +54,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
               cell: Cell?,
               performDraw: Boolean) : Int {
 
-        textPaint.apply {
+        val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor(properties.textColor)
             textSize = properties.textSize.toFloat()
             typeface = properties.typeface
@@ -106,12 +105,13 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         val finalContentHeight = staticLayout.height + textLineSpacing + yMargin
         if (performDraw) {
-            if (!isCellContent) {
-                simplyPdfDocument.addContentHeight(finalContentHeight)
-            }
             staticLayout.draw(pageCanvas)
         }
         pageCanvas.restore()
+
+        if(performDraw && !isCellContent) {
+            simplyPdfDocument.addContentHeight(finalContentHeight + BOTTOM_SPACING)
+        }
 
         //After every write remove the flags. Will be set again for the next write call
         setTextPaintProperties(textPaint, Paint.UNDERLINE_TEXT_FLAG, false)

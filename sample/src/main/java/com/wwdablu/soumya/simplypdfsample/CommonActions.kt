@@ -1,6 +1,9 @@
 package com.wwdablu.soumya.simplypdfsample
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Environment
 import android.print.PrintAttributes
 import android.text.Layout
@@ -8,7 +11,6 @@ import android.widget.Toast
 import com.wwdablu.soumya.simplypdf.SimplyPdf
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.Composer
-import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
@@ -62,10 +64,17 @@ abstract class CommonActions(protected val context: Context) {
 
     protected inner class HeaderLinePageModifier : PageModifier() {
         override fun render(simplyPdfDocument: SimplyPdfDocument) {
-            simplyPdfDocument.shape.drawBox(simplyPdfDocument.usablePageWidth.toFloat(), 2F, ShapeProperties().apply {
-                lineColor = "#000000"
-                alignment = Composer.Alignment.CENTER
-            })
+            simplyPdfDocument.apply {
+                val rect = RectF(startMargin.toFloat(), pageContentHeight.toFloat(), usablePageWidth.toFloat() + endMargin,
+                    (pageContentHeight + 1).toFloat())
+
+                currentPage.canvas.drawRect(rect, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.BLACK
+                }
+                )
+
+                addContentHeight(rect.height().toInt())
+            }
             simplyPdfDocument.insertEmptySpace(25)
         }
     }

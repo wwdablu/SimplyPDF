@@ -31,9 +31,6 @@ internal class SimplyJson(private val context: Context, private val payload: Str
             ImageConverter(context, simplyPdfDocument).apply {
                 map[getTypeHandler()] = this
             }
-            ShapeConverter(simplyPdfDocument).apply {
-                map[getTypeHandler()] = this
-            }
             TableConverter(simplyPdfDocument).apply {
                 map[getTypeHandler()] = this
             }

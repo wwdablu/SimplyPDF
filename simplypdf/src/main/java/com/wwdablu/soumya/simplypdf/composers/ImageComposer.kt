@@ -84,9 +84,9 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
         val isCellContent: Boolean = cell != null
 
         bitmap = if(cell == null) {
-            scaleIfNeeded(bitmap, simplyPdfDocument.usablePageWidth, simplyPdfDocument.usablePageHeight - simplyPdfDocument.pageContentHeight)
+            scaleIfNeeded(bitmap, simplyPdfDocument.usablePageWidth)
         } else {
-            scaleIfNeeded(bitmap, cell.getCellWidth() - (xMargin * 2), cell.getCellHeight())
+            scaleIfNeeded(bitmap, cell.getCellWidth() - (xMargin * 2))
         }
 
         val xTranslate = if(cell == null) {
@@ -105,39 +105,35 @@ class ImageComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyP
         canvas.save()
         canvas.translate((if(isCellContent) 0 else simplyPdfDocument.startMargin) +
                 (xTranslate + xShift + xMargin).toFloat(),
-            (if(isCellContent) 0 else simplyPdfDocument.startMargin) +
-                    (simplyPdfDocument.pageContentHeight + yMargin).toFloat())
+            (if(isCellContent) (cell!!.getCellHeight() - bitmap.height)/2 - (yMargin) else 0) + (simplyPdfDocument.pageContentHeight + yMargin).toFloat())
 
         canvas.drawBitmap(bitmap, Matrix(), bitmapPainter)
-        if(!isCellContent) {
-            simplyPdfDocument.addContentHeight(bitmap.height + bmpSpacing)
-        }
-
         if(bitmap != bmp) {
             bitmap.recycle()
         }
         canvas.restore()
+
+        if(!isCellContent) {
+            simplyPdfDocument.addContentHeight(bitmap.height + bmpSpacing + (yMargin * 2))
+        }
     }
 
-    internal fun getScaledDimension(bitmap: Bitmap, width: Int, height: Int) : Pair<Int, Int> {
+    internal fun getScaledDimension(bitmap: Bitmap, toWidth: Int) : Pair<Int, Int> {
 
         //Check whether the original bitmap is within the bounds needed
-        if(bitmap.width <= width && bitmap.height <= height) return Pair(bitmap.width, bitmap.height)
+        if(bitmap.width <= toWidth) return Pair(bitmap.width, bitmap.height)
 
-        val widthFactor: Float = bitmap.width.toFloat() / width
-        val heightFactor: Float = bitmap.height.toFloat() / height
-
-        val useFactor = widthFactor.coerceAtLeast(heightFactor)
+        val useFactor: Float = bitmap.width.toFloat() / toWidth
 
         return Pair((bitmap.width / useFactor).toInt(), (bitmap.height / useFactor).toInt())
     }
 
-    private fun scaleIfNeeded(bitmap: Bitmap, width: Int, height: Int) : Bitmap {
+    private fun scaleIfNeeded(bitmap: Bitmap, width: Int) : Bitmap {
 
-        val dimension = getScaledDimension(bitmap, width, height)
+        val dimension = getScaledDimension(bitmap, width)
 
         //Check whether scaling is needed or not
-        if(bitmap.width <= width && bitmap.height <= height) return bitmap
+        if(bitmap.width <= width) return bitmap
 
         return Bitmap.createScaledBitmap(bitmap, dimension.first, dimension.second, true)
     }

@@ -158,11 +158,12 @@ class TestTableComposer(context: Context) : CommonActions(context) {
 
         //Try to fit a bit image within a small table
         rows.clear()
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val bigImage = withContext(Dispatchers.IO) {
                 Glide.with(context)
                     .asBitmap()
                     .load("https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4")
+                    .timeout(30 * 1000)
                     .submit()
                     .get()
             }

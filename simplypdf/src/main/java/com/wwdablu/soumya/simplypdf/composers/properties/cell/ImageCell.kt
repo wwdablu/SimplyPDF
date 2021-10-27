@@ -11,7 +11,7 @@ class ImageCell(private val bitmap: Bitmap,
         return if(!isDocumentSet()) {
             0
         } else {
-            simplyPdfDocument.image.getScaledDimension(bitmap, width, bitmap.height).second + (yMargin * 2)
+            simplyPdfDocument.image.getScaledDimension(bitmap, getCellWidth()).second + (yMargin * 2)
         }
     }
 

@@ -9,7 +9,6 @@ import android.print.PrintAttributes
 import android.print.pdf.PrintedPdfDocument
 import androidx.annotation.ColorInt
 import com.wwdablu.soumya.simplypdf.composers.ImageComposer
-import com.wwdablu.soumya.simplypdf.composers.ShapeComposer
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
 import com.wwdablu.soumya.simplypdf.composers.TextComposer
 import com.wwdablu.soumya.simplypdf.document.DocumentInfo
@@ -36,7 +35,6 @@ class SimplyPdfDocument internal constructor(
         }
 
     val text: TextComposer by lazy { TextComposer(this) }
-    val shape: ShapeComposer by lazy { ShapeComposer(this) }
     val image: ImageComposer by lazy { ImageComposer(this) }
     val table: TableComposer by lazy { TableComposer(this) }
 

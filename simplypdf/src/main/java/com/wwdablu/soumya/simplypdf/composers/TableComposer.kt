@@ -37,11 +37,11 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
                 }
             }
 
-            simplyPdfDocument.addContentHeight(largestHeight)
-
             if(properties.drawBorder) {
                 drawBorders(pageCanvas, largestHeight.toFloat(), rowCellList, properties)
             }
+
+            simplyPdfDocument.addContentHeight(largestHeight)
         }
     }
 
@@ -64,7 +64,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
         canvas.save()
         canvas.translate(simplyPdfDocument.startMargin.toFloat(),
-            (simplyPdfDocument.pageContentHeight - maxHeight))
+            simplyPdfDocument.pageContentHeight.toFloat())
 
         for ((colIndex, cell) in rowCellList.withIndex()) {
 

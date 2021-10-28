@@ -10,23 +10,11 @@ import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
 
 const val BULLET_SPACING = 10
+const val BOTTOM_SPACING = 5
 
 class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPdfDocument) {
 
-    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-
     override fun getTypeHandler(): String = "text"
-
-    /**
-     * Draws text on the canvas with the provided params
-     *
-     * @param text Text to draw
-     * @param properties TextProperties to use
-     */
-    fun write(text: String, properties: TextProperties) {
-        write(text, properties, simplyPdfDocument.usablePageWidth, 0,
-            0, 0, null, true)
-    }
 
     /**
      * Draws text on the canvas with the provided params
@@ -38,10 +26,10 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
      * @param yMargin Margin to be provided on the Y-axis on both the sides
      */
     fun write(text: String,
-                       properties: TextProperties,
-                       pageWidth: Int,
-                       xMargin: Int,
-                       yMargin: Int) {
+              properties: TextProperties,
+              pageWidth: Int = simplyPdfDocument.usablePageWidth,
+              xMargin: Int = 0,
+              yMargin: Int = 0) {
 
         write(text, properties, pageWidth, xMargin, yMargin, 0, null, true)
     }
@@ -66,7 +54,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
               cell: Cell?,
               performDraw: Boolean) : Int {
 
-        textPaint.apply {
+        val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor(properties.textColor)
             textSize = properties.textSize.toFloat()
             typeface = properties.typeface
@@ -76,7 +64,7 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         var bulletMarker: StaticLayout? = null
         val isCellContent: Boolean = cell != null
 
-        if (properties.isBullet) {
+        if (properties.bulletSymbol?.let { it.isNotBlank() && it.isNotEmpty() } == true) {
             bulletMarker = StaticLayout.Builder.obtain(properties.getBulletSymbol(), 0, 0, textPaint,
                 simplyPdfDocument.usablePageWidth)
                 .setText(properties.getBulletSymbol())
@@ -117,12 +105,13 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
 
         val finalContentHeight = staticLayout.height + textLineSpacing + yMargin
         if (performDraw) {
-            if (!isCellContent) {
-                simplyPdfDocument.addContentHeight(finalContentHeight)
-            }
             staticLayout.draw(pageCanvas)
         }
         pageCanvas.restore()
+
+        if(performDraw && !isCellContent) {
+            simplyPdfDocument.addContentHeight(finalContentHeight + BOTTOM_SPACING)
+        }
 
         //After every write remove the flags. Will be set again for the next write call
         setTextPaintProperties(textPaint, Paint.UNDERLINE_TEXT_FLAG, false)

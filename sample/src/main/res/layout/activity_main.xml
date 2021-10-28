@@ -27,15 +27,6 @@
     <androidx.appcompat.widget.AppCompatButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_shape_test"
-        android:paddingTop="16dp"
-        android:textAllCaps="false"
-        android:text="@string/test_shape_composer"
-        />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/btn_table_test"
         android:paddingTop="16dp"
         android:textAllCaps="false"

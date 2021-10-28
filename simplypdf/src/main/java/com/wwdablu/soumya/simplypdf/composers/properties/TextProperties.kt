@@ -17,10 +17,6 @@ class TextProperties : UnitComposer.Properties() {
     var textSize = 10
 
     @kotlin.jvm.JvmField
-    @SerializedName("isBullet")
-    var isBullet: Boolean = false
-
-    @kotlin.jvm.JvmField
     @SerializedName("bulletSymbol")
     var bulletSymbol: String? = ""
 
@@ -35,15 +31,16 @@ class TextProperties : UnitComposer.Properties() {
     @kotlin.jvm.JvmField
     var typeface: Typeface? = null
 
-    @kotlin.jvm.JvmField
     var alignment: Layout.Alignment? = Layout.Alignment.ALIGN_NORMAL
-
-    fun getAlignment(): Layout.Alignment? {
-        if (alignment == null) {
-            alignment = Layout.Alignment.ALIGN_NORMAL
-        }
-        return alignment
-    }
+     set(value) {
+         field = value ?: Layout.Alignment.ALIGN_NORMAL
+     }
+     get() {
+         if (field == null) {
+             field = Layout.Alignment.ALIGN_NORMAL
+         }
+         return field
+     }
 
     fun getBulletSymbol(): String {
 

@@ -42,17 +42,15 @@ class TestTextComposer(context: Context) : CommonActions(context) {
         //Text with bullet
         properties.textColor = "#000000"
         properties.bulletSymbol = "•"
-        properties.isBullet = true
         simplyPdfDocument.text.write("Text with bullet mark at the start", properties)
         simplyPdfDocument.text.write("Text with bullet mark at the start 2nd line", properties)
 
-        properties.isBullet = false
+        properties.bulletSymbol = ""
         simplyPdfDocument.text.write("Normal text after bullets", properties)
         simplyPdfDocument.text.write("Normal text 2nd line", properties)
 
         //Text with alignments
         properties.alignment = Layout.Alignment.ALIGN_NORMAL
-        properties.isBullet = false
         simplyPdfDocument.text.write("Normal text alignment", properties)
 
         properties.alignment = Layout.Alignment.ALIGN_CENTER

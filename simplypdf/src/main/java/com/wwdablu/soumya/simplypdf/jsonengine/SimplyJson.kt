@@ -31,9 +31,6 @@ internal class SimplyJson(private val context: Context, private val payload: Str
             ImageConverter(context, simplyPdfDocument).apply {
                 map[getTypeHandler()] = this
             }
-            ShapeConverter(simplyPdfDocument).apply {
-                map[getTypeHandler()] = this
-            }
             TableConverter(simplyPdfDocument).apply {
                 map[getTypeHandler()] = this
             }
@@ -112,7 +109,11 @@ internal class SimplyJson(private val context: Context, private val payload: Str
 
         for (index in 0 until contentArray.length()) {
             val compose: JSONObject = contentArray.getJSONObject(index) ?: continue
-            composerConverters[compose.getString(Node.TYPE).lowercase()]?.generate(compose)
+
+            val type = compose.getString(Node.TYPE).lowercase()
+            if(composerConverters.containsKey(type)) {
+                composerConverters[type]?.generate(compose)
+            }
         }
     }
 }

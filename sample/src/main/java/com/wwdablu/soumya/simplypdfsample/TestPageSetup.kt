@@ -10,8 +10,8 @@ import android.print.PrintAttributes
 import android.text.Layout
 import com.wwdablu.soumya.simplypdf.SimplyPdf
 import com.wwdablu.soumya.simplypdf.composers.Composer
+import com.wwdablu.soumya.simplypdf.composers.TextComposer
 import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
-import com.wwdablu.soumya.simplypdf.composers.properties.ShapeProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
@@ -77,23 +77,6 @@ class TestPageSetup(context: Context) : CommonActions(context) {
                 textColor = "#000000"
                 alignment = Layout.Alignment.ALIGN_OPPOSITE
             })
-
-        simplyPdfDocument.shape.drawBox(100f, 100f, ShapeProperties().apply {
-            shouldFill = true
-            lineColor = "#000000"
-        })
-
-        simplyPdfDocument.shape.drawBox(100f, 100f, ShapeProperties().apply {
-            shouldFill = true
-            lineColor = "#000000"
-            alignment = Composer.Alignment.CENTER
-        })
-
-        simplyPdfDocument.shape.drawBox(100f, 100f, ShapeProperties().apply {
-            shouldFill = true
-            lineColor = "#000000"
-            alignment = Composer.Alignment.END
-        })
 
         drawPageMargins()
 

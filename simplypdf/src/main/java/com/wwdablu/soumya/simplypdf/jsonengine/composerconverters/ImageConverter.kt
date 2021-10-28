@@ -21,7 +21,6 @@ internal class ImageConverter(private val context: Context, simplyPdfDocument: S
             .submit()
             .get()
         simplyPdfDocument.image.drawBitmap(bitmap, imageProperties)
-        bitmap.recycle()
     }
 
     override fun getTypeHandler(): String = "image"

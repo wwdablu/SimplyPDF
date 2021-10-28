@@ -1,10 +1,13 @@
 package com.wwdablu.soumya.simplypdf.jsonengine.composerconverters
 
+import com.bumptech.glide.Glide
 import com.wwdablu.soumya.simplypdf.SimplyPdfDocument
 import com.wwdablu.soumya.simplypdf.composers.TableComposer
+import com.wwdablu.soumya.simplypdf.composers.properties.ImageProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TableProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.TextProperties
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.Cell
+import com.wwdablu.soumya.simplypdf.composers.properties.cell.ImageCell
 import com.wwdablu.soumya.simplypdf.composers.properties.cell.TextCell
 import com.wwdablu.soumya.simplypdf.jsonengine.Node
 import com.wwdablu.soumya.simplypdf.jsonengine.base.ComposerConverter
@@ -56,6 +59,15 @@ internal class TableConverter(simplyPdfDocument: SimplyPdfDocument) : ComposerCo
                     jsonObject.getString(Node.COMPOSER_TEXT_CONTENT), colTextProperties,
                         composer.resolveCellWidth(widthPercent)
                 )
+            }
+            Node.TYPE_IMAGE -> {
+                val colImageProperties: ImageProperties = getProperties(jsonObject, Node.TYPE_PROPERTIES)
+                val bitmap = Glide.with(simplyPdfDocument.context)
+                    .asBitmap()
+                    .load(jsonObject.getString(Node.COMPOSER_IMAGE_SOURCE))
+                    .submit()
+                    .get()
+                ImageCell(bitmap, colImageProperties, composer.resolveCellWidth(widthPercent))
             }
             else -> {
                 TextCell("", TextProperties().apply { textSize = 0 },

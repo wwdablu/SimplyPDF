@@ -200,6 +200,9 @@ There is a defined structure which can be used to generate the PDF document. In 
 ~~~
 {
     "page" : [
+    {
+        "type" : "world"
+    },
         {
             "type" : "setup",
             "margin" : {
@@ -251,8 +254,7 @@ There is a defined structure which can be used to generate the PDF document. In 
         },
         {
             "type" : "image",
-            "source" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4",
-            "format" : "url"
+            "source" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4"
         },
         {
             "type" : "text",
@@ -265,32 +267,11 @@ There is a defined structure which can be used to generate the PDF document. In 
             }
         },
         {
-            "type" : "shape",
-            "shape" : "circle",
-            "radius" : 50,
-            "properties" : {
-                "linecolor" : "#000000",
-                "linewidth" : 1,
-                "shouldfill" : true
-            }
-        },
-        {
-            "type" : "shape",
-            "shape" : "box",
-            "width" : 50,
-            "height" : 50,
-            "properties" : {
-                "linecolor" : "#000000",
-                "linewidth" : 1,
-                "shouldfill" : true
-            }
-        },
-        {
             "type" : "newpage"
         },
         {
             "type" : "space",
-            "height" : 25
+            "height" : 125
         },
         {
             "type" : "table",
@@ -333,6 +314,15 @@ There is a defined structure which can be used to generate the PDF document. In 
                                 "underline" : true,
                                 "strikethrough" : false
                             }
+                        }
+                    ]
+                },
+                {
+                    "row" : [
+                        {
+                            "type" : "image",
+                            "type" : "image",
+                            "source" : "https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4"
                         }
                     ]
                 }

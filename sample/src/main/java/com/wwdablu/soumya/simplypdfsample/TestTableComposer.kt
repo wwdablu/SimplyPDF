@@ -22,10 +22,12 @@ class TestTableComposer(context: Context) : CommonActions(context) {
 
     init {
         createSimplyPdfDocument()
-        testTableComposer()
+        CoroutineScope(Dispatchers.Main).launch {
+            testTableComposer()
+        }
     }
 
-    private fun testTableComposer() {
+    private suspend fun testTableComposer() {
 
         val properties = TableProperties().apply {
             borderColor = "#000000"
@@ -158,28 +160,24 @@ class TestTableComposer(context: Context) : CommonActions(context) {
 
         //Try to fit a bit image within a small table
         rows.clear()
-        CoroutineScope(Dispatchers.IO).launch {
-            val bigImage = withContext(Dispatchers.IO) {
-                Glide.with(context)
-                    .asBitmap()
-                    .load("https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4")
-                    .timeout(30 * 1000)
-                    .submit()
-                    .get()
-            }
-
-            withContext(Dispatchers.Main) {
-                rows.add(LinkedList<Cell>().apply {
-                    add(ImageCell(bigImage, ImageProperties(), halfWidth/3))
-                })
-
-                rows.add(LinkedList<Cell>().apply {
-                    add(ImageCell(bigImage, ImageProperties(), Cell.MATCH_PARENT))
-                })
-
-                simplyPdfDocument.table.draw(rows, properties)
-                finishDoc()
-            }
+        val bigImage = withContext(Dispatchers.IO) {
+            Glide.with(context)
+                .asBitmap()
+                .load("https://avatars0.githubusercontent.com/u/28639189?s=400&u=bd9a720624781e17b9caaa1489345274c07566ac&v=4")
+                .timeout(30 * 1000)
+                .submit()
+                .get()
         }
+
+        rows.add(LinkedList<Cell>().apply {
+            add(ImageCell(bigImage, ImageProperties(), halfWidth/3))
+        })
+
+        rows.add(LinkedList<Cell>().apply {
+            add(ImageCell(bigImage, ImageProperties(), Cell.MATCH_PARENT))
+        })
+
+        simplyPdfDocument.table.draw(rows, properties)
+        finishDoc()
     }
 }

@@ -1,10 +1,12 @@
 package com.wwdablu.soumya.simplypdfsample
 
 import android.Manifest
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wwdablu.soumya.simplypdfsample.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,10 +36,6 @@ class MainActivity : AppCompatActivity() {
             TestImageComposer(this)
         }
 
-        binding.btnShapeTest.setOnClickListener {
-            TestShapeComposer(this)
-        }
-
         binding.btnTableTest.setOnClickListener {
             TestTableComposer(this)
         }
@@ -49,10 +48,8 @@ class MainActivity : AppCompatActivity() {
             TestPageSetup(this)
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (!hasPermission()) {
+            if (SDK_INT >= Build.VERSION_CODES.R) {
                 try {
                     val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
                         addCategory("android.intent.category.DEFAULT")
@@ -73,6 +70,14 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             return
+        }
+    }
+
+    private fun hasPermission() : Boolean {
+        return if (SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
     }
 

@@ -1,5 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion 30
@@ -24,6 +27,9 @@ android {
     buildFeatures {
         viewBinding true
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
@@ -41,7 +47,4 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
     implementation project(':simplypdf')
-}
-repositories {
-    mavenCentral()
 }

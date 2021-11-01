@@ -35,7 +35,7 @@ will get added everytime a new page is added to the document.
 
 Following are the methods provided by the SimplyPdfDocument for use.
 | Method/Properties                                       | Usage         |
-| ------------------------------------------------------- |:-------------:|
+| ------------------------------------------------------- |-------------|
 | insertEmptyLines(LineCount)                             | Inserts number of empty lines in the document |
 | insertEmptySpace(Height)                                | Inserts an empty content of the specified height |
 | newPage(Color)                                          | Inserts a new page with the specific background color. Default: White |
@@ -58,7 +58,6 @@ Following are the methods provided by the SimplyPdfDocument for use.
 ## Composers
 The classes which are responsible for drawing content onto the PDF are called Composers in this library. Currently these are the supported composers:
 * TextComposer
-* ShapeComposer
 * ImageComposer
 * TableComposer
 These composers allow the developer to write text, draw shapes and bitmaps on the PDF document.
@@ -68,7 +67,7 @@ To create a custom composer, one needs to extend the UnitComposer class.
 ## TextComposer
 TextComposer is used to perform Text operations on the document.
 | Method/Properties                                               | Usage         |
-| --------------------------------------------------------------- |:-------------:|
+| --------------------------------------------------------------- |-------------|
 | write(String, TextProperties, PageWidth, xMargin, yMargin)      | Writes the text with the specified width by applying the margins. |
 
 PageWidth has a default value set to usablePageWidth.
@@ -79,7 +78,7 @@ yMargin by default is set to 0.
 ## TextProperties
 TextProperties are used to assign various properties that are associated with the TextComposer.
 | Method/Properties              | Usage         |
-| ------------------------------ |:-------------:|
+| ------------------------------ |-------------|
 | textSize                       | Set the size of the text to be displayed |
 | textColor                      | Set the color of the text to be displayed with |
 | typeface                       | Typeface to be used to display the text content |
@@ -102,7 +101,7 @@ simplyPdfDocument.text.write("Hello World", TextProperties().apply {
 ## ImageComposer
 ImageComposer is used to perform bitmap rendering or draw operations on the document.
 | Method/Properties                                               | Usage         |
-| --------------------------------------------------------------- |:-------------:|
+| --------------------------------------------------------------- |-------------|
 | drawBitmap(Bitmap, ImageProperties, xMargin, yMargin)           | Draws the bitmap with the given properties and margins. |
 | drawFromUrl(String, Context, ImageProperties, xMargin, yMargin) | Downloads the image from the URL and draws the bitmap. |
 
@@ -115,7 +114,7 @@ library recycle() will not be called on them.
 ## ImageProperties
 ImageProperties are used to assign various properties that are associated with the ImageComposer.
 | Method/Properties              | Usage         |
-| ------------------------------ |:-------------:|
+| ------------------------------ |-------------|
 | alignment                      | Alignment of the center like Start, Center, End |
 
 
@@ -132,7 +131,7 @@ TableComposer is used to draw tables and show text and image contents inside it.
 to render the contents. The library provides support for TextCell to draw texts and ImageCell to draw
 bitmaps inside the table cell.
 | Method/Properties                                               | Usage         |
-| --------------------------------------------------------------- |:-------------:|
+| --------------------------------------------------------------- |-------------|
 | draw(LinkedList<LinkedList<Cell>>)                              | Draws the cells in row and columns |
 
 *__TextCell__*:
@@ -146,7 +145,7 @@ width of the cell compared to the width of the table.
 ## TableProperties
 TableProperties are used to assign various properties that are associated with the TableComposer.
 | Method/Properties              | Usage         |
-| ------------------------------ |:-------------:|
+| ------------------------------ |-------------|
 | borderColor                    | The color of the border lines used to draw the table |
 | borderWidth                    | The width of the border lines used to draw the table |
 | drawBorder                     | Whether to draw the border or not |
@@ -358,4 +357,4 @@ CoroutineScope(Dispatchers.IO).launch(exceptionHandler) {
 }
 ~~~  
 
-This will generate the PDF. This JSON contains all the supported properties for each for the properties for the supported composers. 
+This will generate the PDF with the provided JSON.

@@ -80,6 +80,13 @@ class TestTextComposer(context: Context) : CommonActions(context) {
                 "This text is written keeping the page width as half.",
             properties, simplyPdfDocument.usablePageWidth/2, 0, 50)
 
+        simplyPdfDocument.text.writeAtPosition(
+            "Text at absolute position x = 60, y = 450",
+            properties,
+            xShift = 60,
+            yShift = 450
+        )
+
         simplyPdfDocument.text.write("Complete", properties.apply { textSize = 12 })
     }
 }

@@ -120,6 +120,45 @@ class TextComposer(simplyPdfDocument: SimplyPdfDocument) : UnitComposer(simplyPd
         return finalContentHeight
     }
 
+    /**
+     * Draws text on the canvas with the provided params
+     *
+     * @param text Text to draw
+     * @param properties TextProperties to use
+     * @param pageWidth Width to consider when rendering the text
+     * @param xShift offset from the start of the page on the X-axis
+     * @param yShift offset from the top of the page on the Y-axis
+     */
+    fun writeAtPosition(text: String,
+                        properties: TextProperties,
+                        pageWidth: Int = simplyPdfDocument.usablePageWidth,
+                        xShift: Int = 0,
+                        yShift: Int = 0
+    ) : Int {
+
+        val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor(properties.textColor)
+            textSize = properties.textSize.toFloat()
+            typeface = properties.typeface
+        }
+
+        val staticLayout = StaticLayout.Builder.obtain(text, 0, 0, textPaint, pageWidth)
+            .setText(text)
+            .setAlignment(properties.alignment ?: Layout.Alignment.ALIGN_NORMAL)
+            .setIncludePad(false)
+            .build()
+
+        pageCanvas.save()
+        pageCanvas.translate(xShift.toFloat(), yShift.toFloat())
+
+        setTextPaintProperties(textPaint, Paint.UNDERLINE_TEXT_FLAG, properties.underline)
+        setTextPaintProperties(textPaint, Paint.STRIKE_THRU_TEXT_FLAG, properties.strikethrough)
+
+        staticLayout.draw(pageCanvas)
+        pageCanvas.restore()
+        return staticLayout.height
+    }
+
     private fun setTextPaintProperties(textPaint: TextPaint, flag: Int, enable: Boolean) {
         if (enable) {
             textPaint.flags = textPaint.flags or flag

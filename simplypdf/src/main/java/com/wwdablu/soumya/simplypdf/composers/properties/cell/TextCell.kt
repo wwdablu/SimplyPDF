@@ -10,7 +10,7 @@ class TextCell(private val text: String,
 
         return if(!isDocumentSet()) 0 else
             simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
-                yMargin, 0, this, false)
+                yMargin, 0, cell = this, performDraw = false)
     }
 
     override fun getCellWidth(): Int = if (!isDocumentSet()) 0
@@ -19,13 +19,13 @@ class TextCell(private val text: String,
 
     override fun getContentWidth(): Int {
         return simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
-            yMargin, 0, this, false)
+            yMargin, 0, cell = this, performDraw = false)
     }
 
     override fun render(xTranslate: Int): Boolean {
         if(!isDocumentSet()) return false
 
         return simplyPdfDocument.text.write(text, properties, getCellWidth(), xMargin,
-            yMargin, xTranslate, this, true) != 0
+            yMargin, xTranslate, cell = this, performDraw = true) != 0
     }
 }

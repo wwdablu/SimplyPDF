@@ -40,6 +40,7 @@ class TestTableComposer(context: Context) : CommonActions(context) {
         }
 
         testTableBorders()
+        simplyPdfDocument.newPage()
         testTableAlignment()
 
         val rows = LinkedList<LinkedList<Cell>>()
@@ -189,7 +190,7 @@ class TestTableComposer(context: Context) : CommonActions(context) {
         val properties = TableProperties().apply {
             borderColor = "#000000"
             borderWidth = 1
-            borderStyle = TableProperties.BORDER_OUTER
+            borderStyle = TableProperties.BORDER_INNER
         }
         val textProperties = TextProperties().apply {
             textColor = "#000000"
@@ -216,7 +217,32 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             add(TextCell("E A S Y", textProperties, halfWidth/2))
         })
 
-        simplyPdfDocument.table.draw(rows, properties)
+        simplyPdfDocument.run {
+            properties.borderStyle = TableProperties.BORDER_INNER
+            text.write("Table Inner Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_OUTER
+            text.write("Table Outer Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_HORIZONTAL
+            text.write("Table Horizontal Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_VERTICAL
+            text.write("Table Vertical Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_ALL
+            text.write("Table All Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+        }
     }
 
     private fun testTableAlignment() {

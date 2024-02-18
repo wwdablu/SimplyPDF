@@ -122,6 +122,10 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             return true
         }
 
+        if(prop.borderStyle or TableProperties.BORDER_INNER == TableProperties.BORDER_INNER && colIndex != 0) {
+            return true
+        }
+
         return prop.borderStyle or TableProperties.BORDER_OUTER == TableProperties.BORDER_OUTER &&
                 colIndex == 0
     }
@@ -134,6 +138,11 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
         if(prop.borderStyle or TableProperties.BORDER_ALL == TableProperties.BORDER_ALL ||
             prop.borderStyle or TableProperties.BORDER_VERTICAL == TableProperties.BORDER_VERTICAL) {
+            return true
+        }
+
+        if(prop.borderStyle or TableProperties.BORDER_INNER == TableProperties.BORDER_INNER &&
+            colIndex != colCount - 1) {
             return true
         }
 
@@ -152,6 +161,10 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             return true
         }
 
+        if(prop.borderStyle or TableProperties.BORDER_INNER == TableProperties.BORDER_INNER && rowIndex != 0) {
+            return true
+        }
+
         return prop.borderStyle or TableProperties.BORDER_OUTER == TableProperties.BORDER_OUTER &&
                 rowIndex == 0
     }
@@ -164,6 +177,11 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
         if(prop.borderStyle or TableProperties.BORDER_ALL == TableProperties.BORDER_ALL ||
             prop.borderStyle or TableProperties.BORDER_HORIZONTAL == TableProperties.BORDER_HORIZONTAL) {
+            return true
+        }
+
+        if(prop.borderStyle or TableProperties.BORDER_INNER == TableProperties.BORDER_INNER &&
+            rowIndex != rowCount - 1) {
             return true
         }
 

@@ -21,7 +21,17 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
         var largestHeight: Int
         var rowIndex = 0
-        var rowCount = cellList.size
+        val rowCount = cellList.size
+        var alignTranslate = 0
+
+        //If center aligned is set, then render it
+        if(properties.align == TableProperties.ALIGN_CENTER) {
+            val maxWidth = getMaxWidth(cellList)
+
+            if (maxWidth < simplyPdfDocument.usablePageWidth) {
+                alignTranslate = (simplyPdfDocument.usablePageWidth - maxWidth) / 2
+            }
+        }
 
         cellList.forEach { rowCellList ->
 
@@ -32,7 +42,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
                 simplyPdfDocument.insertEmptyLines(1)
             }
 
-            var bitmapXTranslate = simplyPdfDocument.startMargin
+            var bitmapXTranslate = simplyPdfDocument.startMargin + alignTranslate
             rowCellList.forEach { cell ->
                 cell.apply {
                     render(bitmapXTranslate)
@@ -41,7 +51,8 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
             }
 
             if(properties.drawBorder) {
-                drawBorders(pageCanvas, largestHeight.toFloat(), rowIndex, rowCount, rowCellList, properties)
+                drawBorders(pageCanvas, largestHeight.toFloat(), alignTranslate,
+                    rowIndex, rowCount, rowCellList, properties)
             }
 
             rowIndex++
@@ -61,6 +72,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
     private fun drawBorders(canvas: Canvas,
                             maxHeight: Float,
+                            xTranslate: Int,
                             rowIndex: Int,
                             rowCount: Int,
                             rowCellList: List<Cell>,
@@ -69,7 +81,7 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
         borderPainter.color = Color.parseColor(tableProperties.borderColor)
 
         canvas.save()
-        canvas.translate(simplyPdfDocument.startMargin.toFloat(),
+        canvas.translate(simplyPdfDocument.startMargin.toFloat() + xTranslate,
             simplyPdfDocument.pageContentHeight.toFloat())
 
         var colIndex: Int = 0
@@ -187,5 +199,24 @@ class TableComposer(simplyPdfDocument: SimplyPdfDocument) : GroupComposer(simply
 
         return prop.borderStyle or TableProperties.BORDER_OUTER == TableProperties.BORDER_OUTER &&
                 rowIndex == rowCount - 1
+    }
+
+    private fun getMaxWidth(cellList: List<List<Cell>>) : Int {
+
+        var maxWidth = 0
+
+        cellList.forEach { row ->
+
+            var width = 0
+            row.forEach { item ->
+                width += item.width
+            }
+
+            if(width > maxWidth) {
+                maxWidth = width
+            }
+        }
+
+        return maxWidth
     }
 }

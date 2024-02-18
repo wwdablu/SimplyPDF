@@ -40,8 +40,8 @@ class TestTableComposer(context: Context) : CommonActions(context) {
         }
 
         testTableBorders()
-        simplyPdfDocument.newPage()
         testTableAlignment()
+        simplyPdfDocument.insertEmptySpace(32)
 
         val rows = LinkedList<LinkedList<Cell>>()
         simplyPdfDocument.text.write("Table with text data", textProperties)
@@ -211,12 +211,6 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             add(TextCell("SimplyPdf", textProperties, halfWidth))
         })
 
-        rows.add(LinkedList<Cell>().apply {
-            add(TextCell("SimplePDF", textProperties, halfWidth))
-            add(TextCell("PDF made", textProperties, halfWidth/2))
-            add(TextCell("E A S Y", textProperties, halfWidth/2))
-        })
-
         simplyPdfDocument.run {
             properties.borderStyle = TableProperties.BORDER_INNER
             text.write("Table Inner Border:", textProperties)
@@ -252,6 +246,7 @@ class TestTableComposer(context: Context) : CommonActions(context) {
         val properties = TableProperties().apply {
             borderColor = "#000000"
             borderWidth = 1
+            align = TableProperties.ALIGN_LEFT
         }
         val textProperties = TextProperties().apply {
             textColor = "#000000"
@@ -259,7 +254,7 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             alignment = Layout.Alignment.ALIGN_NORMAL
         }
 
-        simplyPdfDocument.text.write("Testing table alignment", textProperties)
+        simplyPdfDocument.text.write("Testing table left alignment", textProperties)
 
         val rows = LinkedList<LinkedList<Cell>>()
 
@@ -270,6 +265,11 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             add(TextCell("Soumya Kanti Kar", textProperties, qrtWidth))
         })
 
+        simplyPdfDocument.table.draw(rows, properties)
+
+        simplyPdfDocument.text.write("Testing table center alignment with outer border", textProperties)
+        properties.align = TableProperties.ALIGN_CENTER
+        properties.borderStyle = TableProperties.BORDER_OUTER
         simplyPdfDocument.table.draw(rows, properties)
     }
 }

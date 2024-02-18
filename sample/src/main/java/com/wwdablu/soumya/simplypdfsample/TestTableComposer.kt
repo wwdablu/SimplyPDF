@@ -39,6 +39,9 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             alignment = Layout.Alignment.ALIGN_NORMAL
         }
 
+        testTableBorders()
+        testTableAlignment()
+
         val rows = LinkedList<LinkedList<Cell>>()
         simplyPdfDocument.text.write("Table with text data", textProperties)
 
@@ -179,5 +182,68 @@ class TestTableComposer(context: Context) : CommonActions(context) {
 
         simplyPdfDocument.table.draw(rows, properties)
         finishDoc()
+    }
+
+    private fun testTableBorders() {
+
+        val properties = TableProperties().apply {
+            borderColor = "#000000"
+            borderWidth = 1
+            borderStyle = TableProperties.BORDER_OUTER
+        }
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 16
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        val rows = LinkedList<LinkedList<Cell>>()
+
+        val halfWidth = simplyPdfDocument.usablePageWidth / 2
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Name", textProperties, halfWidth))
+            add(TextCell("Soumya Kanti Kar", textProperties, halfWidth))
+        })
+
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Developed", textProperties, halfWidth))
+            add(TextCell("SimplyPdf", textProperties, halfWidth))
+        })
+
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("SimplePDF", textProperties, halfWidth))
+            add(TextCell("PDF made", textProperties, halfWidth/2))
+            add(TextCell("E A S Y", textProperties, halfWidth/2))
+        })
+
+        simplyPdfDocument.table.draw(rows, properties)
+    }
+
+    private fun testTableAlignment() {
+
+        simplyPdfDocument.insertEmptySpace(16)
+
+        val properties = TableProperties().apply {
+            borderColor = "#000000"
+            borderWidth = 1
+        }
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 16
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        simplyPdfDocument.text.write("Testing table alignment", textProperties)
+
+        val rows = LinkedList<LinkedList<Cell>>()
+
+        val halfWidth = simplyPdfDocument.usablePageWidth / 2
+        val qrtWidth = halfWidth / 2
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Name", textProperties, qrtWidth))
+            add(TextCell("Soumya Kanti Kar", textProperties, qrtWidth))
+        })
+
+        simplyPdfDocument.table.draw(rows, properties)
     }
 }

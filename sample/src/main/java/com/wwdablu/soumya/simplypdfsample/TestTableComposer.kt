@@ -39,6 +39,10 @@ class TestTableComposer(context: Context) : CommonActions(context) {
             alignment = Layout.Alignment.ALIGN_NORMAL
         }
 
+        testTableBorders()
+        testTableAlignment()
+        simplyPdfDocument.insertEmptySpace(32)
+
         val rows = LinkedList<LinkedList<Cell>>()
         simplyPdfDocument.text.write("Table with text data", textProperties)
 
@@ -179,5 +183,93 @@ class TestTableComposer(context: Context) : CommonActions(context) {
 
         simplyPdfDocument.table.draw(rows, properties)
         finishDoc()
+    }
+
+    private fun testTableBorders() {
+
+        val properties = TableProperties().apply {
+            borderColor = "#000000"
+            borderWidth = 1
+            borderStyle = TableProperties.BORDER_INNER
+        }
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 16
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        val rows = LinkedList<LinkedList<Cell>>()
+
+        val halfWidth = simplyPdfDocument.usablePageWidth / 2
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Name", textProperties, halfWidth))
+            add(TextCell("Soumya Kanti Kar", textProperties, halfWidth))
+        })
+
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Developed", textProperties, halfWidth))
+            add(TextCell("SimplyPdf", textProperties, halfWidth))
+        })
+
+        simplyPdfDocument.run {
+            properties.borderStyle = TableProperties.BORDER_INNER
+            text.write("Table Inner Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_OUTER
+            text.write("Table Outer Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_HORIZONTAL
+            text.write("Table Horizontal Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_VERTICAL
+            text.write("Table Vertical Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+
+            properties.borderStyle = TableProperties.BORDER_ALL
+            text.write("Table All Border:", textProperties)
+            table.draw(rows, properties)
+            insertEmptySpace(16)
+        }
+    }
+
+    private fun testTableAlignment() {
+
+        simplyPdfDocument.insertEmptySpace(16)
+
+        val properties = TableProperties().apply {
+            borderColor = "#000000"
+            borderWidth = 1
+            align = TableProperties.ALIGN_LEFT
+        }
+        val textProperties = TextProperties().apply {
+            textColor = "#000000"
+            textSize = 16
+            alignment = Layout.Alignment.ALIGN_NORMAL
+        }
+
+        simplyPdfDocument.text.write("Testing table left alignment", textProperties)
+
+        val rows = LinkedList<LinkedList<Cell>>()
+
+        val halfWidth = simplyPdfDocument.usablePageWidth / 2
+        val qrtWidth = halfWidth / 2
+        rows.add(LinkedList<Cell>().apply {
+            add(TextCell("Name", textProperties, qrtWidth))
+            add(TextCell("Soumya Kanti Kar", textProperties, qrtWidth))
+        })
+
+        simplyPdfDocument.table.draw(rows, properties)
+
+        simplyPdfDocument.text.write("Testing table center alignment with outer border", textProperties)
+        properties.align = TableProperties.ALIGN_CENTER
+        properties.borderStyle = TableProperties.BORDER_OUTER
+        simplyPdfDocument.table.draw(rows, properties)
     }
 }

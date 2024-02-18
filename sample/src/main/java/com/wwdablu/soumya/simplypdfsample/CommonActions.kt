@@ -43,7 +43,7 @@ abstract class CommonActions(protected val context: Context) {
                     alignment = Layout.Alignment.ALIGN_CENTER
                     textColor = "#000000"
                 }, Cell.MATCH_PARENT))
-                add(TextCell("Version 2.0.0", TextProperties().apply {
+                add(TextCell("Version 2.1.0", TextProperties().apply {
                     textSize = 18
                     alignment = Layout.Alignment.ALIGN_CENTER
                     textColor = "#000000"

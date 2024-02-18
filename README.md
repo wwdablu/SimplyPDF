@@ -149,6 +149,8 @@ TableProperties are used to assign various properties that are associated with t
 | borderColor                    | The color of the border lines used to draw the table |
 | borderWidth                    | The width of the border lines used to draw the table |
 | drawBorder                     | Whether to draw the border or not |
+| borderStyle                    | Defines the process to draw border, like ALL, OUTER, INNER, HORIZONTAL and VERTICAL |
+| align                          | Align the entire table to the left or center |
 
 
 *__Sample__*:
